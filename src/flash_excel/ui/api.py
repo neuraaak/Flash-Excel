@@ -15,7 +15,6 @@ import contextlib
 import json
 import os
 import sys
-import tempfile
 import threading
 import time
 import traceback
@@ -31,27 +30,11 @@ from flash_excel.config import load_app_config, load_themes, save_app_config
 from flash_excel.core.models import Preset, PresetMeta, Step
 from flash_excel.io.loader import read_schema
 from flash_excel.io.models import FileLoaderResult
+from flash_excel.logs import log
 from flash_excel.paths import PRESETS_DIR
 from flash_excel.presets import delete_preset, list_presets, load_preset, save_preset
 
 _step_adapter: TypeAdapter[Step] = TypeAdapter(Step)
-
-
-_UPDATE_LOG = Path(tempfile.gettempdir()) / "flash-excel-update.log"
-
-
-def _update_log(msg: str) -> None:
-    """Append a timestamped line to the updater log (temp dir, always writable).
-
-    Windowed builds run with console=false, so exceptions on the update path
-    would otherwise be invisible. This gives a durable trace to inspect.
-    """
-    try:
-        line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n"
-        with _UPDATE_LOG.open("a", encoding="utf-8") as fh:
-            fh.write(line)
-    except Exception:  # noqa: BLE001, S110 - le log ne doit jamais casser l'app  # nosec B110
-        pass
 
 
 def _ok(data: Any = None) -> dict:
@@ -82,7 +65,7 @@ class FlashExcelAPI:
 
     def debug_log(self, msg: str) -> dict:
         """Relay a JS debug message to the Python console/log."""
-        print(f"[flash-excel/js] {msg}")
+        log("INFO", f"[js] {msg}")
         return _ok()
 
     # ------------------------------------------------------------------
@@ -100,8 +83,8 @@ class FlashExcelAPI:
         Auto-update only works from the packaged app (the tufup client files are
         bundled at build time), so in dev (non-frozen) this always reports no
         update. A failed check (offline, signature error, non-writable cache) is
-        logged with a full traceback to ``flash-excel-update.log`` in the temp
-        dir and surfaced via the ``error`` field, but never raises.
+        logged with a full traceback to the application log and surfaced via
+        the ``error`` field, but never raises.
         """
         if not getattr(sys, "frozen", False):
             return _ok({"available": False, "version": None, "error": None})
@@ -109,12 +92,12 @@ class FlashExcelAPI:
             import update  # ty: ignore[unresolved-import]  # module généré au build, embarqué à la racine du bundle
 
             latest = update.get_latest_version()
-            _update_log(f"check ok: current={__version__} latest={latest!r}")
+            log("INFO", f"update check ok: current={__version__} latest={latest!r}")
             return _ok(
                 {"available": latest is not None, "version": latest, "error": None}
             )
         except Exception as exc:  # noqa: BLE001 - un check échoué n'est pas fatal
-            _update_log(f"check FAILED: {exc!r}\n{traceback.format_exc()}")
+            log("ERROR", f"update check FAILED: {exc!r}\n{traceback.format_exc()}")
             return _ok({"available": False, "version": None, "error": str(exc)})
 
     def apply_update(self) -> dict:
@@ -148,14 +131,14 @@ class FlashExcelAPI:
             # effective ne revient jamais ici : tufup lève SystemExit après
             # avoir lancé son script d'installation.
             applied = update.check_and_apply(skip_confirmation=True)
-            _update_log(f"apply: no-op (applied={applied})")
+            log("INFO", f"update apply: no-op (applied={applied})")
             return _ok({"applied": bool(applied)})
         except SystemExit:
-            _update_log("apply: installer lancé (SystemExit) → force quit")
+            log("INFO", "update apply: installer lancé (SystemExit) → force quit")
             threading.Thread(target=_force_quit, daemon=True).start()
             return _ok({"applied": True})
         except Exception as exc:
-            _update_log(f"apply FAILED: {exc!r}\n{traceback.format_exc()}")
+            log("ERROR", f"update apply FAILED: {exc!r}\n{traceback.format_exc()}")
             return _err(str(exc))
 
     # ------------------------------------------------------------------
@@ -409,7 +392,7 @@ class FlashExcelAPI:
 
     def set_step_payload(self, action: str, payload: dict) -> dict:
         """Store an edited step payload in memory."""
-        print(f"[flash-excel] set_step_payload: action={action} payload={payload}")
+        log("DEBUG", f"set_step_payload: action={action} payload={payload}")
         if payload:
             self._step_payloads[action] = payload
         else:
@@ -482,7 +465,7 @@ class FlashExcelAPI:
         try:
             webview.windows[0].evaluate_js(js)
         except Exception as exc:
-            print(f"[flash-excel] _push failed: {exc}")
+            log("ERROR", f"_push failed: {exc}")
 
     def _run_worker(
         self,
