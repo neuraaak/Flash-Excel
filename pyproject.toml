@@ -124,7 +124,12 @@ icon = "bin/assets/images/logo.ico"
 # (src/flash_excel/assets/config), collectés par collect-data, et sont
 # matérialisés dans %APPDATA% au premier démarrage.
 # bin/presets exclu : données locales utilisateur, désormais dans Documents.
-include_files = { files = [], folders = ["bin/assets", "bin/tufup"] }
+# bin/tufup retiré : vestige. L'ancre de confiance TUF est root.json, généré
+# par UpdaterService à la racine du projet et embarqué à la racine du bundle
+# (update.py lit sys._MEIPASS/root.json) ; le cache métadonnées/targets vit
+# dans %LOCALAPPDATA% (settings.py CACHE_DIR). Rien ne lisait ce dossier, et
+# son absence faisait échouer PyInstaller.
+include_files = { files = [], folders = ["bin/assets"] }
 packages = []
 includes = []
 excludes = ["tkinter", "unittest", "xmlrpc", "pydoc", "doctest"]
