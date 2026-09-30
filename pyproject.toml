@@ -120,7 +120,11 @@ PyPI = "https://pypi.org/project/flash-excel/"
 main_file = "main.py"
 output_folder = "dist/Flash-Excel"
 icon = "bin/assets/images/logo.ico"
-include_files = { files = [], folders = ["bin/assets", "bin/config", "bin/tufup"] }  # bin/presets exclu (données locales utilisateur, gitignored)
+# bin/config retiré : les templates de config vivent dans le package
+# (src/flash_excel/assets/config), collectés par collect-data, et sont
+# matérialisés dans %APPDATA% au premier démarrage.
+# bin/presets exclu : données locales utilisateur, désormais dans Documents.
+include_files = { files = [], folders = ["bin/assets", "bin/tufup"] }
 packages = []
 includes = []
 excludes = ["tkinter", "unittest", "xmlrpc", "pydoc", "doctest"]
@@ -204,10 +208,11 @@ add_to_path = false          # app GUI : aucune commande à exposer au shell
 # l'instance en cours, sinon les .exe/.dll sont verrouillés.
 close_running_app = true
 
-# Nettoyage à la désinstallation : fichiers créés à l'exécution, donc inconnus
-# du [Files] et laissés derrière sinon. Chemins relatifs à {app} (une entrée
-# absolue ou contenant '..' est rejetée par ezcompiler).
-uninstall_delete = ["{app}\\bin\\config\\app.config.yaml"]
+# Rien à nettoyer dans {app} : depuis la 1.3.0 l'application n'y écrit plus.
+# Les réglages (%APPDATA%) et les presets (Documents) sont des données
+# utilisateur et survivent volontairement à la désinstallation ; ezcompiler
+# rejetterait de toute façon un chemin hors de {app}.
+uninstall_delete = []
 
 # UX de l'assistant.
 languages = ["french", "english"]

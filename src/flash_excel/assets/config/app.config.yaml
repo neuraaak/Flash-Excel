@@ -10,13 +10,13 @@
 appearance:
   # Palette de couleurs active.
   # Valeurs disponibles : blue-gray | github-dark | warm-dark
-  palette: blue-gray
+  palette: {palette}
 
   # Mode d'affichage.
   # Valeurs disponibles : dark | light
-  mode: dark
+  mode: {mode}
 
 # //////
 # Langue
 # Valeurs disponibles : en | fr
-locale: en
+locale: {locale}

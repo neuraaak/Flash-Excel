@@ -14,6 +14,7 @@ os.environ.setdefault("PYWEBVIEW_LOG", "WARNING")
 import webview  # type: ignore[import-untyped]  # noqa: E402
 
 from flash_excel.logs import log, setup_logging
+from flash_excel.migration import migrate_legacy_presets
 from flash_excel.paths import BIN_DIR
 from flash_excel.ui.api import FlashExcelAPI
 
@@ -26,6 +27,7 @@ def run() -> None:
     debug = "--debug" in sys.argv
     setup_logging(debug=debug)
     log("INFO", "starting")
+    migrate_legacy_presets()
     api = FlashExcelAPI()
 
     webview.create_window(
