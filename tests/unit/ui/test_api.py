@@ -33,10 +33,15 @@ def test_apply_update_not_frozen_returns_error(api):
     assert "packaged application" in result["error"]
 
 
-def test_debug_log_returns_ok(api, capsys):
+def test_debug_log_returns_ok(api, monkeypatch):
+    captured: list[tuple[str, str]] = []
+    monkeypatch.setattr(
+        "flash_excel.ui.api.log",
+        lambda level, message: captured.append((level, message)),
+    )
     result = api.debug_log("hello")
     assert result == {"ok": True, "data": None}
-    assert "hello" in capsys.readouterr().out
+    assert captured == [("INFO", "[js] hello")]
 
 
 def test_get_app_config_returns_defaults(api, monkeypatch, tmp_path):

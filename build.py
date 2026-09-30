@@ -1,5 +1,5 @@
 # ///////////////////////////////////////////////////////////////
-# BUILD - Compile + release flash-excel via ezcompiler (>= 3.4.0)
+# BUILD - Compile + release flash-excel via ezcompiler (>= 4.0.0)
 # ///////////////////////////////////////////////////////////////
 
 """Script de build et de release pour flash-excel.
@@ -19,6 +19,7 @@ Prérequis :
 Usage :
     uv run build.py                # pipeline complet + upload
     uv run build.py --no-upload    # build seul, sans push distant
+    uv run build.py --skip-build   # reprend dist/ tel quel (itération installeur)
 """
 
 from __future__ import annotations
@@ -91,6 +92,13 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Skip the Inno Setup installer stage.",
     )
+    parser.add_argument(
+        "--skip-build",
+        action="store_true",
+        help="Skip version generation and compilation, et reprend le build "
+        "existant dans output_folder (utile pour itérer sur l'installeur ou "
+        "la release sans recompiler). Échoue si aucun build n'est présent.",
+    )
     return parser.parse_args()
 
 
@@ -121,6 +129,7 @@ def main() -> int:
         console=config.console,
         skip_installer=args.skip_installer,
         skip_release=args.skip_release,
+        skip_build=args.skip_build,
     )
 
     # upload (étape explicite, séparée du pipeline) : arbre TUF -> R2.
