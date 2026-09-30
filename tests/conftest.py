@@ -1,10 +1,8 @@
 # ///////////////////////////////////////////////////////////////
 # CONFTEST - Pytest configuration and fixtures
-# Project: flash-excel
 # ///////////////////////////////////////////////////////////////
 
 """
-Pytest configuration and shared fixtures for flash-excel tests.
 
 This module provides common fixtures and pytest configuration used across
 all test suites for consistent test execution.
@@ -23,6 +21,33 @@ from pathlib import Path
 # Third-party imports
 import polars as pl
 import pytest
+
+# ///////////////////////////////////////////////////////////////
+# FIXTURES - ISOLATION
+# ///////////////////////////////////////////////////////////////
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _isolate_user_log() -> Generator[None]:
+    """Détourne le log de la suite hors du fichier réel de l'utilisateur.
+
+    ``flash_excel.logs.log`` initialise Ezpl à la volée sur le dossier de logs
+    de %LOCALAPPDATA% : sans ce garde-fou, la suite pollue le fichier de
+    diagnostic d'une installation réelle avec des chemins de tmp_path.
+
+    On revendique le singleton Ezpl avant tout import applicatif plutôt que de
+    remplacer ``logs.log`` : les modules font ``from flash_excel.logs import
+    log``, donc chacun garde sa propre référence et un patch sur le module
+    d'origine ne les atteindrait pas.
+    """
+    from ezplog import Ezpl
+
+    # ignore_cleanup_errors : loguru garde le sink ouvert jusqu'à la fin du
+    # process, et Windows refuse de supprimer un fichier encore ouvert.
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+        Ezpl(log_file=Path(tmp) / "tests.log", hook_logger=False)
+        yield
+
 
 # ///////////////////////////////////////////////////////////////
 # FIXTURES - TEMPORARY RESOURCES

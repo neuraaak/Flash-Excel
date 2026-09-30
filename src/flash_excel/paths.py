@@ -119,6 +119,9 @@ THEMES_CONFIG: Path = USER_CONFIG_DIR / "theme.config.yaml"
 # Empreinte du catalogue livré au moment de l'amorçage, pour détecter qu'une
 # nouvelle version en apporte un plus récent.
 THEMES_STAMP: Path = USER_CONFIG_DIR / ".theme.source"
+# Écrit par l'installeur Inno Setup ([INI]) avec la langue choisie dans
+# l'assistant. Lu une seule fois, à la création de la config utilisateur.
+INSTALLER_MARKER: Path = USER_CONFIG_DIR / "installer.ini"
 
 USER_DATA_DIR: Path = _get_local_dir()
 LOG_DIR: Path = USER_DATA_DIR / "logs"
@@ -138,6 +141,7 @@ __all__ = [
     "BIN_DIR",
     "BUNDLED_THEMES_CONFIG",
     "CONFIG_TEMPLATES_DIR",
+    "INSTALLER_MARKER",
     "LEGACY_APP_CONFIG",
     "LEGACY_PRESETS_DIR",
     "LOG_DIR",

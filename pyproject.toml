@@ -235,6 +235,19 @@ UninstallDisplayIcon = "{app}\\flash-excel.exe"
 # Aucun composant système touché : jamais de demande de redémarrage.
 RestartIfNeededByRun = "no"
 
+# Sections Inno sans champ typé dans ezcompiler. On passe par là pour que la
+# langue choisie dans l'assistant devienne la langue initiale de l'app : Inno
+# écrit {language} dans %APPDATA%\flash-excel\installer.ini, que l'app lit une
+# seule fois, à la création de sa config (ensuite le réglage utilisateur gagne).
+# Cible %APPDATA% et non {app} : c'est là que vit app.config.yaml, et le
+# dossier d'installation est remplacé à chaque auto-update.
+# [Dirs] est nécessaire, [INI] ne crée pas les dossiers manquants.
+[tool.ezcompiler.installer.extra_sections]
+Dirs = ['Name: "{userappdata}\flash-excel"']
+INI = [
+    'Filename: "{userappdata}\flash-excel\installer.ini"; Section: "Setup"; Key: "Language"; String: "{language}"',
+]
+
 # /////////////////////////////////////////////////////////////////////
 # 🎨 CODE FORMATTING & LINTING TOOLS
 # Auto-formatting, import sorting, and style checking

@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import configparser
 import contextlib
 import hashlib
 import shutil
@@ -16,6 +17,7 @@ from flash_excel.paths import (
     APP_CONFIG,
     APP_CONFIG_TEMPLATE,
     BUNDLED_THEMES_CONFIG,
+    INSTALLER_MARKER,
     THEMES_CONFIG,
     THEMES_STAMP,
 )
@@ -26,6 +28,14 @@ _DEFAULTS: dict = {
         "mode": "dark",
     },
     "locale": "en",
+}
+
+# Langues proposées par l'assistant Inno Setup ([tool.ezcompiler.installer]
+# languages) vers les locales de l'application. Toute autre valeur retombe sur
+# le défaut : l'assistant peut gagner une langue avant que l'UI ne la traduise.
+_INNO_LOCALES: dict[str, str] = {
+    "french": "fr",
+    "english": "en",
 }
 
 # Repli minimal si le template du package est introuvable (bundle incomplet) :
@@ -43,6 +53,62 @@ def _template() -> str:
     except OSError:
         log("WARNING", f"template introuvable: {APP_CONFIG_TEMPLATE}, repli minimal")
         return _FALLBACK_TEMPLATE
+
+
+def _installer_locale() -> str | None:
+    """Retourne la locale déduite de la langue choisie dans l'installeur.
+
+    Returns:
+        str | None: Locale applicative, ou None si le marqueur est illisible
+            ou porte une langue que l'application ne connaît pas.
+    """
+    try:
+        parser = configparser.ConfigParser()
+        parser.read(INSTALLER_MARKER, encoding="utf-8-sig")
+        language = parser.get("Setup", "Language", fallback="").strip().lower()
+    except (OSError, configparser.Error):
+        log("WARNING", f"marqueur d'installeur illisible: {INSTALLER_MARKER}")
+        return None
+
+    locale = _INNO_LOCALES.get(language)
+    if locale is None and language:
+        log("WARNING", f"langue d'installeur inconnue: {language!r}")
+    return locale
+
+
+def consume_installer_locale() -> str | None:
+    """Applique la langue choisie dans l'installeur, puis efface le marqueur.
+
+    L'installeur Inno Setup écrit ``installer.ini`` dans %APPDATA% à chaque
+    installation. C'est un message à usage unique, pas un état : on l'applique
+    — en créant la config au besoin, sinon en ne touchant qu'à sa locale — puis
+    on le supprime. Ainsi une réinstallation impose bien la langue demandée
+    dans l'assistant, et les changements faits ensuite dans l'application
+    tiennent, puisqu'il n'y a plus de marqueur pour les écraser.
+
+    Le marqueur est supprimé même quand il est inexploitable : le garder
+    ferait rejouer le même échec à chaque démarrage.
+
+    Returns:
+        str | None: Locale appliquée, ou None si rien n'a été fait.
+    """
+    if not INSTALLER_MARKER.is_file():
+        return None
+
+    locale = _installer_locale()
+    if locale is not None:
+        current = load_app_config()
+        if current["locale"] != locale:
+            save_app_config(
+                current["appearance"]["palette"],
+                current["appearance"]["mode"],
+                locale,
+            )
+            log("INFO", f"locale reprise de l'installeur: {locale}")
+
+    with contextlib.suppress(OSError):
+        INSTALLER_MARKER.unlink()
+    return locale
 
 
 def _resolve_palette(name: str) -> str:
