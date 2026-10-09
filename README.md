@@ -28,7 +28,7 @@ uv run python main.py
 2. Choose an existing preset, or create a new one and add steps (rename, filter, cast types, add computed columns, …).
 3. Run the preset — the transformed file is written next to the source (or to a folder you configure).
 
-Presets are plain TOML files under `bin/presets/`, so they can also be authored or version-controlled by hand.
+Presets are plain TOML files under `Documents\flash-excel\presets\`, so they can also be authored or version-controlled by hand.
 
 ## 🎯 Key Features
 

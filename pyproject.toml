@@ -24,8 +24,6 @@ maintainers = [{ name = "Neuraaak" }]
 keywords = []
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
@@ -95,10 +93,9 @@ test = [
 
 [project.urls]
 Homepage = "https://github.com/neuraaak/flash-excel"
-Documentation = "https://neuraaak.github.io/flash-excel/"
 Repository = "https://github.com/neuraaak/flash-excel"
 Issues = "https://github.com/neuraaak/flash-excel/issues"
-PyPI = "https://pypi.org/project/flash-excel/"
+Releases = "https://github.com/neuraaak/flash-excel/releases"
 
 # /////////////////////////////////////////////////////////////////////
 # 🖥️ SCRIPTS
