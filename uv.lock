@@ -508,7 +508,7 @@ wheels = [
 [[package]]
 name = "ezcompiler"
 version = "4.1.0"
-source = { git = "https://github.com/neuraaak/ezcompiler.git?rev=feat%2Fpublish-cli#5e0859b60c6940b4a52eccee79b1f41f0424698d" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "click" },
     { name = "ezplog" },
@@ -518,6 +518,10 @@ dependencies = [
     { name = "pyyaml" },
     { name = "requests" },
     { name = "tomli-w" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/66/12/e112853a5b96be87380b3e426c4051b34a05f3062db8b37d182dcf2af437/ezcompiler-4.1.0.tar.gz", hash = "sha256:11ab9098a0e15a80ab9a8bd9cd0d72e22a509e768e436790c5cfcf52a0bccc32", size = 274008, upload-time = "2026-10-09T20:34:09.932Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/9b/b4/50eb7b5543646a6c9110f05f96c2c27f612e6a12573139211a30c58f8220/ezcompiler-4.1.0-py3-none-any.whl", hash = "sha256:5234172212608a75408c04ca00c121f4680939132dfaa7e1bde831123344669d", size = 185725, upload-time = "2026-10-09T20:34:08.414Z" },
 ]
 
 [package.optional-dependencies]
@@ -632,7 +636,7 @@ requires-dist = [
 dev = [
     { name = "bandit", specifier = ">=1.7.0" },
     { name = "build", specifier = ">=1.0.0" },
-    { name = "ezcompiler", extras = ["pyinstaller", "tufup", "r2"], git = "https://github.com/neuraaak/ezcompiler.git?rev=feat%2Fpublish-cli" },
+    { name = "ezcompiler", extras = ["pyinstaller", "tufup", "r2"], specifier = ">=4.1.0,<5.0.0" },
     { name = "grimp", specifier = ">=2.3.0" },
     { name = "import-linter", specifier = ">=2.0.0" },
     { name = "pre-commit", specifier = ">=3.0.0" },
