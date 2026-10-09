@@ -14,8 +14,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "flash-excel"
-version = "1.3.0"
-description = "Utilitaire desktop pour transformer des fichiers Excel/CSV via des presets déclaratifs."
+version = "1.3.1"
+description = "Desktop utility that transforms Excel/CSV files through declarative presets."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.13"
@@ -24,8 +24,6 @@ maintainers = [{ name = "Neuraaak" }]
 keywords = []
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
@@ -52,40 +50,41 @@ dependencies = [
 ]
 
 # /////////////////////////////////////////////////////////////////////
-# 🛠️ OPTIONAL DEPENDENCIES
-# Development tools, testing, and build dependencies
+# 🧰 DEPENDENCY GROUPS (PEP 735)
+# Development tooling only. These are groups rather than
+# [project.optional-dependencies] because none of them is a product extra:
+# flash-excel ships as an installer, so nothing here belongs in the wheel
+# metadata and `pip install flash-excel[dev]` is not a valid command.
+# Install with `uv sync` (the dev group is synced by default) or
+# `uv sync --group test` for the test tooling alone.
 # /////////////////////////////////////////////////////////////////////
 
-[project.optional-dependencies]
-dev = [
-    # Development tools
-    "ruff>=0.1.0",
-    "ty>=0.0.13",
-    "pyright>=1.1.0",
-    "pre-commit>=3.0.0",
-    "import-linter>=2.0.0",
-    "grimp>=2.3.0",
-
-    # Security
-    "bandit>=1.7.0",
-
-    # Tests
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-mock>=3.10.0",
-    "pytest-xdist>=3.0.0",
-
-    # Build and distribution
-    "build>=1.0.0",
-    "twine>=4.0.0",
-    "ezcompiler[pyinstaller,tufup,r2]>=4.0.0,<5.0.0",
-]
+[dependency-groups]
 test = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
     "pytest-xdist>=3.0.0",
     "import-linter>=2.0.0",
+    "grimp>=2.3.0",
+]
+dev = [
+    # Tests (single source of truth, no duplication)
+    { include-group = "test" },
+
+    # Development tools
+    "ruff>=0.1.0",
+    "ty>=0.0.13",
+    "pyright>=1.1.0",
+    "pre-commit>=3.0.0",
+
+    # Security
+    "bandit>=1.7.0",
+
+    # Build and distribution
+    "build>=1.0.0",
+    "twine>=4.0.0",
+    "ezcompiler[pyinstaller,tufup,r2]>=4.1.0,<5.0.0",
 ]
 
 # /////////////////////////////////////////////////////////////////////
@@ -95,10 +94,9 @@ test = [
 
 [project.urls]
 Homepage = "https://github.com/neuraaak/flash-excel"
-Documentation = "https://neuraaak.github.io/flash-excel/"
 Repository = "https://github.com/neuraaak/flash-excel"
 Issues = "https://github.com/neuraaak/flash-excel/issues"
-PyPI = "https://pypi.org/project/flash-excel/"
+Releases = "https://github.com/neuraaak/flash-excel/releases"
 
 # /////////////////////////////////////////////////////////////////////
 # 🖥️ SCRIPTS
@@ -113,22 +111,22 @@ PyPI = "https://pypi.org/project/flash-excel/"
 # ezcompiler settings for building and distributing the application
 # /////////////////////////////////////////////////////////////////////
 
-# Schéma ezcompiler ≥ 4.0.0 : sections imbriquées (compilation / advanced /
-# upload / release / installer + section par compilateur).
-# [project] fournit automatiquement project_name, version, description, author.
+# ezcompiler schema >= 4.0.0: nested sections (compilation / advanced /
+# upload / release / installer + one section per compiler).
+# [project] supplies project_name, version, description and author automatically.
 [tool.ezcompiler]
 main_file = "main.py"
 output_folder = "dist/Flash-Excel"
 icon = "bin/assets/images/logo.ico"
-# bin/config retiré : les templates de config vivent dans le package
-# (src/flash_excel/assets/config), collectés par collect-data, et sont
-# matérialisés dans %APPDATA% au premier démarrage.
-# bin/presets exclu : données locales utilisateur, désormais dans Documents.
-# bin/tufup retiré : vestige. L'ancre de confiance TUF est root.json, généré
-# par UpdaterService à la racine du projet et embarqué à la racine du bundle
-# (update.py lit sys._MEIPASS/root.json) ; le cache métadonnées/targets vit
-# dans %LOCALAPPDATA% (settings.py CACHE_DIR). Rien ne lisait ce dossier, et
-# son absence faisait échouer PyInstaller.
+# bin/config dropped: the config templates live in the package
+# (src/flash_excel/assets/config), are picked up by collect-data, and are
+# materialised into %APPDATA% on first start.
+# bin/presets excluded: machine-local user data, now under Documents.
+# bin/tufup dropped: a leftover. The TUF trust anchor is root.json, generated
+# by UpdaterService at the project root and bundled at the archive root
+# (update.py reads sys._MEIPASS/root.json); the metadata/targets cache lives
+# in %LOCALAPPDATA% (settings.py CACHE_DIR). Nothing read that folder, and its
+# absence made PyInstaller fail.
 include_files = { files = [], folders = ["bin/assets"] }
 packages = []
 includes = []
@@ -141,60 +139,59 @@ debug = false
 console = false
 compiler = "PyInstaller"
 
-# Options spécifiques PyInstaller (remplacent l'ancien [compiler_options]).
-# optimize/strip vivent désormais ici ; les autres clés sont passées telles
-# quelles à l'adaptateur PyInstaller.
+# PyInstaller-specific options (replacing the old [compiler_options]).
+# optimize/strip now live here; the other keys are passed through to the
+# PyInstaller adapter as-is.
 [tool.ezcompiler.pyinstaller]
 optimize = true
 strip = false
-onefile = false                   # Mode dossier (onedir) — pas de .exe unique
-contents-directory = "."          # Désactive _internal: tout à plat dans dist/
-collect-all = ["webview", "fastexcel"]  # Collecte tous les assets/hooks de pywebview + le backend Rust fastexcel
-collect-data = "flash_excel"      # Collecte les données du package (web/, assets...)
-exclude-module = "webview.platforms.android"  # Pas de module Android sous Windows
+onefile = false                   # Folder mode (onedir) - no single .exe
+contents-directory = "."          # Disables _internal: everything flat in dist/
+collect-all = ["webview", "fastexcel"]  # Collects every pywebview asset/hook + the fastexcel Rust backend
+collect-data = "flash_excel"      # Collects the package data (web/, assets...)
+exclude-module = "webview.platforms.android"  # No Android module on Windows
 
-# Canal d'update TUF poussé sur Cloudflare R2.
-#   repo_endpoint   = "<bucket>/<préfixe>" (objets sous repository/flash-excel/)
-#   repo_public_url = base publique servie par le domaine custom (lecture non
-#                     authentifiée par le client tufup) — DOIT inclure le préfixe.
-# Credentials d'upload via variables d'env (R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/
-# R2_SECRET_ACCESS_KEY), jamais dans ce fichier.
-# release_destination = disk : le zip installeur n'est pas poussé sur R2.
+# TUF update channel pushed to Cloudflare R2.
+#   repo_endpoint   = "<bucket>/<prefix>" (objects under repository/flash-excel/)
+#   repo_public_url = public base served by the custom domain (read
+#                     unauthenticated by the tufup client) - MUST include the prefix.
+# Upload credentials come from env vars (R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/
+# R2_SECRET_ACCESS_KEY), never from this file.
+# release_destination = disk: the installer zip is not pushed to R2.
 [tool.ezcompiler.upload]
 repo_destination = "r2"
 repo_endpoint = "repository/flash-excel"
 repo_public_url = "https://repository.neuraaak.fr/flash-excel"
 release_destination = "disk"
 
-# Release sécurisée TUF (tufup). Réutilise les clés de signature EXISTANTES —
-# ne jamais régénérer .tufup/keys sous peine de casser l'auto-update des
-# clients déjà installés.
+# Signed TUF release (tufup). Reuses the EXISTING signing keys - never
+# regenerate .tufup/keys, or the auto-update of every installed client breaks.
 [tool.ezcompiler.release]
 tuf_enabled = true
 tuf_repo_dir = ".tufup/repo"
 tuf_keys_dir = ".tufup/keys"
-# Durées de vie (jours) des métadonnées TUF par rôle. Défauts tufup trop courts
-# pour une app publiée irrégulièrement (root=365, targets=7, snapshot=7,
-# timestamp=1) : les clients ne pourraient plus valider le repo entre deux
-# releases → auto-update cassé. Portés à 365 j pour les 4 rôles ; keep-alive
-# possible entre releases via `ezcompiler release refresh`.
+# Lifetime (days) of the TUF metadata per role. The tufup defaults are too
+# short for an irregularly published app (root=365, targets=7, snapshot=7,
+# timestamp=1): clients could no longer validate the repo between two
+# releases -> auto-update broken. Raised to 365 days for all four roles;
+# a keep-alive between releases is possible via `ezcompiler tuf refresh`.
 tuf_expiration_days = { root = 365, targets = 365, snapshot = 365, timestamp = 365 }
 
 # Installer Inno Setup. per_user = true → installation PAR-UTILISATEUR
 # (%LOCALAPPDATA%\Programs, PrivilegesRequired=lowest) au lieu de Program Files :
-# indispensable pour que l'auto-update tufup s'applique en place sans élévation
-# admin. Sortie : dist/installer/<app>-<version>-setup.exe.
-# Schéma ezcompiler ≥ 4.0.0 : clés sans le préfixe `installer_` (les anciennes
-# sont rejetées à la lecture de la config).
+# required for the tufup auto-update to apply in place without an admin
+# elevation. Output: dist/installer/<app>-<version>-setup.exe.
+# ezcompiler schema >= 4.0.0: keys without the `installer_` prefix (the old
+# ones are rejected when the config is read).
 [tool.ezcompiler.installer]
 enabled = true
 output_dir = "dist/installer"
 
-# Identité stable de l'application dans Windows (Programmes et fonctionnalités).
-# GUID figé explicitement plutôt que laissé au calcul UUIDv5 d'ezcompiler : ce
-# dernier dérive de company_name + project_name, donc un renommage d'auteur ou
-# de projet créerait une seconde entrée au lieu d'un upgrade. Ne JAMAIS changer
-# cette valeur.
+# Stable identity of the application in Windows (Programs and Features).
+# The GUID is pinned explicitly rather than left to ezcompiler's UUIDv5
+# computation: that one derives from company_name + project_name, so renaming
+# the author or the project would create a second entry instead of an upgrade.
+# NEVER change this value.
 app_id = "{F3A2C1B4-8E5D-4F9A-B2C7-1D3E6F8A0C5B}"
 publisher_url = "https://github.com/neuraaak/flash-excel"
 support_url = "https://github.com/neuraaak/flash-excel/issues"
@@ -204,19 +201,19 @@ architecture = "x64"
 # Install PAR-UTILISATEUR (%LOCALAPPDATA%\Programs, PrivilegesRequired=lowest).
 per_user = true
 
-# Raccourcis et post-install (valeurs par défaut, explicitées pour mémoire).
-desktop_icon = true          # tâche "desktopicon", décochée par défaut
+# Shortcuts and post-install (default values, spelled out for the record).
+desktop_icon = true          # "desktopicon" task, unchecked by default
 launch_after_install = true  # case "Lancer flash-excel" en fin d'assistant
-add_to_path = false          # app GUI : aucune commande à exposer au shell
+add_to_path = false          # GUI app: no command to expose to the shell
 
-# L'app est lancée depuis son dossier d'install : un upgrade doit fermer
-# l'instance en cours, sinon les .exe/.dll sont verrouillés.
+# The app runs from its install folder: an upgrade must close the running
+# instance, otherwise the .exe/.dll files stay locked.
 close_running_app = true
 
-# Rien à nettoyer dans {app} : depuis la 1.3.0 l'application n'y écrit plus.
-# Les réglages (%APPDATA%) et les presets (Documents) sont des données
-# utilisateur et survivent volontairement à la désinstallation ; ezcompiler
-# rejetterait de toute façon un chemin hors de {app}.
+# Nothing to clean in {app}: since 1.3.0 the application no longer writes
+# there. The settings (%APPDATA%) and presets (Documents) are user data and
+# deliberately survive an uninstall; ezcompiler would reject a path outside
+# {app} anyway.
 uninstall_delete = []
 
 # UX de l'assistant.
@@ -225,23 +222,23 @@ license_file = "LICENSE"
 wizard_style = "modern"
 compression = "lzma2/ultra64"
 
-# Directives Inno sans champ typé dans ezcompiler (échappatoire brute ; une clé
-# qui collisionne avec un champ typé est rejetée à la lecture de la config).
+# Inno directives with no typed field in ezcompiler (a raw escape hatch; a key
+# colliding with a typed field is rejected when the config is read).
 [tool.ezcompiler.installer.extra_setup_directives]
 # Laisse l'utilisateur basculer en install machine-wide depuis l'assistant.
 PrivilegesRequiredOverridesAllowed = "dialog"
-# Icône affichée dans "Programmes et fonctionnalités".
+# Icon shown in "Programs and Features".
 UninstallDisplayIcon = "{app}\\flash-excel.exe"
-# Aucun composant système touché : jamais de demande de redémarrage.
+# No system component is touched: never ask for a reboot.
 RestartIfNeededByRun = "no"
 
-# Sections Inno sans champ typé dans ezcompiler. On passe par là pour que la
-# langue choisie dans l'assistant devienne la langue initiale de l'app : Inno
-# écrit {language} dans %APPDATA%\flash-excel\installer.ini, que l'app lit une
-# seule fois, à la création de sa config (ensuite le réglage utilisateur gagne).
-# Cible %APPDATA% et non {app} : c'est là que vit app.config.yaml, et le
-# dossier d'installation est remplacé à chaque auto-update.
-# [Dirs] est nécessaire, [INI] ne crée pas les dossiers manquants.
+# Inno sections with no typed field in ezcompiler. This is how the language
+# picked in the wizard becomes the app's initial language: Inno writes
+# {language} into %APPDATA%\flash-excel\installer.ini, which the app reads
+# exactly once, when creating its config (the user setting wins afterwards).
+# It targets %APPDATA% and not {app}: that is where app.config.yaml lives, and
+# the install folder is replaced on every auto-update.
+# [Dirs] is required, [INI] does not create missing folders.
 [tool.ezcompiler.installer.extra_sections]
 Dirs = ['Name: "{userappdata}\flash-excel"']
 INI = [
@@ -381,14 +378,25 @@ reportInconsistentConstructor = true
 
 [tool.importlinter]
 root_packages = ["flash_excel"]
-# Note: import-linter 2.x ne supporte pas source_paths (feature pending PR #323).
-# Le package doit être installé en mode editable (pip install -e .)
-# ou lancer avec PYTHONPATH=src lint-imports
+# Note: import-linter 2.x does not support source_paths (feature pending PR #323).
+# The package must be installed in editable mode (pip install -e .)
+# or run as PYTHONPATH=src lint-imports
 
+# Real layers, from the top (depends) down to the bottom (depended upon). An
+# empty contract always passed: it declared an architecture without ever
+# checking it. `a : b` = independent siblings (neither may import the other).
 [[tool.importlinter.contracts]]
 name = "layer dependency flow"
 type = "layers"
-layers = []
+layers = [
+    "flash_excel.ui",
+    "flash_excel.presets : flash_excel.io",
+    "flash_excel.core",
+    "flash_excel.migration",
+    "flash_excel.config",
+    "flash_excel.logs",
+    "flash_excel.paths",
+]
 
 # ///////////////////////////////////////////////////////////////
 # 🧪 TESTING & COVERAGE TOOLS

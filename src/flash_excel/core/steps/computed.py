@@ -338,12 +338,12 @@ def add_computed_column(
     try:
         parsed = ast.parse(expression, mode="eval")
     except SyntaxError as exc:
-        raise ValueError(f"Syntaxe invalide : {exc}") from exc
+        raise ValueError(f"Invalid syntax: {exc}") from exc
 
     try:
         _SafeVisitor(allowed_names).visit(parsed)
     except Exception as exc:
-        raise ValueError(f"Expression non autorisée : {exc}") from exc
+        raise ValueError(f"Expression not allowed: {exc}") from exc
 
     try:
         code_obj = compile(parsed, "<computed>", "eval")
@@ -352,11 +352,11 @@ def add_computed_column(
         # are stripped, and the namespace contains only Polars wrappers + column refs.
         expr = eval(code_obj, {"__builtins__": {}}, namespace)  # noqa: S307  # nosec B307
     except Exception as exc:
-        raise ValueError(f"Erreur d'évaluation : {exc}") from exc
+        raise ValueError(f"Evaluation error: {exc}") from exc
 
     if not isinstance(expr, pl.Expr):
         raise TypeError(
-            f"L'expression doit retourner une Expr Polars, obtenu : {type(expr).__name__}"
+            f"The expression must return a Polars Expr, got: {type(expr).__name__}"
         )
 
     return df.with_columns(expr.alias(target))

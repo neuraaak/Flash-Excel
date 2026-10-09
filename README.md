@@ -28,7 +28,7 @@ uv run python main.py
 2. Choose an existing preset, or create a new one and add steps (rename, filter, cast types, add computed columns, …).
 3. Run the preset — the transformed file is written next to the source (or to a folder you configure).
 
-Presets are plain TOML files under `bin/presets/`, so they can also be authored or version-controlled by hand.
+Presets are plain TOML files under `Documents\flash-excel\presets\`, so they can also be authored or version-controlled by hand.
 
 ## 🎯 Key Features
 
@@ -62,6 +62,55 @@ uv run pre-commit install
 ```
 
 Source code uses a `src/` layout (`src/flash_excel`).
+
+## 🚢 Build & Release
+
+Building and releasing is **maintainer-only and local — not CI**. A fresh clone
+builds and tests the app fine, but it cannot publish: the TUF signing keys and
+the Cloudflare R2 credentials are deliberately kept out of the repository.
+
+`build.py` builds, and only builds — nothing it does leaves the machine:
+
+```bash
+uv run build.py                 # version → compile → zip → installer → signed TUF release
+uv run build.py --skip-release  # rebuild an already published version
+uv run build.py --skip-installer  # no Inno Setup stage
+uv run build.py --skip-build    # reuse dist/ as-is, to iterate on the installer
+```
+
+Publishing is a separate, explicit step, run once the build has been checked.
+Two helpers wrap it, so the project root and the credentials in the gitignored
+`.env` do not have to be handled by hand -- copy [example.env](example.env) to
+`.env` and fill it in:
+
+```bat
+.scripts\build\publish-update.cmd     :: public TUF tree -> R2
+.scripts\build\publish-release.cmd    :: installer + zip -> GitHub Release
+```
+
+Both forward any extra flag to the command they wrap (`--yes`, `--draft`,
+`--notes-file`, …) and both ask for confirmation first, the publication being
+irreversible on the remote side. `publish-update` transfers only the
+**public** part of the signed TUF tree (`metadata/`, `targets/`,
+`withdrawn.json`); the private keystore in `.tufup/keys` never leaves.
+
+The underlying [ezcompiler](https://github.com/neuraaak/ezcompiler) commands,
+when a stage has to be run by hand:
+
+| Command                        | What it does                                                 |
+| ------------------------------ | ------------------------------------------------------------ |
+| `ezcompiler tuf init`          | Create the signing keys and the repository skeleton (once)   |
+| `ezcompiler tuf status`        | Show the state of the local TUF tree (read-only)             |
+| `ezcompiler tuf refresh`       | Re-sign the metadata to push the expiry back, no new release |
+| `ezcompiler tuf remove-latest` | Withdraw the latest version from the local tree              |
+| `ezcompiler publish update`    | Publish the TUF tree to the update backend                   |
+| `ezcompiler publish release`   | Publish the installer and the zip as a release               |
+
+> ⚠️ **Never regenerate the signing keys.** New keys invalidate the trust
+> anchor shipped with every installed client and break its auto-update
+> permanently. A version already published must be withdrawn
+> (`tuf remove-latest`) before it can be replaced — the tree refuses to
+> re-release a withdrawn version under the same number.
 
 ## 📦 Dependencies
 

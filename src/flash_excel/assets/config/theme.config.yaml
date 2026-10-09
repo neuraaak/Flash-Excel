@@ -1,7 +1,7 @@
 # ///////////////////////////////////////////////////////////////
-# PALETTE  —  blocs `light` revisités (dark inchangés)
-# Corrections : surface_sunken trop sombre (gap brutal vs cartes),
-# surface_floating == raised (survols invisibles), texte adouci.
+# PALETTE  -  `light` blocks revisited (dark ones unchanged)
+# Fixes: surface_sunken too dark (harsh gap against the cards),
+# surface_floating == raised (invisible hovers), softened text.
 # ///////////////////////////////////////////////////////////////
 palette:
   # //////
@@ -9,63 +9,63 @@ palette:
   blue-gray:
     # //////
     dark:
-      # — Surfaces (du plus sombre au plus clair)
-      surface_sunken: rgb(22, 26, 32) # fond de page / body wrapper
-      surface_base: rgb(27, 31, 39) # surface neutre de référence
-      surface_raised: rgb(33, 37, 46) # cards, panels principaux
-      surface_overlay: rgb(44, 51, 64) # hover, items sélectionnés
-      surface_floating: rgb(52, 59, 74) # dropdowns, tooltips (distingués par shadow)
+      # - Surfaces (darkest to lightest)
+      surface_sunken: rgb(22, 26, 32) # page background / body wrapper
+      surface_base: rgb(27, 31, 39) # neutral reference surface
+      surface_raised: rgb(33, 37, 46) # cards, main panels
+      surface_overlay: rgb(44, 51, 64) # hover, selected items
+      surface_floating: rgb(52, 59, 74) # dropdowns, tooltips (told apart by their shadow)
 
-      # — Bordures
-      border_subtle: rgb(54, 61, 76) # séparateur standard
+      # - Borders
+      border_subtle: rgb(54, 61, 76) # standard separator
 
-      # — Accent
-      accent_brand: "#96CD32" # fond de bouton/badge uniquement
-      accent_soft: rgba(150, 205, 50, 0.16) # fond teinté : sélection, pastille d'étape
-      accent_line: rgba(150, 205, 50, 0.50) # bordure fine teintée
+      # - Accent
+      accent_brand: "#96CD32" # button/badge background only
+      accent_soft: rgba(150, 205, 50, 0.16) # tinted background: selection, step badge
+      accent_line: rgba(150, 205, 50, 0.50) # thin tinted border
 
-      # — Texte
-      text_primary: rgb(218, 220, 228) # texte principal sur surface_raised (contraste ≈7.5:1 ✓ WCAG AAA)
-      text_secondary: rgb(122, 134, 158) # texte secondaire sur surface_raised (contraste ≈5.8:1 ✓ WCAG AA)
-      text_on_accent: rgb(255, 255, 255) # texte sélectionné
+      # - Text
+      text_primary: rgb(218, 220, 228) # primary text on surface_raised (contrast ~7.5:1, WCAG AAA)
+      text_secondary: rgb(122, 134, 158) # secondary text on surface_raised (contrast ~5.8:1, WCAG AA)
+      text_on_accent: rgb(255, 255, 255) # selected text
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
       overlay_scrim: rgba(33, 37, 46, 0.88)
 
-      # — Sémantiques
+      # - Semantics
       semantic_success: "#4ade80"
       semantic_warning: "#fbbf24"
       semantic_error: "#f87171"
       semantic_info: "#60a5fa"
     # //////
-    light: # ⟵ REVISITÉ
-      # — Surfaces (échelle douce : page → base → carte ; overlay/floating = états)
-      surface_sunken: rgb(234, 238, 244) # fond de page — gris bleuté doux (était 228,232,240)
-      surface_base: rgb(243, 246, 250) # surface neutre de référence
-      surface_raised: rgb(255, 255, 255) # cards, panels principaux
-      surface_overlay: rgb(226, 231, 240) # hover / items sélectionnés — visible sur blanc
-      surface_floating: rgb(217, 223, 233) # dropdowns, hover marqué (≠ raised désormais)
+    light: # <- REVISITED
+      # - Surfaces (gentle scale: page -> base -> card; overlay/floating = states)
+      surface_sunken: rgb(234, 238, 244) # page background - soft blue-grey (was 228,232,240)
+      surface_base: rgb(243, 246, 250) # neutral reference surface
+      surface_raised: rgb(255, 255, 255) # cards, main panels
+      surface_overlay: rgb(226, 231, 240) # hover / selected items - visible on white
+      surface_floating: rgb(217, 223, 233) # dropdowns, strong hover (now different from raised)
 
-      # — Bordures
-      border_subtle: rgb(214, 220, 230) # séparateur standard
+      # - Borders
+      border_subtle: rgb(214, 220, 230) # standard separator
 
-      # — Accent
+      # - Accent
       accent_brand: "#96CD32"
-      accent_soft: rgba(150, 205, 50, 0.20) # un peu plus dense sur fond clair
+      accent_soft: rgba(150, 205, 50, 0.20) # slightly denser on a light background
       accent_line: rgba(120, 165, 40, 0.55)
 
-      # — Texte (adouci : plus de noir pur)
-      text_primary: rgb(40, 46, 58) # ≈10:1 sur surface_raised ✓ WCAG AAA
-      text_secondary: rgb(98, 108, 126) # ≈4.9:1 sur surface_raised ✓ WCAG AA
+      # - Text (softened: no more pure black)
+      text_primary: rgb(40, 46, 58) # ~10:1 on surface_raised, WCAG AAA
+      text_secondary: rgb(98, 108, 126) # ~4.9:1 on surface_raised, WCAG AA
 
-      text_on_accent: rgb(28, 32, 40) # texte sombre sur fond lime
+      text_on_accent: rgb(28, 32, 40) # dark text on a lime background
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
       overlay_scrim: rgba(28, 32, 40, 0.40)
 
-      # — Sémantiques (assombries pour contraster sur fond clair)
+      # - Semantics (darkened to contrast on a light background)
       semantic_success: "#16a34a"
       semantic_warning: "#d97706"
       semantic_error: "#dc2626"
@@ -76,128 +76,128 @@ palette:
   github-dark:
     # //////
     dark:
-      # — Surfaces (du plus sombre au plus clair)
-      surface_sunken: rgb(1, 4, 9) # #010409 — fond de page
-      surface_base: rgb(13, 17, 23) # #0d1117 — surface neutre de référence
-      surface_raised: rgb(22, 27, 34) # #161b22 — cards, panels principaux
-      surface_overlay: rgb(33, 38, 45) # #21262d — hover, items sélectionnés
+      # - Surfaces (darkest to lightest)
+      surface_sunken: rgb(1, 4, 9) # #010409 — page background
+      surface_base: rgb(13, 17, 23) # #0d1117 — neutral reference surface
+      surface_raised: rgb(22, 27, 34) # #161b22 — cards, main panels
+      surface_overlay: rgb(33, 38, 45) # #21262d — hover, selected items
       surface_floating: rgb(48, 54, 61) # #30363d — dropdowns, tooltips
 
-      # — Bordures
-      border_subtle: rgb(48, 54, 61) # #30363d — séparateur standard
+      # - Borders
+      border_subtle: rgb(48, 54, 61) # #30363d — standard separator
 
-      # — Accent
-      accent_brand: "#58a6ff" # bleu GitHub — CTA, état actif
+      # - Accent
+      accent_brand: "#58a6ff" # GitHub blue - CTA, active state
       accent_soft: rgba(88, 166, 255, 0.16)
       accent_line: rgba(88, 166, 255, 0.50)
 
-      # — Texte
-      text_primary: rgb(230, 237, 243) # #e6edf3 — ≈12.5:1 sur surface_raised ✓ WCAG AAA
-      text_secondary: rgb(139, 148, 158) # #8b949e — ≈5.1:1 sur surface_raised ✓ WCAG AA
-      text_on_accent: rgb(13, 17, 23) # texte sombre sur fond bleu
+      # - Text
+      text_primary: rgb(230, 237, 243) # #e6edf3 - ~12.5:1 on surface_raised, WCAG AAA
+      text_secondary: rgb(139, 148, 158) # #8b949e - ~5.1:1 on surface_raised, WCAG AA
+      text_on_accent: rgb(13, 17, 23) # dark text on a blue background
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
-      overlay_scrim: rgba(1, 4, 9, 0.88) # voile de modale — cohérent avec surface_sunken
+      overlay_scrim: rgba(1, 4, 9, 0.88) # modal scrim - consistent with surface_sunken
 
-      # — Sémantiques
-      semantic_success: "#3fb950" # vert GitHub
-      semantic_warning: "#d29922" # ambre GitHub
-      semantic_error: "#f85149" # rouge GitHub
-      semantic_info: "#58a6ff" # même que accent_brand
+      # - Semantics
+      semantic_success: "#3fb950" # GitHub green
+      semantic_warning: "#d29922" # GitHub amber
+      semantic_error: "#f85149" # GitHub red
+      semantic_info: "#58a6ff" # same as accent_brand
     # //////
-    light: # ⟵ REVISITÉ
-      # — Surfaces (#d0d7de était une couleur de BORDURE, pas un fond → corrigé)
-      surface_sunken: rgb(240, 243, 246) # fond de page (était 208,215,222 — trop sombre)
-      surface_base: rgb(246, 248, 250) # #f6f8fa — surface neutre de référence
-      surface_raised: rgb(255, 255, 255) # #ffffff — cards, panels principaux
-      surface_overlay: rgb(231, 235, 240) # hover / items sélectionnés
-      surface_floating: rgb(221, 226, 233) # dropdowns, hover marqué (≠ raised)
+    light: # <- REVISITED
+      # - Surfaces (#d0d7de was a BORDER colour, not a background -> fixed)
+      surface_sunken: rgb(240, 243, 246) # page background (was 208,215,222 - too dark)
+      surface_base: rgb(246, 248, 250) # #f6f8fa — neutral reference surface
+      surface_raised: rgb(255, 255, 255) # #ffffff — cards, main panels
+      surface_overlay: rgb(231, 235, 240) # hover / selected items
+      surface_floating: rgb(221, 226, 233) # dropdowns, strong hover (different from raised)
 
-      # — Bordures
-      border_subtle: rgb(216, 222, 228) # séparateur standard
+      # - Borders
+      border_subtle: rgb(216, 222, 228) # standard separator
 
-      # — Accent
-      accent_brand: "#0969da" # bleu GitHub light
+      # - Accent
+      accent_brand: "#0969da" # GitHub blue light
       accent_soft: rgba(9, 105, 218, 0.12)
       accent_line: rgba(9, 105, 218, 0.45)
 
-      # — Texte
-      text_primary: rgb(40, 46, 52) # ≈11:1 sur surface_raised ✓ WCAG AAA
-      text_secondary: rgb(101, 109, 118) # #656d76 — ≈5.4:1 sur surface_raised ✓ WCAG AA
-      text_on_accent: rgb(255, 255, 255) # texte blanc sur fond bleu
+      # - Text
+      text_primary: rgb(40, 46, 52) # ~11:1 on surface_raised, WCAG AAA
+      text_secondary: rgb(101, 109, 118) # #656d76 - ~5.4:1 on surface_raised, WCAG AA
+      text_on_accent: rgb(255, 255, 255) # white text on a blue background
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
       overlay_scrim: rgba(31, 35, 40, 0.50)
 
-      # — Sémantiques
-      semantic_success: "#1a7f37" # vert GitHub light
-      semantic_warning: "#9a6700" # ambre GitHub light
-      semantic_error: "#cf222e" # rouge GitHub light
-      semantic_info: "#0969da" # même que accent_brand
+      # - Semantics
+      semantic_success: "#1a7f37" # GitHub green light
+      semantic_warning: "#9a6700" # GitHub amber light
+      semantic_error: "#cf222e" # GitHub red light
+      semantic_info: "#0969da" # same as accent_brand
 
   # //////
   # Warm Dark
   warm-dark:
     # //////
     dark:
-      # — Surfaces (du plus sombre au plus clair)
-      surface_sunken: rgb(16, 12, 10) # fond de page — brun quasi noir
-      surface_base: rgb(24, 20, 16) # surface neutre de référence
-      surface_raised: rgb(33, 28, 22) # cards, panels principaux
-      surface_overlay: rgb(44, 38, 30) # hover, items sélectionnés
+      # - Surfaces (darkest to lightest)
+      surface_sunken: rgb(16, 12, 10) # page background - near-black brown
+      surface_base: rgb(24, 20, 16) # neutral reference surface
+      surface_raised: rgb(33, 28, 22) # cards, main panels
+      surface_overlay: rgb(44, 38, 30) # hover, selected items
       surface_floating: rgb(56, 48, 38) # dropdowns, tooltips
 
-      # — Bordures
-      border_subtle: rgb(66, 57, 45) # séparateur standard
+      # - Borders
+      border_subtle: rgb(66, 57, 45) # standard separator
 
-      # — Accent
-      accent_brand: "#d97706" # ambre chaud — CTA, état actif
+      # - Accent
+      accent_brand: "#d97706" # warm amber - CTA, active state
       accent_soft: rgba(217, 119, 6, 0.16)
       accent_line: rgba(217, 119, 6, 0.50)
 
-      # — Texte
-      text_primary: rgb(232, 221, 208) # crème chaud — ≈9.1:1 sur surface_raised ✓ WCAG AAA
-      text_secondary: rgb(160, 144, 124) # sable — ≈4.6:1 sur surface_raised ✓ WCAG AA
-      text_on_accent: rgb(24, 20, 16) # texte sombre sur fond ambre
+      # - Text
+      text_primary: rgb(232, 221, 208) # warm cream - ~9.1:1 on surface_raised, WCAG AAA
+      text_secondary: rgb(160, 144, 124) # sand - ~4.6:1 on surface_raised, WCAG AA
+      text_on_accent: rgb(24, 20, 16) # dark text on an amber background
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
       overlay_scrim: rgba(16, 12, 10, 0.88)
 
-      # — Sémantiques
+      # - Semantics
       semantic_success: "#4ade80"
       semantic_warning: "#fbbf24"
       semantic_error: "#f87171"
       semantic_info: "#7dd3fc"
     # //////
-    light: # ⟵ REVISITÉ
-      # — Surfaces (beige adouci ; sunken était 218,210,196 — trop marqué)
-      surface_sunken: rgb(243, 238, 229) # fond de page — beige très doux
-      surface_base: rgb(248, 244, 236) # surface neutre de référence
-      surface_raised: rgb(255, 252, 247) # cards — blanc cassé chaud
-      surface_overlay: rgb(236, 229, 217) # hover / items sélectionnés
-      surface_floating: rgb(227, 219, 205) # dropdowns, hover marqué (≠ raised)
+    light: # <- REVISITED
+      # - Surfaces (softened beige; sunken was 218,210,196 - too strong)
+      surface_sunken: rgb(243, 238, 229) # page background - very soft beige
+      surface_base: rgb(248, 244, 236) # neutral reference surface
+      surface_raised: rgb(255, 252, 247) # cards - warm off-white
+      surface_overlay: rgb(236, 229, 217) # hover / selected items
+      surface_floating: rgb(227, 219, 205) # dropdowns, strong hover (different from raised)
 
-      # — Bordures
-      border_subtle: rgb(223, 214, 199) # séparateur standard
+      # - Borders
+      border_subtle: rgb(223, 214, 199) # standard separator
 
-      # — Accent
-      accent_brand: "#b45309" # ambre foncé — lisible sur fond clair
+      # - Accent
+      accent_brand: "#b45309" # dark amber - legible on a light background
       accent_soft: rgba(180, 83, 9, 0.12)
       accent_line: rgba(180, 83, 9, 0.45)
 
-      # — Texte
-      text_primary: rgb(50, 40, 28) # brun sombre — ≈11:1 sur surface_raised ✓ WCAG AAA
-      text_secondary: rgb(122, 106, 84) # brun moyen — ≈4.8:1 sur surface_raised ✓ WCAG AA
-      text_on_accent: rgb(255, 250, 242) # crème sur fond ambre foncé
+      # - Text
+      text_primary: rgb(50, 40, 28) # brun sombre — ~11:1 on surface_raised, WCAG AAA
+      text_secondary: rgb(122, 106, 84) # mid brown - ~4.8:1 on surface_raised, WCAG AA
+      text_on_accent: rgb(255, 250, 242) # cream on a dark amber background
 
-      # — Transparences
+      # - Transparencies
       transparent: rgba(255, 255, 255, 0)
       overlay_scrim: rgba(30, 24, 16, 0.45)
 
-      # — Sémantiques (assombries pour fond clair)
+      # - Semantics (darkened for a light background)
       semantic_success: "#15803d"
       semantic_warning: "#92400e"
       semantic_error: "#b91c1c"

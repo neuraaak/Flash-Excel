@@ -33,7 +33,7 @@ export default {
     this._ro.observe(document.documentElement);
     update();
 
-    // Version + vérification de mise à jour (attend que pywebview soit prêt).
+    // Version + update check (waits for pywebview to be ready).
     if (globalThis.pywebview?.api) this._initVersion();
     else globalThis.addEventListener('pywebviewready', () => this._initVersion(), { once: true });
   },
@@ -66,7 +66,7 @@ export default {
       this.updating = true;
       try {
         await api.applyUpdate();
-        // Si la maj s'applique, l'app se ferme puis redémarre (tufup).
+        // When the update applies, the app closes and restarts (tufup).
       } catch (e) {
         console.debug('applyUpdate failed', e);
         this.updating = false;

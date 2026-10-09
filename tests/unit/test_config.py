@@ -26,7 +26,7 @@ def test_save_and_reload_locale(monkeypatch, tmp_path):
 def _isolate_themes(
     monkeypatch, tmp_path, shipped="palette:\n  blue-gray:\n    dark: {}\n"
 ):
-    """Isole le catalogue embarqué et la copie utilisateur dans tmp_path."""
+    """Isolate the bundled catalogue and the user copy inside tmp_path."""
     bundled = tmp_path / "bundled" / "theme.config.yaml"
     bundled.parent.mkdir(parents=True)
     bundled.write_text(shipped, encoding="utf-8")
@@ -64,7 +64,7 @@ def test_load_themes_refreshes_when_shipped_catalogue_changes(monkeypatch, tmp_p
         encoding="utf-8",
     )
     assert sorted(load_themes()) == ["blue-gray", "neuve"]
-    # L'édition de l'utilisateur n'est pas détruite, elle est mise de côté.
+    # The user's edit is not destroyed, it is set aside.
     assert (tmp_path / "theme.config.yaml.bak").is_file()
 
 
@@ -101,8 +101,8 @@ def test_installer_locale_applies_on_first_run(monkeypatch, tmp_path):
 
 
 def test_installer_locale_overrides_an_existing_config(monkeypatch, tmp_path):
-    # warm-dark doit exister dans le catalogue, sinon le garde-fou palette la
-    # remplace par le défaut et l'assertion d'apparence porterait à faux.
+    # warm-dark must exist in the catalogue, otherwise the palette guard swaps
+    # it for the default and the appearance assertion would be meaningless.
     _isolate_themes(
         monkeypatch,
         tmp_path,
@@ -115,7 +115,7 @@ def test_installer_locale_overrides_an_existing_config(monkeypatch, tmp_path):
     assert consume_installer_locale() == "en"
     result = load_app_config()
     assert result["locale"] == "en"
-    # Seule la locale change : l'apparence choisie par l'utilisateur survit.
+    # Only the locale changes: the appearance the user picked survives.
     assert result["appearance"] == {"palette": "warm-dark", "mode": "light"}
     assert not marker.exists()
 
@@ -127,7 +127,7 @@ def test_user_locale_survives_once_the_marker_is_consumed(monkeypatch, tmp_path)
     consume_installer_locale()
 
     save_app_config("blue-gray", "dark", "en")
-    # Plus de marqueur : le réglage de l'utilisateur n'est plus écrasé.
+    # No marker left: the user's setting is no longer overwritten.
     assert consume_installer_locale() is None
     assert load_app_config()["locale"] == "en"
 
@@ -142,7 +142,7 @@ def test_no_marker_leaves_the_config_untouched(monkeypatch, tmp_path):
     assert not cfg_file.exists()
 
 
-@pytest.mark.parametrize("body", ["[Setup]\nLanguage=klingon\n", "pas du tout un ini"])
+@pytest.mark.parametrize("body", ["[Setup]\nLanguage=klingon\n", "not an ini at all"])
 def test_unusable_marker_is_dropped_without_touching_the_locale(
     monkeypatch, tmp_path, body
 ):
@@ -152,5 +152,5 @@ def test_unusable_marker_is_dropped_without_touching_the_locale(
 
     assert consume_installer_locale() is None
     assert load_app_config()["locale"] == "en"
-    # Supprimé quand même : le garder rejouerait l'échec à chaque démarrage.
+    # Deleted anyway: keeping it would replay the failure on every start.
     assert not marker.exists()

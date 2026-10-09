@@ -1,16 +1,15 @@
 import { api } from '../api.js';
 import FileLoader from '../components/FileLoader.js';
 import ActionSteps from '../components/ActionSteps.js';
+import { STEP_ACTIONS } from '../steps-registry.js';
 
-const ACTION_ORDER = [
-  'rename_columns', 'select_columns', 'cast_types', 'replace_values',
-  'clean_text', 'add_computed_column', 'filter_rows', 'deduplicate_rows',
-  'sort_rows', 'reorder_columns',
-];
+// Single source of truth: this list used to be duplicated here, so a step added
+// to the registry silently kept its old position (or went missing) on save.
+const ACTION_ORDER = STEP_ACTIONS;
 
 /**
- * Supprime des payloads toute référence aux colonnes disparues.
- * Retourne un nouvel objet payloads nettoyé.
+ * Strips every reference to vanished columns from the payloads.
+ * Returns a new, cleaned payloads object.
  */
 function purgePayloads(payloads, missingCols) {
   const missing = new Set(missingCols);
@@ -23,6 +22,14 @@ function purgePayloads(payloads, missingCols) {
   if (p.select_columns?.columns) {
     const cols = p.select_columns.columns.filter(c => !missing.has(c));
     p.select_columns = cols.length ? { ...p.select_columns, columns: cols } : {};
+  }
+  if (p.drop_columns?.columns) {
+    const cols = p.drop_columns.columns.filter(c => !missing.has(c));
+    p.drop_columns = cols.length ? { ...p.drop_columns, columns: cols } : {};
+  }
+  if (p.fill_nulls?.columns) {
+    const cols = p.fill_nulls.columns.filter(c => !missing.has(c));
+    p.fill_nulls = cols.length ? { ...p.fill_nulls, columns: cols } : {};
   }
   if (p.cast_types?.casts) {
     const casts = Object.fromEntries(Object.entries(p.cast_types.casts).filter(([k]) => !missing.has(k)));
@@ -61,7 +68,7 @@ const IDENT_RE = /^[A-Za-z_]\w*$/;
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`); }
 
 /**
- * Remplace toute référence à `oldName` par `newName` dans une expression
+ * Replaces every reference to `oldName` with `newName` in an
  * add_computed_column (syntaxe `[Nom de colonne]` ou identifiant brut).
  */
 function renameInExpression(expr, oldName, newName) {
@@ -75,9 +82,9 @@ function renameInExpression(expr, oldName, newName) {
 }
 
 /**
- * Réécrit les références à `oldName` en `newName` dans tous les steps
- * situés après `fromAction` dans le pipeline (propagation d'un renommage
- * de colonne, qu'il vienne de rename_columns ou d'add_computed_column).
+ * Rewrites references to `oldName` as `newName` in every step located
+ * after `fromAction` in the pipeline (propagating a column rename,
+ * whether it comes from rename_columns or from add_computed_column).
  */
 function renameColumnDownstream(payloads, fromAction, oldName, newName) {
   if (oldName === newName) return payloads;
@@ -90,6 +97,12 @@ function renameColumnDownstream(payloads, fromAction, oldName, newName) {
     switch (action) {
       case 'select_columns':
         if (payload.columns) p.select_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
+        break;
+      case 'drop_columns':
+        if (payload.columns) p.drop_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
+        break;
+      case 'fill_nulls':
+        if (payload.columns) p.fill_nulls = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
         break;
       case 'cast_types':
         if (payload.casts && oldName in payload.casts) {
@@ -138,7 +151,7 @@ export default {
       fileInfo: null,
       fileSchema: {},
       presetColumns: [],
-      templateFile: '',     // nom du fichier modèle mémorisé dans le preset
+      templateFile: '',     // template file name recorded in the preset
       payloads: {},
       // Mismatch modal state
       mismatch: null,   // null | { pending, missing, added }
@@ -156,7 +169,7 @@ export default {
   methods: {
     async loadList() {
       try { this.presets = await api.getPresets(); }
-      catch (e) { this.showToast(`Failed to load presets: ${e.message}`, 'error'); }
+      catch (e) { this.showToast(this.t('toast.presets_load_failed', { error: e.message }), 'error'); }
     },
 
     async selectPreset(path) {
@@ -168,15 +181,15 @@ export default {
         this.fileInfo = null;
         this.fileSchema = data.source_types || {};
         this.presetColumns = data.source_columns || [];
-        // Fallback : si le preset a des colonnes mais pas encore de source_file
-        // (sauvé avant l'ajout du champ), on affiche quand même l'état template.
+        // Fallback: when the preset has columns but no source_file yet
+        // (saved before the field existed), still show the template state.
         this.templateFile = data.source_file || (this.presetColumns.length ? this.t('file.template_unknown') : '');
         this.payloads = {};
         for (const step of data.steps) {
           const { action, ...rest } = step;
           this.payloads[action] = { action, ...rest };
         }
-      } catch (e) { this.showToast(`Load failed: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.preset_load_failed', { error: e.message }), 'error'); }
     },
 
     async newPreset() {
@@ -186,18 +199,18 @@ export default {
         this.isNew = true; this.selectedPath = null;
         this.presetName = name; this.fileInfo = null;
         this.fileSchema = {}; this.presetColumns = []; this.templateFile = ''; this.payloads = {};
-      } catch (e) { this.showToast(`Error: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.preset_create_failed', { error: e.message }), 'error'); }
     },
 
     async savePreset() {
-      if (!this.presetName.trim()) { this.showToast('Preset name cannot be empty', 'error'); return; }
+      if (!this.presetName.trim()) { this.showToast(this.t('toast.preset_name_empty'), 'error'); return; }
       try {
         const steps = ACTION_ORDER.map(a => this.payloads[a]).filter(p => p && Object.keys(p).length > 1);
         const res = await api.savePreset(this.presetName, steps);
         this.selectedPath = res.path; this.isNew = false;
         await this.loadList();
-        this.showToast('Preset saved');
-      } catch (e) { this.showToast(`Save failed: ${e.message}`, 'error'); }
+        this.showToast(this.t('toast.preset_saved'));
+      } catch (e) { this.showToast(this.t('toast.preset_save_failed', { error: e.message }), 'error'); }
     },
 
     deletePreset() {
@@ -212,8 +225,8 @@ export default {
         this.presetName = ''; this.fileInfo = null;
         this.fileSchema = {}; this.templateFile = ''; this.payloads = {};
         await this.loadList();
-        this.showToast('Preset deleted');
-      } catch (e) { this.showToast(`Delete failed: ${e.message}`, 'error'); }
+        this.showToast(this.t('toast.preset_deleted'));
+      } catch (e) { this.showToast(this.t('toast.preset_delete_failed', { error: e.message }), 'error'); }
     },
     cancelDelete() { this.showDeleteConfirm = false; },
 
@@ -221,15 +234,15 @@ export default {
       if (!this.selectedPath) return;
       try {
         const res = await api.exportPreset(this.selectedPath);
-        if (!res?.cancelled) this.showToast('Preset exported');
-      } catch (e) { this.showToast(`Export failed: ${e.message}`, 'error'); }
+        if (!res?.cancelled) this.showToast(this.t('toast.preset_exported'));
+      } catch (e) { this.showToast(this.t('toast.preset_export_failed', { error: e.message }), 'error'); }
     },
 
     async loadFile() {
       try {
         const res = await api.openFileDialog();
         if (res?.cancelled) return;
-        // Comparer avec les colonnes enregistrées dans le preset
+        // Compare against the columns recorded in the preset
         const savedCols = this.presetColumns;
         if (savedCols.length > 0) {
           const missing = savedCols.filter(c => !res.columns.includes(c));
@@ -241,7 +254,7 @@ export default {
           }
         }
         this._applyFile(res);
-      } catch (e) { this.showToast(`File error: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.file_error', { error: e.message }), 'error'); }
     },
 
     async clearFile() {
@@ -266,7 +279,7 @@ export default {
       this._applyFile(pending);
       this.payloads = purgePayloads(this.payloads, missing);
       this.mismatch = null;
-      if (missing.length > 0) this.showToast(`${missing.length} obsolete reference(s) removed`);
+      if (missing.length > 0) this.showToast(this.t('toast.refs_removed', { n: missing.length }));
     },
 
     mismatchCancel() {
@@ -277,7 +290,7 @@ export default {
       let result = newPayloads;
       const old = this.payloads;
 
-      // Renommage d'une colonne source (rename_columns) → propager aux steps suivantes
+      // Renaming a source column (rename_columns) -> propagate to later steps
       const oldMapping = old.rename_columns?.mapping || {};
       const newMapping = newPayloads.rename_columns?.mapping || {};
       for (const src of Object.keys(newMapping)) {
@@ -286,7 +299,7 @@ export default {
         }
       }
 
-      // Renommage d'une colonne calculée (add_computed_column.target) → propager aux steps suivantes
+      // Renaming a computed column (add_computed_column.target) -> propagate to later steps
       const oldItems = old.add_computed_column?.items || [];
       const newItems = newPayloads.add_computed_column?.items || [];
       newItems.forEach((item, i) => {

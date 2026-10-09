@@ -14,9 +14,9 @@ export default {
   },
   computed: {
     t() { return this.i18n.t; },
-    // Colonnes déjà assignées à une règle existante
+    // Columns already assigned to an existing rule
     usedSources() { return new Set(this.rows.map(r => r.src).filter(Boolean)); },
-    // Doublons de target : targets qui apparaissent plus d'une fois
+    // Duplicate targets: targets appearing more than once
     duplicateTargets() {
       const seen = {}, dupes = new Set();
       for (const r of this.rows) {
@@ -27,7 +27,7 @@ export default {
       }
       return dupes;
     },
-    // Colonnes disponibles pour une nouvelle règle
+    // Columns available for a new rule
     availableForNew() { return this.columns.filter(c => !this.usedSources.has(c)); },
   },
   methods: {
@@ -38,7 +38,7 @@ export default {
       this.$emit('update:payload', { action: 'rename_columns', mapping });
       this.$nextTick(() => { this._emitting = false; });
     },
-    // Colonnes disponibles pour une ligne existante (inclut sa propre source)
+    // Columns available to an existing row (its own source included)
     availableForRow(row) {
       return this.columns.filter(c => c === row.src || !this.usedSources.has(c));
     },

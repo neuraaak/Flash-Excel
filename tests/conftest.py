@@ -29,21 +29,21 @@ import pytest
 
 @pytest.fixture(scope="session", autouse=True)
 def _isolate_user_log() -> Generator[None]:
-    """Détourne le log de la suite hors du fichier réel de l'utilisateur.
+    """Divert the suite's logging away from the user's real log file.
 
-    ``flash_excel.logs.log`` initialise Ezpl à la volée sur le dossier de logs
-    de %LOCALAPPDATA% : sans ce garde-fou, la suite pollue le fichier de
-    diagnostic d'une installation réelle avec des chemins de tmp_path.
+    ``flash_excel.logs.log`` initialises Ezpl on the fly against the
+    %LOCALAPPDATA% log directory: without this guard, the suite pollutes the
+    diagnostic file of a real installation with tmp_path paths.
 
-    On revendique le singleton Ezpl avant tout import applicatif plutôt que de
-    remplacer ``logs.log`` : les modules font ``from flash_excel.logs import
-    log``, donc chacun garde sa propre référence et un patch sur le module
-    d'origine ne les atteindrait pas.
+    The Ezpl singleton is claimed before any application import rather than
+    replacing ``logs.log``: modules do ``from flash_excel.logs import log``, so
+    each keeps its own reference and patching the original module would not
+    reach them.
     """
     from ezplog import Ezpl
 
-    # ignore_cleanup_errors : loguru garde le sink ouvert jusqu'à la fin du
-    # process, et Windows refuse de supprimer un fichier encore ouvert.
+    # ignore_cleanup_errors: loguru keeps the sink open until the process ends,
+    # and Windows refuses to delete a file that is still open.
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         Ezpl(log_file=Path(tmp) / "tests.log", hook_logger=False)
         yield

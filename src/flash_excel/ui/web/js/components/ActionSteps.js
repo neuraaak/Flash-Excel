@@ -1,8 +1,10 @@
 import { STEP_ACTIONS, stepLabel, stepDesc } from '../steps-registry.js';
 import RenameTable from './tables/RenameTable.js';
 import SelectTable from './tables/SelectTable.js';
+import DropTable from './tables/DropTable.js';
 import CastTable from './tables/CastTable.js';
 import ReplaceTable from './tables/ReplaceTable.js';
+import FillTable from './tables/FillTable.js';
 import CleanTable from './tables/CleanTable.js';
 import ComputedTable from './tables/ComputedTable.js';
 import FilterTable from './tables/FilterTable.js';
@@ -13,8 +15,10 @@ import ReorderTable from './tables/ReorderTable.js';
 const EDITOR_MAP = {
   rename_columns: RenameTable,
   select_columns: SelectTable,
+  drop_columns: DropTable,
   cast_types: CastTable,
   replace_values: ReplaceTable,
+  fill_nulls: FillTable,
   clean_text: CleanTable,
   add_computed_column: ComputedTable,
   filter_rows: FilterTable,
@@ -24,7 +28,7 @@ const EDITOR_MAP = {
 };
 
 /**
- * Retourne les colonnes en sortie d'un step donné.
+ * Returns the columns coming out of a given step.
  */
 function applyStepToColumns(action, payload, cols) {
   if (!payload || !cols.length) return cols;
@@ -38,6 +42,11 @@ function applyStepToColumns(action, payload, cols) {
       const kept = payload.columns || [];
       if (!kept.length) return cols;
       return kept.filter(c => cols.includes(c));
+    }
+    case 'drop_columns': {
+      const removed = new Set(payload.columns || []);
+      if (!removed.size) return cols;
+      return cols.filter(c => !removed.has(c));
     }
     case 'add_computed_column': {
       const newCols = (payload.items || []).map(i => i.target).filter(Boolean);
@@ -54,9 +63,9 @@ function applyStepToColumns(action, payload, cols) {
 }
 
 /**
- * Retourne le schema (col → type) en sortie d'un step donné.
- * Les types correspondent aux noms Polars dtype (ex: "String", "Int64")
- * ou aux noms de cast JS ("string", "int", "float", "bool", "date", "datetime").
+ * Returns the schema (col -> type) coming out of a given step.
+ * Types are either Polars dtype names (e.g. "String", "Int64") or the JS
+ * cast names ("string", "int", "float", "bool", "date", "datetime").
  */
 function applyStepToSchema(action, payload, schema) {
   if (!payload) return schema;
@@ -72,6 +81,11 @@ function applyStepToSchema(action, payload, schema) {
       const kept = new Set(payload.columns || []);
       if (!kept.size) return schema;
       return Object.fromEntries(Object.entries(schema).filter(([k]) => kept.has(k)));
+    }
+    case 'drop_columns': {
+      const removed = new Set(payload.columns || []);
+      if (!removed.size) return schema;
+      return Object.fromEntries(Object.entries(schema).filter(([k]) => !removed.has(k)));
     }
     case 'cast_types': {
       const casts = payload.casts || {};
@@ -128,7 +142,7 @@ export default {
       }));
     },
 
-    // Colonnes disponibles en entrée de chaque step
+    // Columns available as input to each step
     columnsByStep() {
       let cols = [...this.columns];
       const result = {};
@@ -139,7 +153,7 @@ export default {
       return result;
     },
 
-    // Schema (col → type) disponible en entrée de chaque step
+    // Schema (col -> type) available as input to each step
     schemaByStep() {
       let schema = { ...this.schema };
       const result = {};

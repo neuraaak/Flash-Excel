@@ -152,29 +152,29 @@ def test_disallowed_name_raises_value_error():
     # 'os.system(...)' is never executed: the AST validator rejects the
     # disallowed 'os' name before eval() ever runs.
     df = pl.DataFrame({"a": [1]})
-    with pytest.raises(ValueError, match="non autorisée"):
+    with pytest.raises(ValueError, match="not allowed"):
         add_computed_column(df, "test", "os.system('ls')")
 
 
 def test_forbidden_dunder_attribute_raises_value_error():
     df = pl.DataFrame({"a": [1]})
-    with pytest.raises(ValueError, match="non autorisée"):
+    with pytest.raises(ValueError, match="not allowed"):
         add_computed_column(df, "test", "a.__class__")
 
 
 def test_invalid_syntax_raises_value_error():
     df = pl.DataFrame({"a": [1]})
-    with pytest.raises(ValueError, match="Syntaxe invalide"):
+    with pytest.raises(ValueError, match="Invalid syntax"):
         add_computed_column(df, "test", "MAJUSCULE(")
 
 
 def test_non_expr_result_raises_type_error():
     df = pl.DataFrame({"a": [1]})
-    with pytest.raises(TypeError, match="Expr Polars"):
+    with pytest.raises(TypeError, match="Polars Expr"):
         add_computed_column(df, "test", "1 + 1")
 
 
 def test_unknown_column_raises_name_error_wrapped_in_value_error():
     df = pl.DataFrame({"a": [1]})
-    with pytest.raises(ValueError, match="non autorisée"):
+    with pytest.raises(ValueError, match="not allowed"):
         add_computed_column(df, "test", "MAJUSCULE(missing)")

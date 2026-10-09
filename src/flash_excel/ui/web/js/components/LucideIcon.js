@@ -1,13 +1,13 @@
 import { ICONS } from '../vendor/icons.js';
 
 /**
- * Composant icône universel.
+ * Universal icon component.
  * Usage : <LucideIcon name="settings" :size="18" :stroke="1.7" />
  *
  * Props :
- *   name   — clé dans ICONS (ex: "settings", "x", "moon")
+ *   name   - key in ICONS (e.g. "settings", "x", "moon")
  *   size   — largeur/hauteur en px (default: 16)
- *   stroke — épaisseur du trait (default: 1.7)
+ *   stroke - stroke width (default: 1.7)
  */
 export default {
   name: 'LucideIcon',

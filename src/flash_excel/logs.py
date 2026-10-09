@@ -3,16 +3,15 @@
 # Project: flash-excel
 # ///////////////////////////////////////////////////////////////
 
-"""Canal de log unique de l'application, adossé à ezplog.
+"""The application's single logging channel, backed by ezplog.
 
-Les builds de production tournent en ``console = false`` : ``print()`` n'a
-aucune destination et tout diagnostic disparaît. Ce module installe un
-``Ezpl`` écrivant dans un fichier utilisateur, et ``hook_logger=True``
-détourne au passage le ``logging`` stdlib (pywebview, polars, tufup) vers
-le même fichier.
+Production builds run with ``console = false``: ``print()`` has nowhere to go
+and every diagnostic vanishes. This module installs an ``Ezpl`` writing to a
+user-local file, and ``hook_logger=True`` also diverts the stdlib ``logging``
+records (pywebview, polars, tufup) into that same file.
 
-Le log ne doit jamais casser l'application : chaque appel est protégé, un
-échec d'écriture est avalé.
+Logging must never break the application: every call is guarded, and a write
+failure is swallowed.
 """
 
 from __future__ import annotations
@@ -34,9 +33,9 @@ from flash_excel.paths import LOG_FILE
 # CONSTANTS
 # ///////////////////////////////////////////////////////////////
 
-# Rotation quotidienne : loguru horodate lui-même l'archive au renommage
-# (flash-excel.2026-09-30_00-18-10_321712.log), inutile de mettre un
-# {time} dans le nom du fichier courant.
+# Daily rotation: loguru timestamps the archive itself when renaming it
+# (flash-excel.2026-09-30_00-18-10_321712.log), so there is no need for a
+# {time} placeholder in the name of the current file.
 _ROTATION = "1 day"
 _RETENTION = "14 days"
 
@@ -46,16 +45,16 @@ _RETENTION = "14 days"
 
 
 def setup_logging(*, debug: bool = False) -> None:
-    """Initialise le canal de log de l'application.
+    """Initialise the application logging channel.
 
-    Appelé une fois au démarrage, avant toute autre initialisation. Ezpl
-    étant un singleton, un second appel est sans effet.
+    Called once at startup, before any other initialisation. Ezpl being a
+    singleton, a second call has no effect.
 
     Args:
-        debug: Abaisse le niveau à DEBUG au lieu d'INFO.
+        debug: Lower the level to DEBUG instead of INFO.
     """
-    # Un log indisponible (disque plein, dossier non inscriptible) ne doit
-    # jamais empêcher l'application de démarrer.
+    # Unavailable logging (full disk, non-writable directory) must never keep
+    # the application from starting.
     with contextlib.suppress(Exception):
         Ezpl(
             log_file=LOG_FILE,
@@ -67,14 +66,14 @@ def setup_logging(*, debug: bool = False) -> None:
 
 
 def log(level: str, message: str) -> None:
-    """Écrit une ligne dans le log applicatif.
+    """Write one line to the application log.
 
-    Initialise le canal à la volée si ``setup_logging`` n'a pas encore été
-    appelé, pour qu'un import isolé (tests, script) n'ait pas à s'en soucier.
+    Initialises the channel on the fly when ``setup_logging`` has not been
+    called yet, so an isolated import (tests, a script) need not care.
 
     Args:
-        level: Niveau ezplog ("DEBUG", "INFO", "WARNING", "ERROR").
-        message: Texte à journaliser.
+        level: ezplog level ("DEBUG", "INFO", "WARNING", "ERROR").
+        message: The text to log.
     """
     with contextlib.suppress(Exception):
         if not Ezpl.is_initialized():

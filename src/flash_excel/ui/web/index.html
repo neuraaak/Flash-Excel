@@ -9,19 +9,19 @@
   <link rel="stylesheet" href="css/app.css" />
   <link rel="stylesheet" href="css/presets.css" />
   <link rel="stylesheet" href="css/processing.css" />
-  <!-- Tailwind Play CDN — vendorisé localement pour fonctionnement offline.
+  <!-- Tailwind Play CDN - vendored locally so the app works offline.
        Utilitaires layout/spacing/typography uniquement.
-       Les couleurs tw-* pointent vers nos CSS custom properties (YAML → CSS vars)
-       pour que le switching de thème live reste opérationnel. -->
+       The tw-* colours point at our CSS custom properties (YAML -> CSS vars)
+       so that live theme switching keeps working. -->
   <script src="./js/vendor/tailwind.js"></script>
   <script>
     tailwind.config = {
-      // Désactiver le preflight pour ne pas écraser nos styles globaux
+      // Disable preflight so it does not overwrite our global styles
       corePlugins: { preflight: false },
       theme: {
         extend: {
           colors: {
-            // Surfaces — préfixe tw- pour distinguer de Tailwind natif
+            // Surfaces - the tw- prefix tells them apart from native Tailwind
             'tw-sunken': 'var(--surface_sunken)',
             'tw-base': 'var(--surface_base)',
             'tw-raised': 'var(--surface_raised)',
@@ -36,7 +36,7 @@
             'tw-text': 'var(--text_primary)',
             'tw-text-muted': 'var(--text_secondary)',
             'tw-text-on-accent': 'var(--text_on_accent)',
-            // Sémantiques
+            // Semantics
             'tw-success': 'var(--semantic_success)',
             'tw-warning': 'var(--semantic_warning)',
             'tw-error': 'var(--semantic_error)',
@@ -62,7 +62,7 @@
     import ProcessingPage from './js/pages/Processing.js';
     import { i18n } from './js/i18n.js';
 
-    // Tokens CSS appliqués depuis une palette YAML
+    // CSS tokens applied from a YAML palette
     const THEME_TOKENS = [
       'surface_sunken', 'surface_base', 'surface_raised',
       'surface_overlay', 'surface_floating', 'border_subtle',

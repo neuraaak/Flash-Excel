@@ -1256,7 +1256,7 @@
   align-items: center;
 }
 
-/* Mode segmenté (réutilise .seg mais taille réduite) */
+/* Segmented mode (reuses .seg at a reduced size) */
 .settings-mode-seg {
   width: fit-content;
 }

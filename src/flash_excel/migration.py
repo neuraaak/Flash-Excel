@@ -3,17 +3,16 @@
 # Project: flash-excel
 # ///////////////////////////////////////////////////////////////
 
-"""Récupération des données utilisateur restées dans le dossier d'installation.
+"""Recovery of user data left behind in the installation directory.
 
-Jusqu'en 1.3.0, les presets étaient écrits dans ``{app}\\bin\\presets``. Ce
-dossier est remplacé à chaque auto-update et supprimé à la désinstallation :
-tout ce qui s'y trouve est en sursis. Au premier démarrage d'une version
-récente, on rapatrie ce qui a survécu vers ``Documents\\flash-excel\\presets``.
+Up to 1.3.0, presets were written to ``{app}\\bin\\presets``. That directory is
+replaced on every auto-update and removed on uninstall: everything in it is
+living on borrowed time. On the first start of a recent version, whatever
+survived is brought back to ``Documents\\flash-excel\\presets``.
 
-Les réglages ne sont pas migrés : ``app.config.yaml`` était embarqué dans le
-bundle, donc déjà écrasé par sa version par défaut au moment où ce code
-s'exécute. Il n'y a rien à sauver, et le copier ne ferait que recopier des
-valeurs par défaut.
+Settings are not migrated: ``app.config.yaml`` used to be bundled, so it has
+already been overwritten by its default version by the time this code runs.
+There is nothing to save, and copying it would only copy defaults around.
 """
 
 from __future__ import annotations
@@ -35,21 +34,21 @@ from flash_excel.paths import LEGACY_PRESETS_DIR, PRESETS_DIR
 
 
 def migrate_legacy_presets() -> int:
-    """Copie les presets restés dans le dossier d'installation.
+    """Copy the presets left behind in the installation directory.
 
-    Sans effet si l'ancien dossier n'existe pas. Un preset déjà présent dans
-    la destination n'est jamais écrasé : le nouvel emplacement fait foi.
-    L'ancien fichier est laissé en place — il disparaîtra avec la prochaine
-    mise à jour, et le garder évite toute perte si la copie a échoué.
+    A no-op when the legacy directory does not exist. A preset already present
+    at the destination is never overwritten: the new location is authoritative.
+    The old file is left in place — it will go away with the next update, and
+    keeping it avoids any loss should the copy have failed.
 
     Returns:
-        int: Nombre de presets effectivement copiés.
+        int: Number of presets actually copied.
     """
     if not LEGACY_PRESETS_DIR.is_dir():
         return 0
 
     migrated = 0
-    # Une migration ratée ne doit pas empêcher l'application de démarrer.
+    # A failed migration must not keep the application from starting.
     with contextlib.suppress(OSError):
         PRESETS_DIR.mkdir(parents=True, exist_ok=True)
         for source in sorted(LEGACY_PRESETS_DIR.glob("*.toml")):
@@ -61,7 +60,7 @@ def migrate_legacy_presets() -> int:
                 migrated += 1
 
     if migrated:
-        log("INFO", f"migration: {migrated} preset(s) copiés vers {PRESETS_DIR}")
+        log("INFO", f"migration: {migrated} preset(s) copied to {PRESETS_DIR}")
     return migrated
 
 

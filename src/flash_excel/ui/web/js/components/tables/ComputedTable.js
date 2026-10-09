@@ -1,87 +1,26 @@
+// Function names are the preset expression DSL (French Excel style) and are
+// NOT translatable: renaming one would break every preset already written.
+// Their description and example live in the locale files, keyed by name.
 const FUNCTIONS = [
-  {
-    name: "CONCATENER", cat: "Texte", hint: "CONCATENER(col1, col2, …)",
-    desc: "Assemble plusieurs colonnes ou textes en une seule chaîne.",
-    example: 'CONCATENER(prenom, " ", nom)',
-  },
-  {
-    name: "MAJUSCULE", cat: "Texte", hint: "MAJUSCULE(col)",
-    desc: "Convertit tous les caractères en majuscules.",
-    example: "MAJUSCULE(nom)",
-  },
-  {
-    name: "MINUSCULE", cat: "Texte", hint: "MINUSCULE(col)",
-    desc: "Convertit tous les caractères en minuscules.",
-    example: "MINUSCULE(email)",
-  },
-  {
-    name: "GAUCHE", cat: "Texte", hint: "GAUCHE(col, n)",
-    desc: "Retourne les n premiers caractères de la colonne.",
-    example: "GAUCHE(code, 3)",
-  },
-  {
-    name: "DROITE", cat: "Texte", hint: "DROITE(col, n)",
-    desc: "Retourne les n derniers caractères de la colonne.",
-    example: "DROITE(reference, 4)",
-  },
-  {
-    name: "NBCAR", cat: "Texte", hint: "NBCAR(col)",
-    desc: "Retourne le nombre de caractères de la colonne.",
-    example: "NBCAR(description)",
-  },
-  {
-    name: "SUPPRESPACE", cat: "Texte", hint: "SUPPRESPACE(col)",
-    desc: "Supprime les espaces en début et fin de chaîne.",
-    example: "SUPPRESPACE(nom)",
-  },
-  {
-    name: "ARRONDI", cat: "Math", hint: "ARRONDI(col, n)",
-    desc: "Arrondit à n décimales (0 = entier).",
-    example: "ARRONDI(prix, 2)",
-  },
-  {
-    name: "ABS", cat: "Math", hint: "ABS(col)",
-    desc: "Retourne la valeur absolue (toujours positif).",
-    example: "ABS(ecart)",
-  },
-  {
-    name: "MULTIPLIER", cat: "Math", hint: "MULTIPLIER(col, n)",
-    desc: "Multiplie chaque valeur par n.",
-    example: "MULTIPLIER(prix, 1.2)",
-  },
-  {
-    name: "AJOUTER", cat: "Math", hint: "AJOUTER(col1, col2)",
-    desc: "Additionne deux colonnes numériques.",
-    example: "AJOUTER(base, bonus)",
-  },
-  {
-    name: "ANNEE", cat: "Date", hint: "ANNEE(col)",
-    desc: "Extrait l'année d'une colonne date.",
-    example: "ANNEE(date_naissance)",
-  },
-  {
-    name: "MOIS", cat: "Date", hint: "MOIS(col)",
-    desc: "Extrait le mois (1–12) d'une colonne date.",
-    example: "MOIS(date_commande)",
-  },
-  {
-    name: "JOUR", cat: "Date", hint: "JOUR(col)",
-    desc: "Extrait le jour du mois d'une colonne date.",
-    example: "JOUR(date_livraison)",
-  },
-  {
-    name: "AUJOURD_HUI", cat: "Date", hint: "AUJOURD_HUI()", label: "AUJOURD'HUI",
-    desc: "Retourne la date du jour.",
-    example: "AUJOURD_HUI()",
-  },
-  {
-    name: "SI", cat: "Logique", hint: "SI(cond, alors, sinon)",
-    desc: "Si la condition est vraie retourne 'alors', sinon 'sinon'. La condition peut utiliser ==, !=, <, >, <=, >=.",
-    example: 'SI(age >= 18, "majeur", "mineur")',
-  },
+  { name: "CONCATENER", cat: "text", hint: "CONCATENER(col1, col2, …)" },
+  { name: "MAJUSCULE", cat: "text", hint: "MAJUSCULE(col)" },
+  { name: "MINUSCULE", cat: "text", hint: "MINUSCULE(col)" },
+  { name: "GAUCHE", cat: "text", hint: "GAUCHE(col, n)" },
+  { name: "DROITE", cat: "text", hint: "DROITE(col, n)" },
+  { name: "NBCAR", cat: "text", hint: "NBCAR(col)" },
+  { name: "SUPPRESPACE", cat: "text", hint: "SUPPRESPACE(col)" },
+  { name: "ARRONDI", cat: "math", hint: "ARRONDI(col, n)" },
+  { name: "ABS", cat: "math", hint: "ABS(col)" },
+  { name: "MULTIPLIER", cat: "math", hint: "MULTIPLIER(col, n)" },
+  { name: "AJOUTER", cat: "math", hint: "AJOUTER(col1, col2)" },
+  { name: "ANNEE", cat: "date", hint: "ANNEE(col)" },
+  { name: "MOIS", cat: "date", hint: "MOIS(col)" },
+  { name: "JOUR", cat: "date", hint: "JOUR(col)" },
+  { name: "AUJOURD_HUI", cat: "date", hint: "AUJOURD_HUI()", label: "AUJOURD'HUI" },
+  { name: "SI", cat: "logic", hint: "SI(cond, alors, sinon)" },
 ];
 
-const FN_CATS = ["Texte", "Math", "Date", "Logique"];
+const FN_CATS = ["text", "math", "date", "logic"];
 
 const SEPARATORS = ['_', '-', '/', '.', ' '];
 
@@ -96,7 +35,7 @@ export default {
       showModal: false,
       editIndex: null,
       draft: { target: '', expression: '' },
-      fnCat: 'Texte',
+      fnCat: 'text',
       hintText: '',
       hoveredFn: null,
       popoverStyle: {},
@@ -237,7 +176,7 @@ export default {
                 </div>
 
                 <div class="field" style="gap:6px">
-                  <span class="field-label">Colonnes</span>
+                  <span class="field-label">{{ t('computed.columns') }}</span>
                   <div class="chips">
                     <span v-for="col in columns" :key="col" class="chip" :title="col" @click="insertCol(col)">{{ col }}</span>
                   </div>
@@ -252,9 +191,9 @@ export default {
 
                 <div class="field" style="gap:6px">
                   <div style="display:flex;align-items:center;gap:8px;margin-bottom:2px">
-                    <span class="field-label" style="margin:0">Fonctions</span>
+                    <span class="field-label" style="margin:0">{{ t('computed.functions') }}</span>
                     <div class="seg" style="font-size:11px">
-                      <button v-for="cat in fnCats" :key="cat" :class="{ active: fnCat === cat }" @click="fnCat = cat">{{ cat }}</button>
+                      <button v-for="cat in fnCats" :key="cat" :class="{ active: fnCat === cat }" @click="fnCat = cat">{{ t('computed.cat_' + cat) }}</button>
                     </div>
                   </div>
                   <div class="chips">
@@ -284,7 +223,7 @@ export default {
                   @click="fnCat = cat"
                   style="flex:1;padding:6px 0;font-size:10px;font-weight:600;border:none;background:none;cursor:pointer;transition:.12s;"
                   :style="fnCat === cat ? 'color:var(--accent_brand);border-bottom:2px solid var(--accent_brand);margin-bottom:-1px' : 'color:var(--text_secondary)'">
-                  {{ cat[0] }}
+                  {{ t('computed.cat_' + cat).charAt(0) }}
                 </button>
               </div>
 
@@ -310,9 +249,9 @@ export default {
             <div v-if="hoveredFn" :style="popoverStyle"
               style="position:fixed;z-index:9999;width:240px;padding:12px 14px;background:var(--surface_floating);border:1px solid var(--border_subtle);border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.35);pointer-events:none">
               <div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--accent_brand);margin-bottom:6px">{{ hoveredFn.hint }}</div>
-              <div style="font-size:12px;color:var(--text_primary);margin-bottom:8px;line-height:1.5">{{ hoveredFn.desc }}</div>
-              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text_secondary);margin-bottom:4px">Exemple</div>
-              <div style="font-family:var(--mono);font-size:11px;color:var(--text_primary);background:var(--surface_sunken);padding:5px 8px;border-radius:4px">{{ hoveredFn.example }}</div>
+              <div style="font-size:12px;color:var(--text_primary);margin-bottom:8px;line-height:1.5">{{ t('fn.' + hoveredFn.name + '.desc') }}</div>
+              <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text_secondary);margin-bottom:4px">{{ t('computed.example') }}</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--text_primary);background:var(--surface_sunken);padding:5px 8px;border-radius:4px">{{ t('fn.' + hoveredFn.name + '.example') }}</div>
             </div>
           </teleport>
 
