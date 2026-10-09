@@ -63,6 +63,43 @@ uv run pre-commit install
 
 Source code uses a `src/` layout (`src/flash_excel`).
 
+## 🚢 Build & Release
+
+Building and releasing is **maintainer-only and local — not CI**. A fresh clone
+builds and tests the app fine, but it cannot publish: the TUF signing keys and
+the Cloudflare R2 credentials are deliberately kept out of the repository.
+
+```bash
+uv run build.py                 # version → compile → zip → installer → signed TUF release → publish
+uv run build.py --no-upload     # everything but the publication stage
+uv run build.py --skip-release  # rebuild an already published version (implies --no-upload)
+uv run build.py --skip-build    # reuse dist/ as-is, to iterate on the installer
+```
+
+Publication is a stage of its own, run after the pipeline rather than inside
+it. `build.py` ends on `publish_update()`, which transfers only the **public**
+part of the signed TUF tree (`metadata/`, `targets/`, `withdrawn.json`) to R2;
+the private keystore in `.tufup/keys` is never uploaded. The installer zip
+stays local, `release_destination = "disk"` in `[tool.ezcompiler.upload]`.
+
+The underlying [ezcompiler](https://github.com/neuraaak/ezcompiler) commands,
+when a stage has to be run by hand:
+
+| Command                        | What it does                                                 |
+| ------------------------------ | ------------------------------------------------------------ |
+| `ezcompiler tuf init`          | Create the signing keys and the repository skeleton (once)   |
+| `ezcompiler tuf status`        | Show the state of the local TUF tree (read-only)             |
+| `ezcompiler tuf refresh`       | Re-sign the metadata to push the expiry back, no new release |
+| `ezcompiler tuf remove-latest` | Withdraw the latest version from the local tree              |
+| `ezcompiler publish update`    | Publish the TUF tree to the update backend                   |
+| `ezcompiler publish release`   | Publish the installer and the zip as a release               |
+
+> ⚠️ **Never regenerate the signing keys.** New keys invalidate the trust
+> anchor shipped with every installed client and break its auto-update
+> permanently. A version already published must be withdrawn
+> (`tuf remove-latest`) before it can be replaced — the tree refuses to
+> re-release a withdrawn version under the same number.
+
 ## 📦 Dependencies
 
 | Package      | Purpose                            |
