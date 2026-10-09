@@ -183,7 +183,7 @@ version_info.txt
 .copilot/
 .github/copilot-instructions.md
 .github/instructions/*.instructions.md
-AGENTS.md
+# AGENTS.md is tracked: generic, machine-independent project context
 CLAUDE.md
 GEMINI.md
 
