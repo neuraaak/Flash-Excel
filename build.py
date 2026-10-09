@@ -1,5 +1,5 @@
 # ///////////////////////////////////////////////////////////////
-# BUILD - Compile + release flash-excel via ezcompiler (>= 4.0.0)
+# BUILD - Compile + release flash-excel via ezcompiler (>= 4.1.0)
 # ///////////////////////////////////////////////////////////////
 
 """Build and release script for flash-excel.
@@ -13,7 +13,7 @@ R2 credentials are read from the environment (or from a local, gitignored
     R2_ACCOUNT_ID (or R2_ENDPOINT), R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 
 Prerequisites:
-    - the TUF signing keys must be present (`ezcompiler release init` otherwise)
+    - the TUF signing keys must be present (`ezcompiler tuf init` otherwise)
     - Inno Setup (ISCC.exe) for the installer stage
 
 Usage:
@@ -133,10 +133,12 @@ def main() -> int:
         skip_build=args.skip_build,
     )
 
-    # upload (an explicit stage, separate from the pipeline): TUF tree -> R2.
+    # Publication (an explicit stage, separate from the pipeline): the public
+    # part of the signed TUF tree -> R2. The installer zip is not published
+    # here, release_destination = disk keeping it local.
     # Without a signed release there is nothing new to push, so skip it too.
     if not args.no_upload and not args.skip_release:
-        compiler.upload()
+        compiler.publish_update()
 
     return 0
 

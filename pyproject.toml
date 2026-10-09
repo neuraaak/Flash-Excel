@@ -84,7 +84,8 @@ dev = [
     # Build and distribution
     "build>=1.0.0",
     "twine>=4.0.0",
-    "ezcompiler[pyinstaller,tufup,r2]>=4.0.0,<5.0.0",
+    # "ezcompiler[pyinstaller,tufup,r2]>=4.0.0,<5.0.0",
+    "ezcompiler[pyinstaller,tufup,r2] @ git+https://github.com/neuraaak/ezcompiler.git@feat/publish-cli",
 ]
 
 # /////////////////////////////////////////////////////////////////////
@@ -174,7 +175,7 @@ tuf_keys_dir = ".tufup/keys"
 # short for an irregularly published app (root=365, targets=7, snapshot=7,
 # timestamp=1): clients could no longer validate the repo between two
 # releases -> auto-update broken. Raised to 365 days for all four roles;
-# a keep-alive between releases is possible via `ezcompiler release refresh`.
+# a keep-alive between releases is possible via `ezcompiler tuf refresh`.
 tuf_expiration_days = { root = 365, targets = 365, snapshot = 365, timestamp = 365 }
 
 # Installer Inno Setup. per_user = true → installation PAR-UTILISATEUR
