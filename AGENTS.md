@@ -56,9 +56,9 @@ src/flash_excel/
 │   ├── models.py        # Pydantic discriminated-union models (Preset, steps)
 │   ├── registry.py      # @action("name") decorator → REGISTRY dict
 │   ├── pipeline.py      # run_pipeline() + compute_schema_at_step()
-│   └── steps/           # One file per step: rename, select, cast, replace,
-│                        #   clean, computed, filter, deduplicate, sort,
-│                        #   reorder, drop, fill, trim
+│   └── steps/           # One file per step: rename, select, drop, cast,
+│                        #   replace, clean, fill, computed, filter,
+│                        #   deduplicate, sort, reorder
 ├── io/
 │   ├── loader.py        # File → Polars DataFrame (+ read_schema)
 │   ├── writer.py        # DataFrame → output file
@@ -127,10 +127,15 @@ for step in preset.steps:
     df = handler(df, **step.model_dump(exclude={"action"}))
 ```
 
-**Registered actions:** `rename_columns`, `select_columns`, `cast_types`,
-`replace_values`, `clean_text`, `add_computed_column`, `filter_rows`,
-`deduplicate_rows`, `sort_rows`, `reorder_columns`, `drop_columns`, `fill_nulls`,
-`trim_whitespace`.
+**Registered actions** (12, all of them editable in the UI and covered by
+`RECOMMENDED_ACTION_ORDER`): `rename_columns`, `select_columns`, `drop_columns`,
+`cast_types`, `replace_values`, `clean_text`, `fill_nulls`,
+`add_computed_column`, `filter_rows`, `deduplicate_rows`, `sort_rows`,
+`reorder_columns`.
+
+A step is only registered if `core/steps/__init__.py` imports its module, so a
+new file must be added there too — `tests/unit/ui/test_steps_registry_parity.py`
+enforces the whole chain (model, handler, editor, i18n keys in both locales).
 
 `core/models.py` also exposes `RECOMMENDED_ACTION_ORDER` — a logical ordering used
 for UI guidance only. The pipeline always executes steps in preset order.
