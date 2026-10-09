@@ -102,6 +102,7 @@ class DropColumnsStep(BaseModel):
     action: Literal["drop_columns"]
     columns: list[str]
 
+
 Step = Annotated[DropColumnsStep | FilterRowsStep | ..., Field(discriminator="action")]
 ```
 
@@ -110,6 +111,7 @@ Step implementations register themselves via decorator:
 ```python
 # core/steps/drop.py
 from flash_excel.core.registry import action
+
 
 @action("drop_columns")
 def drop_columns(df: pl.DataFrame, columns: list[str]) -> pl.DataFrame:

@@ -1,12 +1,11 @@
 import { api } from '../api.js';
 import FileLoader from '../components/FileLoader.js';
 import ActionSteps from '../components/ActionSteps.js';
+import { STEP_ACTIONS } from '../steps-registry.js';
 
-const ACTION_ORDER = [
-  'rename_columns', 'select_columns', 'cast_types', 'replace_values',
-  'clean_text', 'add_computed_column', 'filter_rows', 'deduplicate_rows',
-  'sort_rows', 'reorder_columns',
-];
+// Single source of truth: this list used to be duplicated here, so a step added
+// to the registry silently kept its old position (or went missing) on save.
+const ACTION_ORDER = STEP_ACTIONS;
 
 /**
  * Supprime des payloads toute référence aux colonnes disparues.
@@ -23,6 +22,14 @@ function purgePayloads(payloads, missingCols) {
   if (p.select_columns?.columns) {
     const cols = p.select_columns.columns.filter(c => !missing.has(c));
     p.select_columns = cols.length ? { ...p.select_columns, columns: cols } : {};
+  }
+  if (p.drop_columns?.columns) {
+    const cols = p.drop_columns.columns.filter(c => !missing.has(c));
+    p.drop_columns = cols.length ? { ...p.drop_columns, columns: cols } : {};
+  }
+  if (p.fill_nulls?.columns) {
+    const cols = p.fill_nulls.columns.filter(c => !missing.has(c));
+    p.fill_nulls = cols.length ? { ...p.fill_nulls, columns: cols } : {};
   }
   if (p.cast_types?.casts) {
     const casts = Object.fromEntries(Object.entries(p.cast_types.casts).filter(([k]) => !missing.has(k)));
@@ -90,6 +97,12 @@ function renameColumnDownstream(payloads, fromAction, oldName, newName) {
     switch (action) {
       case 'select_columns':
         if (payload.columns) p.select_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
+        break;
+      case 'drop_columns':
+        if (payload.columns) p.drop_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
+        break;
+      case 'fill_nulls':
+        if (payload.columns) p.fill_nulls = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
         break;
       case 'cast_types':
         if (payload.casts && oldName in payload.casts) {

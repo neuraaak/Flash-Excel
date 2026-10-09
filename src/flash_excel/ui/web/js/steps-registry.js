@@ -3,17 +3,22 @@
 // + preview) pour afficher un nom traduit au lieu de l'action technique brute
 // (ex: "rename_columns").
 
+// drop_columns and fill_nulls sit at their RECOMMENDED_ACTION_ORDER positions
+// (core/models.py); the relative order of the pre-existing steps is left as it
+// was, since it decides the execution order of every preset saved from the UI.
 export const STEP_ACTIONS = [
-  'rename_columns', 'select_columns', 'cast_types', 'replace_values',
-  'clean_text', 'add_computed_column', 'filter_rows', 'deduplicate_rows',
-  'sort_rows', 'reorder_columns',
+  'rename_columns', 'select_columns', 'drop_columns', 'cast_types',
+  'replace_values', 'clean_text', 'fill_nulls', 'add_computed_column',
+  'filter_rows', 'deduplicate_rows', 'sort_rows', 'reorder_columns',
 ];
 
 const STEP_I18N_KEYS = {
   rename_columns: 'steps.rename',
   select_columns: 'steps.select',
+  drop_columns: 'steps.drop',
   cast_types: 'steps.cast',
   replace_values: 'steps.replace',
+  fill_nulls: 'steps.fill',
   clean_text: 'steps.clean',
   add_computed_column: 'steps.computed',
   filter_rows: 'steps.filter',
