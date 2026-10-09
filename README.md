@@ -82,6 +82,18 @@ part of the signed TUF tree (`metadata/`, `targets/`, `withdrawn.json`) to R2;
 the private keystore in `.tufup/keys` is never uploaded. The installer zip
 stays local, `release_destination = "disk"` in `[tool.ezcompiler.upload]`.
 
+Two helpers wrap the publication commands, so the project root and the
+credentials in the gitignored `.env` do not have to be handled by hand:
+
+```bat
+.scripts\build\publish-update.cmd     :: public TUF tree -> R2
+.scripts\build\publish-release.cmd    :: installer + zip -> GitHub Release
+```
+
+Both forward any extra flag to the command they wrap (`--yes`, `--draft`,
+`--notes-file`, …) and both ask for confirmation first, the publication being
+irreversible on the remote side.
+
 The underlying [ezcompiler](https://github.com/neuraaak/ezcompiler) commands,
 when a stage has to be run by hand:
 
