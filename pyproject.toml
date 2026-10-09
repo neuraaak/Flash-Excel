@@ -385,10 +385,21 @@ root_packages = ["flash_excel"]
 # Le package doit être installé en mode editable (pip install -e .)
 # ou lancer avec PYTHONPATH=src lint-imports
 
+# Real layers, from the top (depends) down to the bottom (depended upon). An
+# empty contract always passed: it declared an architecture without ever
+# checking it. `a : b` = independent siblings (neither may import the other).
 [[tool.importlinter.contracts]]
 name = "layer dependency flow"
 type = "layers"
-layers = []
+layers = [
+    "flash_excel.ui",
+    "flash_excel.presets : flash_excel.io",
+    "flash_excel.core",
+    "flash_excel.migration",
+    "flash_excel.config",
+    "flash_excel.logs",
+    "flash_excel.paths",
+]
 
 # ///////////////////////////////////////////////////////////////
 # 🧪 TESTING & COVERAGE TOOLS
