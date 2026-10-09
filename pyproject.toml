@@ -50,40 +50,41 @@ dependencies = [
 ]
 
 # /////////////////////////////////////////////////////////////////////
-# 🛠️ OPTIONAL DEPENDENCIES
-# Development tools, testing, and build dependencies
+# 🧰 DEPENDENCY GROUPS (PEP 735)
+# Development tooling only. These are groups rather than
+# [project.optional-dependencies] because none of them is a product extra:
+# flash-excel ships as an installer, so nothing here belongs in the wheel
+# metadata and `pip install flash-excel[dev]` is not a valid command.
+# Install with `uv sync` (the dev group is synced by default) or
+# `uv sync --group test` for the test tooling alone.
 # /////////////////////////////////////////////////////////////////////
 
-[project.optional-dependencies]
-dev = [
-    # Development tools
-    "ruff>=0.1.0",
-    "ty>=0.0.13",
-    "pyright>=1.1.0",
-    "pre-commit>=3.0.0",
-    "import-linter>=2.0.0",
-    "grimp>=2.3.0",
-
-    # Security
-    "bandit>=1.7.0",
-
-    # Tests
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-    "pytest-mock>=3.10.0",
-    "pytest-xdist>=3.0.0",
-
-    # Build and distribution
-    "build>=1.0.0",
-    "twine>=4.0.0",
-    "ezcompiler[pyinstaller,tufup,r2]>=4.0.0,<5.0.0",
-]
+[dependency-groups]
 test = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
     "pytest-xdist>=3.0.0",
     "import-linter>=2.0.0",
+    "grimp>=2.3.0",
+]
+dev = [
+    # Tests (single source of truth, no duplication)
+    { include-group = "test" },
+
+    # Development tools
+    "ruff>=0.1.0",
+    "ty>=0.0.13",
+    "pyright>=1.1.0",
+    "pre-commit>=3.0.0",
+
+    # Security
+    "bandit>=1.7.0",
+
+    # Build and distribution
+    "build>=1.0.0",
+    "twine>=4.0.0",
+    "ezcompiler[pyinstaller,tufup,r2]>=4.0.0,<5.0.0",
 ]
 
 # /////////////////////////////////////////////////////////////////////

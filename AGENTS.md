@@ -221,7 +221,7 @@ and exist only for `migration.py`.
 ## Development workflow
 
 ```bash
-uv sync                    # Install all dependencies
+uv sync                    # Install everything (dev group, which includes test)
 uv run python main.py      # Run the app
 uv run pytest              # Run tests (coverage gate: 70%)
 uv run ruff check .        # Lint
