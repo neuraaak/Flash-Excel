@@ -69,21 +69,18 @@ Building and releasing is **maintainer-only and local — not CI**. A fresh clon
 builds and tests the app fine, but it cannot publish: the TUF signing keys and
 the Cloudflare R2 credentials are deliberately kept out of the repository.
 
+`build.py` builds, and only builds — nothing it does leaves the machine:
+
 ```bash
-uv run build.py                 # version → compile → zip → installer → signed TUF release → publish
-uv run build.py --no-upload     # everything but the publication stage
-uv run build.py --skip-release  # rebuild an already published version (implies --no-upload)
+uv run build.py                 # version → compile → zip → installer → signed TUF release
+uv run build.py --skip-release  # rebuild an already published version
+uv run build.py --skip-installer  # no Inno Setup stage
 uv run build.py --skip-build    # reuse dist/ as-is, to iterate on the installer
 ```
 
-Publication is a stage of its own, run after the pipeline rather than inside
-it. `build.py` ends on `publish_update()`, which transfers only the **public**
-part of the signed TUF tree (`metadata/`, `targets/`, `withdrawn.json`) to R2;
-the private keystore in `.tufup/keys` is never uploaded. The installer zip
-stays local, `release_destination = "disk"` in `[tool.ezcompiler.upload]`.
-
-Two helpers wrap the publication commands, so the project root and the
-credentials in the gitignored `.env` do not have to be handled by hand:
+Publishing is a separate, explicit step, run once the build has been checked.
+Two helpers wrap it, so the project root and the credentials in the gitignored
+`.env` do not have to be handled by hand:
 
 ```bat
 .scripts\build\publish-update.cmd     :: public TUF tree -> R2
@@ -92,7 +89,9 @@ credentials in the gitignored `.env` do not have to be handled by hand:
 
 Both forward any extra flag to the command they wrap (`--yes`, `--draft`,
 `--notes-file`, …) and both ask for confirmation first, the publication being
-irreversible on the remote side.
+irreversible on the remote side. `publish-update` transfers only the
+**public** part of the signed TUF tree (`metadata/`, `targets/`,
+`withdrawn.json`); the private keystore in `.tufup/keys` never leaves.
 
 The underlying [ezcompiler](https://github.com/neuraaak/ezcompiler) commands,
 when a stage has to be run by hand:

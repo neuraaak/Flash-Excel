@@ -12,7 +12,7 @@ REM  Only the public part of the tree is transferred (metadata/, targets/,
 REM  withdrawn.json); the private keystore in .tufup\keys never leaves.
 REM
 REM  Prerequisites:
-REM    - `uv run build.py --no-upload` ran, so a signed release exists
+REM    - `uv run build.py` ran, so a signed release exists locally
 REM    - .env holds R2_ACCOUNT_ID (or R2_ENDPOINT), R2_ACCESS_KEY_ID,
 REM      R2_SECRET_ACCESS_KEY
 REM

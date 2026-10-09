@@ -1,25 +1,27 @@
 # ///////////////////////////////////////////////////////////////
-# BUILD - Compile + release flash-excel via ezcompiler (>= 4.1.0)
+# BUILD - Compile flash-excel via ezcompiler (>= 4.1.0)
 # ///////////////////////////////////////////////////////////////
 
-"""Build and release script for flash-excel.
+r"""Build script for flash-excel.
 
-Reads the configuration from [tool.ezcompiler] in pyproject.toml, runs the
-whole pipeline (version -> compile -> zip -> installer -> signed TUF release),
-then pushes the signed TUF tree to the configured backend (Cloudflare R2).
+Reads the configuration from [tool.ezcompiler] in pyproject.toml and runs the
+whole pipeline: version -> compile -> zip -> installer -> signed TUF release.
+Everything stays local.
 
-R2 credentials are read from the environment (or from a local, gitignored
-.env file):
-    R2_ACCOUNT_ID (or R2_ENDPOINT), R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
+This script never publishes. Pushing the signed TUF tree to the update
+backend is a separate, explicit step, run once the build has been checked:
+
+    .scripts\build\publish-update.cmd     (or: ezcompiler publish update)
+    .scripts\build\publish-release.cmd    (or: ezcompiler publish release)
 
 Prerequisites:
     - the TUF signing keys must be present (`ezcompiler tuf init` otherwise)
     - Inno Setup (ISCC.exe) for the installer stage
 
 Usage:
-    uv run build.py                # full pipeline + upload
-    uv run build.py --no-upload    # build only, no remote push
-    uv run build.py --skip-build   # reuse dist/ as-is (installer iteration)
+    uv run build.py                  # full pipeline
+    uv run build.py --skip-build     # reuse dist/ as-is (installer iteration)
+    uv run build.py --skip-release   # no TUF release (rebuild a version)
 """
 
 from __future__ import annotations
@@ -29,7 +31,6 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 import argparse
-import os
 import sys
 from pathlib import Path
 
@@ -49,18 +50,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 # ///////////////////////////////////////////////////////////////
 
 
-def _load_dotenv(path: Path) -> None:
-    """Load the KEY=VALUE lines of a .env into os.environ (without overriding)."""
-    if not path.is_file():
-        return
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, _, val = line.partition("=")
-        os.environ.setdefault(key.strip(), val.strip().strip('"').strip("'"))
-
-
 def _force_utf8_stdout() -> None:
     """Avoid UnicodeEncodeError from the ezplog output on a cp1252 console."""
     for stream in (sys.stdout, sys.stderr):
@@ -75,18 +64,12 @@ def _force_utf8_stdout() -> None:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build and release flash-excel.")
-    parser.add_argument(
-        "--no-upload",
-        action="store_true",
-        help="Build only; skip the remote upload step.",
-    )
+    parser = argparse.ArgumentParser(description="Build flash-excel.")
     parser.add_argument(
         "--skip-release",
         action="store_true",
         help="Skip the TUF release stage (useful to rebuild an already "
-        "published version without an 'already released' error). Implies "
-        "--no-upload.",
+        "published version without an 'already released' error).",
     )
     parser.add_argument(
         "--skip-installer",
@@ -107,8 +90,7 @@ def main() -> int:
     args = parse_args()
 
     _force_utf8_stdout()
-    Ezpl()  # active l'affichage ezplog (sinon printer/logger silencieux)
-    _load_dotenv(PROJECT_ROOT / ".env")
+    Ezpl()  # enables the ezplog output (printer/logger stay silent otherwise)
 
     # Single config from pyproject.toml (+ ezcompiler.yaml when present).
     config = ConfigService.build_compiler_config(
@@ -132,13 +114,6 @@ def main() -> int:
         skip_release=args.skip_release,
         skip_build=args.skip_build,
     )
-
-    # Publication (an explicit stage, separate from the pipeline): the public
-    # part of the signed TUF tree -> R2. The installer zip is not published
-    # here, release_destination = disk keeping it local.
-    # Without a signed release there is nothing new to push, so skip it too.
-    if not args.no_upload and not args.skip_release:
-        compiler.publish_update()
 
     return 0
 
