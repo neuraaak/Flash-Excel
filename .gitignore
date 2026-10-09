@@ -252,6 +252,17 @@ keys/
 .tufup/keys/
 .tufup/repo/targets/
 
+# Throwaway TUF channel used to exercise the auto-update locally:
+# its own tree, its own keys, served over file:// (see ezcompiler.yaml).
+.tufup/local-repo/
+.tufup/local-keys/
+.tufup/local-channel/
+
+# Local ezcompiler overrides (destinations, TUF dirs). Machine-specific:
+# the committed configuration lives in [tool.ezcompiler] in pyproject.toml.
+ezcompiler.yaml
+ezcompiler.yml
+
 # =============================================================================
 # ADDITIONAL PATTERNS
 # =============================================================================
