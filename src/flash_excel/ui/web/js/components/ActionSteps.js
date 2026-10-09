@@ -28,7 +28,7 @@ const EDITOR_MAP = {
 };
 
 /**
- * Retourne les colonnes en sortie d'un step donné.
+ * Returns the columns coming out of a given step.
  */
 function applyStepToColumns(action, payload, cols) {
   if (!payload || !cols.length) return cols;
@@ -63,9 +63,9 @@ function applyStepToColumns(action, payload, cols) {
 }
 
 /**
- * Retourne le schema (col → type) en sortie d'un step donné.
- * Les types correspondent aux noms Polars dtype (ex: "String", "Int64")
- * ou aux noms de cast JS ("string", "int", "float", "bool", "date", "datetime").
+ * Returns the schema (col -> type) coming out of a given step.
+ * Types are either Polars dtype names (e.g. "String", "Int64") or the JS
+ * cast names ("string", "int", "float", "bool", "date", "datetime").
  */
 function applyStepToSchema(action, payload, schema) {
   if (!payload) return schema;
@@ -142,7 +142,7 @@ export default {
       }));
     },
 
-    // Colonnes disponibles en entrée de chaque step
+    // Columns available as input to each step
     columnsByStep() {
       let cols = [...this.columns];
       const result = {};
@@ -153,7 +153,7 @@ export default {
       return result;
     },
 
-    // Schema (col → type) disponible en entrée de chaque step
+    // Schema (col -> type) available as input to each step
     schemaByStep() {
       let schema = { ...this.schema };
       const result = {};

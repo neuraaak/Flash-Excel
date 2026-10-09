@@ -1,22 +1,22 @@
 # ///////////////////////////////////////////////////////////////
-# RELEASE - Publie une GitHub Release (installeur + zip) via gh CLI
+# RELEASE - Publishes a GitHub Release (installer + zip) through the gh CLI
 # ///////////////////////////////////////////////////////////////
 
-"""Publie une GitHub Release pour flash-excel avec le `gh` CLI local.
+"""Publish a GitHub Release for flash-excel with the local `gh` CLI.
 
-Lit la version depuis [project] de pyproject.toml, résout les artefacts
-produits par `build.py` (installeur Inno Setup + zip du dist), affiche le
-titre tel qu'il sera créé, demande confirmation, puis crée la release
-attachée au tag `vX.Y.Z`.
+Reads the version from [project] in pyproject.toml, resolves the artifacts
+produced by `build.py` (the Inno Setup installer + the dist zip), shows the
+title exactly as it will be created, asks for confirmation, then creates the
+release attached to the `vX.Y.Z` tag.
 
-Prérequis :
-    - `gh` installé et authentifié (`gh auth login`)
-    - artefacts déjà buildés : `uv run build.py`
+Prerequisites:
+    - `gh` installed and authenticated (`gh auth login`)
+    - the artifacts already built: `uv run build.py`
 
-Usage :
-    uv run .scripts/build/release.py            # confirmation interactive
-    uv run .scripts/build/release.py --yes       # sans confirmation
-    uv run .scripts/build/release.py --title "…"  # titre personnalisé
+Usage:
+    uv run .scripts/build/release.py            # interactive confirmation
+    uv run .scripts/build/release.py --yes       # no confirmation
+    uv run .scripts/build/release.py --title "…"  # custom title
 """
 
 from __future__ import annotations
@@ -40,7 +40,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT = PROJECT_ROOT / "pyproject.toml"
 
-# alpha / beta / rc / dev / a0 / b1 … → pré-release (aligné sur 02-tag-sync.yml)
+# alpha / beta / rc / dev / a0 / b1 ... -> pre-release (aligned with 02-tag-sync.yml)
 _PRERELEASE_RE = re.compile(r"(alpha|beta|rc|dev|a\d+|b\d+)")
 
 # ///////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ _PRERELEASE_RE = re.compile(r"(alpha|beta|rc|dev|a\d+|b\d+)")
 
 
 def _force_utf8_stdout() -> None:
-    """Évite les UnicodeEncodeError d'affichage sur console Windows cp1252."""
+    """Avoid UnicodeEncodeError on a cp1252 Windows console."""
     for stream in (sys.stdout, sys.stderr):
         reconfigure = getattr(stream, "reconfigure", None)
         if reconfigure is not None:
@@ -57,37 +57,35 @@ def _force_utf8_stdout() -> None:
 
 
 def _read_version() -> str:
-    """Retourne [project].version de pyproject.toml."""
+    """Return [project].version from pyproject.toml."""
     data = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))
     return data["project"]["version"]
 
 
 def _run(cmd: list[str]) -> subprocess.CompletedProcess[str]:
-    """Exécute une commande et capture stdout/stderr (texte)."""
+    """Run a command and capture stdout/stderr (as text)."""
     return subprocess.run(cmd, capture_output=True, text=True, check=False)
 
 
 def _fail(message: str) -> None:
-    """Affiche une erreur et quitte en code 1."""
+    """Print an error and exit with code 1."""
     print(f"❌ {message}", file=sys.stderr)
     sys.exit(1)
 
 
 def _resolve_assets(version: str) -> tuple[Path, Path, Path]:
-    """Valide les artefacts et retourne (installeur, zip source, zip versionné).
+    """Validate the artifacts and return (installer, source zip, versioned zip).
 
-    Le zip du dist n'est pas versionné (`flash-excel.zip`) : l'asset final est
-    une copie versionnée, effectuée seulement après confirmation.
+    The dist zip carries no version (`flash-excel.zip`): the final asset is a
+    versioned copy, made only once the release is confirmed.
     """
     installer = PROJECT_ROOT / "dist" / "installer" / f"flash-excel-{version}-setup.exe"
     zip_src = PROJECT_ROOT / "dist" / "flash-excel.zip"
 
     if not installer.is_file():
-        _fail(
-            f"Installeur introuvable : {installer}\n   → lance d'abord `uv run build.py`."
-        )
+        _fail(f"Installer not found: {installer}\n   -> run `uv run build.py` first.")
     if not zip_src.is_file():
-        _fail(f"Zip introuvable : {zip_src}\n   → lance d'abord `uv run build.py`.")
+        _fail(f"Zip not found: {zip_src}\n   -> run `uv run build.py` first.")
 
     return installer, zip_src, zip_src.with_name(f"flash-excel-{version}.zip")
 
@@ -99,13 +97,13 @@ def _resolve_assets(version: str) -> tuple[Path, Path, Path]:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Publie une GitHub Release flash-excel."
+        description="Publish a flash-excel GitHub Release."
     )
     parser.add_argument(
-        "--title", help="Titre de la release (défaut : « Flash-Excel vX.Y.Z »)."
+        "--title", help='Release title (default: "Flash-Excel vX.Y.Z").'
     )
     parser.add_argument(
-        "--yes", action="store_true", help="Ne pas demander de confirmation."
+        "--yes", action="store_true", help="Do not ask for confirmation."
     )
     return parser.parse_args()
 
@@ -115,43 +113,45 @@ def main() -> int:
     _force_utf8_stdout()
 
     if shutil.which("gh") is None:
-        _fail("`gh` introuvable. Installe GitHub CLI puis `gh auth login`.")
+        _fail("`gh` not found. Install the GitHub CLI, then `gh auth login`.")
     if _run(["gh", "auth", "status"]).returncode != 0:
-        _fail("`gh` non authentifié. Lance `gh auth login`.")
+        _fail("`gh` is not authenticated. Run `gh auth login`.")
 
     version = _read_version()
     tag = f"v{version}"
     title = args.title or f"Flash-Excel v{version}"
     is_prerelease = bool(_PRERELEASE_RE.search(version))
 
-    # Ne pas écraser silencieusement une release existante.
+    # Never overwrite an existing release silently.
     if _run(["gh", "release", "view", tag]).returncode == 0:
-        _fail(f"La release {tag} existe déjà. Supprime-la ou change de version.")
+        _fail(f"Release {tag} already exists. Delete it or change the version.")
 
     installer, zip_src, zip_versioned = _resolve_assets(version)
     tag_exists = (
         _run(["git", "rev-parse", "-q", "--verify", f"refs/tags/{tag}"]).returncode == 0
     )
 
-    # Récapitulatif + titre as-is avant action.
+    # Summary + the title as-is, before acting.
     print("─" * 60)
-    print("📦 GitHub Release à publier")
-    print(f"   Tag        : {tag}" + ("" if tag_exists else "  (sera créé par gh)"))
-    print(f"   Titre      : {title}")
-    print(f"   Pré-release: {'oui' if is_prerelease else 'non'}")
-    print("   Artefacts  :")
+    print("📦 GitHub Release to publish")
+    print(
+        f"   Tag        : {tag}" + ("" if tag_exists else "  (will be created by gh)")
+    )
+    print(f"   Title      : {title}")
+    print(f"   Pre-release: {'yes' if is_prerelease else 'no'}")
+    print("   Artifacts  :")
     for name in (installer.name, zip_versioned.name):
         print(f"     - {name}")
     print("─" * 60)
 
-    answer = (
-        "y" if args.yes else input("Publier cette release ? [y/N] ").strip().lower()
-    )
+    answer = "y" if args.yes else input("Publish this release? [y/N] ").strip().lower()
+    # "o"/"oui" stay accepted: the prompt is answered by a French-speaking
+    # maintainer, and dropping them would reject a reflex keystroke.
     if answer not in {"y", "yes", "o", "oui"}:
-        print("Annulé.")
+        print("Cancelled.")
         return 1
 
-    # Copie versionnée du zip seulement une fois la publication confirmée.
+    # Versioned copy of the zip only once publication is confirmed.
     shutil.copy2(zip_src, zip_versioned)
 
     cmd = ["gh", "release", "create", tag, "--title", title, "--generate-notes"]
@@ -161,9 +161,9 @@ def main() -> int:
 
     result = subprocess.run(cmd, check=False)
     if result.returncode != 0:
-        _fail(f"Échec de `gh release create` (code {result.returncode}).")
+        _fail(f"`gh release create` failed (code {result.returncode}).")
 
-    print(f"✅ Release {tag} publiée.")
+    print(f"✅ Release {tag} published.")
     return 0
 
 

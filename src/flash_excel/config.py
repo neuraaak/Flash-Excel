@@ -30,67 +30,67 @@ _DEFAULTS: dict = {
     "locale": "en",
 }
 
-# Langues proposées par l'assistant Inno Setup ([tool.ezcompiler.installer]
-# languages) vers les locales de l'application. Toute autre valeur retombe sur
-# le défaut : l'assistant peut gagner une langue avant que l'UI ne la traduise.
+# Languages offered by the Inno Setup wizard ([tool.ezcompiler.installer]
+# languages) mapped to the application locales. Any other value falls back to
+# the default: the wizard may gain a language before the UI translates it.
 _INNO_LOCALES: dict[str, str] = {
     "french": "fr",
     "english": "en",
 }
 
-# Repli minimal si le template du package est introuvable (bundle incomplet) :
-# l'application doit démarrer avec une config valide, quitte à perdre les
-# commentaires explicatifs.
+# Minimal fallback when the package template is missing (incomplete bundle):
+# the application must start with a valid config, even at the cost of losing
+# the explanatory comments.
 _FALLBACK_TEMPLATE = (
     "appearance:\n  palette: {palette}\n  mode: {mode}\nlocale: {locale}\n"
 )
 
 
 def _template() -> str:
-    """Retourne le gabarit d'app.config.yaml livré avec le package."""
+    """Return the app.config.yaml template shipped with the package."""
     try:
         return APP_CONFIG_TEMPLATE.read_text(encoding="utf-8")
     except OSError:
-        log("WARNING", f"template introuvable: {APP_CONFIG_TEMPLATE}, repli minimal")
+        log("WARNING", f"template not found: {APP_CONFIG_TEMPLATE}, minimal fallback")
         return _FALLBACK_TEMPLATE
 
 
 def _installer_locale() -> str | None:
-    """Retourne la locale déduite de la langue choisie dans l'installeur.
+    """Return the locale derived from the language picked in the installer.
 
     Returns:
-        str | None: Locale applicative, ou None si le marqueur est illisible
-            ou porte une langue que l'application ne connaît pas.
+        str | None: Application locale, or None if the marker is unreadable
+            or carries a language the application does not know.
     """
     try:
         parser = configparser.ConfigParser()
         parser.read(INSTALLER_MARKER, encoding="utf-8-sig")
         language = parser.get("Setup", "Language", fallback="").strip().lower()
     except (OSError, configparser.Error):
-        log("WARNING", f"marqueur d'installeur illisible: {INSTALLER_MARKER}")
+        log("WARNING", f"unreadable installer marker: {INSTALLER_MARKER}")
         return None
 
     locale = _INNO_LOCALES.get(language)
     if locale is None and language:
-        log("WARNING", f"langue d'installeur inconnue: {language!r}")
+        log("WARNING", f"unknown installer language: {language!r}")
     return locale
 
 
 def consume_installer_locale() -> str | None:
-    """Applique la langue choisie dans l'installeur, puis efface le marqueur.
+    """Apply the language picked in the installer, then clear the marker.
 
-    L'installeur Inno Setup écrit ``installer.ini`` dans %APPDATA% à chaque
-    installation. C'est un message à usage unique, pas un état : on l'applique
-    — en créant la config au besoin, sinon en ne touchant qu'à sa locale — puis
-    on le supprime. Ainsi une réinstallation impose bien la langue demandée
-    dans l'assistant, et les changements faits ensuite dans l'application
-    tiennent, puisqu'il n'y a plus de marqueur pour les écraser.
+    The Inno Setup installer writes ``installer.ini`` into %APPDATA% on every
+    install. It is a single-use message, not a state: apply it — creating the
+    config when needed, otherwise touching only its locale — then delete it.
+    A reinstall therefore does impose the language asked for in the wizard,
+    while changes made afterwards in the application stick, there being no
+    marker left to overwrite them.
 
-    Le marqueur est supprimé même quand il est inexploitable : le garder
-    ferait rejouer le même échec à chaque démarrage.
+    The marker is deleted even when it is unusable: keeping it would replay
+    the same failure on every start.
 
     Returns:
-        str | None: Locale appliquée, ou None si rien n'a été fait.
+        str | None: The locale applied, or None if nothing was done.
     """
     if not INSTALLER_MARKER.is_file():
         return None
@@ -104,7 +104,7 @@ def consume_installer_locale() -> str | None:
                 current["appearance"]["mode"],
                 locale,
             )
-            log("INFO", f"locale reprise de l'installeur: {locale}")
+            log("INFO", f"locale taken from the installer: {locale}")
 
     with contextlib.suppress(OSError):
         INSTALLER_MARKER.unlink()
@@ -112,23 +112,22 @@ def consume_installer_locale() -> str | None:
 
 
 def _resolve_palette(name: str) -> str:
-    """Retourne ``name`` si la palette existe, sinon la palette par défaut.
+    """Return ``name`` if the palette exists, else the default palette.
 
-    La config d'apparence est itinérante : elle peut désigner une palette que
-    le catalogue du poste courant ne connaît pas (copie plus ancienne, palette
-    ajoutée à la main sur un autre poste). Sans ce garde-fou le front ne trouve
-    aucun token et retombe silencieusement sur le CSS par défaut, sans que rien
-    ne dise pourquoi.
+    The appearance config roams: it may name a palette the current machine's
+    catalogue does not know (an older copy, a palette added by hand on another
+    machine). Without this guard the front-end finds no token and silently
+    falls back to the default CSS, with nothing saying why.
     """
     palettes = load_themes()
     if not palettes or name in palettes:
         return name
-    log("WARNING", f"palette {name!r} absente du catalogue, retour au défaut")
+    log("WARNING", f"palette {name!r} missing from the catalogue, using the default")
     return _DEFAULTS["appearance"]["palette"]
 
 
 def load_app_config() -> dict:
-    """Charge la config, crée le fichier avec les défauts s'il n'existe pas."""
+    """Load the config, creating the file with the defaults if it is absent."""
     if not APP_CONFIG.exists():
         _write(
             _DEFAULTS["appearance"]["palette"],
@@ -159,20 +158,20 @@ def load_app_config() -> dict:
 
 
 def save_app_config(palette: str, mode: str, locale: str = "en") -> None:
-    """Persiste les réglages d'apparence et la locale en conservant les commentaires."""
+    """Persist the appearance settings and locale, keeping the comments."""
     _write(palette, mode, locale)
 
 
 def ensure_theme_config() -> None:
-    """Amorce la copie utilisateur du catalogue de palettes, et la rafraîchit.
+    """Seed the user copy of the palette catalogue, and refresh it.
 
-    Le catalogue vit dans %APPDATA% pour voyager avec app.config.yaml : un
-    réglage itinérant ne peut pas désigner une palette absente du poste.
-    Mais il est livré avec la version, donc une release qui ajoute une palette
-    ou corrige un token doit atteindre l'utilisateur : on compare l'empreinte
-    du catalogue embarqué à celle mémorisée lors du dernier amorçage, et on
-    remplace la copie quand elle a changé — en conservant l'ancienne en .bak
-    pour ne rien détruire chez qui l'aurait éditée.
+    The catalogue lives in %APPDATA% so that it travels with app.config.yaml:
+    a roaming setting cannot name a palette the machine lacks. It is shipped
+    with the release though, so a version that adds a palette or fixes a token
+    must reach the user: compare the fingerprint of the bundled catalogue with
+    the one recorded at the last seeding, and replace the copy when it has
+    changed — keeping the previous one as .bak so nothing is destroyed for
+    anyone who edited it.
     """
     if not BUNDLED_THEMES_CONFIG.is_file():
         return
@@ -194,16 +193,16 @@ def ensure_theme_config() -> None:
             shutil.copy2(THEMES_CONFIG, THEMES_CONFIG.with_suffix(".yaml.bak"))
             log(
                 "INFO",
-                f"themes: catalogue mis à jour, ancienne copie en {THEMES_CONFIG.name}.bak",
+                f"themes: catalogue updated, previous copy at {THEMES_CONFIG.name}.bak",
             )
         else:
-            log("INFO", f"themes: catalogue amorcé dans {THEMES_CONFIG}")
+            log("INFO", f"themes: catalogue seeded at {THEMES_CONFIG}")
         THEMES_CONFIG.write_bytes(shipped)
         THEMES_STAMP.write_text(digest, encoding="utf-8")
 
 
 def load_themes() -> dict:
-    """Retourne le dict complet des palettes depuis theme.config.yaml."""
+    """Return the full palette dict from theme.config.yaml."""
     ensure_theme_config()
     try:
         data = yaml.safe_load(THEMES_CONFIG.read_text(encoding="utf-8")) or {}

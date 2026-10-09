@@ -134,7 +134,7 @@ def _find_iscc() -> Path | None:
     """Locate iscc.exe via PATH, env var INNO_SETUP_PATH, or default install locations."""
     import os
 
-    # 1. Dans le PATH (cas nominal)
+    # 1. On the PATH (the nominal case)
     exe = shutil.which("ISCC") or shutil.which("iscc")
     if exe:
         return Path(exe)

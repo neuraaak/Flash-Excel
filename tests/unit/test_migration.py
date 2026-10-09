@@ -1,4 +1,4 @@
-"""Tests de la récupération des presets restés dans le dossier d'installation."""
+"""Tests for the recovery of presets left behind in the install directory."""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ def test_migrate_copies_toml_presets_only(monkeypatch, tmp_path):
     assert migration.migrate_legacy_presets() == 1
     assert (target / "rh.toml").read_text(encoding="utf-8") == "name = 'rh'"
     assert not (target / "notes.txt").exists()
-    # L'original est conservé : une copie ratée ne doit rien détruire.
+    # The original is kept: a failed copy must not destroy anything.
     assert (legacy / "rh.toml").exists()
 
 

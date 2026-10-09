@@ -6,9 +6,9 @@ import os
 import sys
 from pathlib import Path
 
-# Doit être positionné avant l'import de webview pour prendre effet. Les
-# records stdlib de pywebview sont captés par le pont ezplog (hook_logger) et
-# atterrissent dans le même fichier que les logs applicatifs.
+# Must be set before webview is imported to take effect. pywebview's stdlib
+# records are picked up by the ezplog bridge (hook_logger) and land in the
+# same file as the application logs.
 os.environ.setdefault("PYWEBVIEW_LOG", "WARNING")
 
 import webview  # type: ignore[import-untyped]  # noqa: E402

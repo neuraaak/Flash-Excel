@@ -1,7 +1,7 @@
-// Registre partagé des steps du pipeline : ordre canonique + clés i18n.
-// Utilisé par ActionSteps.js (config des presets) et Processing.js (console
-// + preview) pour afficher un nom traduit au lieu de l'action technique brute
-// (ex: "rename_columns").
+// Shared registry of pipeline steps: canonical order + i18n keys.
+// Used by ActionSteps.js (preset configuration) and Processing.js (console
+// + preview) to show a translated name instead of the raw technical action
+// (e.g. "rename_columns").
 
 // drop_columns and fill_nulls sit at their RECOMMENDED_ACTION_ORDER positions
 // (core/models.py); the relative order of the pre-existing steps is left as it
@@ -27,13 +27,13 @@ const STEP_I18N_KEYS = {
   reorder_columns: 'steps.reorder',
 };
 
-/** Nom traduit d'un step (fallback : l'action technique si inconnue). */
+/** Translated name of a step (falls back to the technical action). */
 export function stepLabel(action, t) {
   const key = STEP_I18N_KEYS[action];
   return key ? t(key) : action;
 }
 
-/** Description traduite d'un step. */
+/** Translated description of a step. */
 export function stepDesc(action, t) {
   const key = STEP_I18N_KEYS[action];
   return key ? t(`${key}.desc`) : '';

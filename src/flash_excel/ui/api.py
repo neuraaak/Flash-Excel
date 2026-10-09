@@ -89,14 +89,14 @@ class FlashExcelAPI:
         if not getattr(sys, "frozen", False):
             return _ok({"available": False, "version": None, "error": None})
         try:
-            import update  # ty: ignore[unresolved-import]  # module généré au build, embarqué à la racine du bundle
+            import update  # ty: ignore[unresolved-import]  # generated at build time, bundled at the archive root
 
             latest = update.get_latest_version()
             log("INFO", f"update check ok: current={__version__} latest={latest!r}")
             return _ok(
                 {"available": latest is not None, "version": latest, "error": None}
             )
-        except Exception as exc:  # noqa: BLE001 - un check échoué n'est pas fatal
+        except Exception as exc:  # noqa: BLE001 - a failed check is not fatal
             log("ERROR", f"update check FAILED: {exc!r}\n{traceback.format_exc()}")
             return _ok({"available": False, "version": None, "error": str(exc)})
 
@@ -115,9 +115,9 @@ class FlashExcelAPI:
             return _err("Auto-update is only available in the packaged application")
 
         def _force_quit() -> None:
-            # Laisse la réponse repartir vers le JS, ferme la fenêtre, puis
-            # termine brutalement le process pour libérer les fichiers
-            # verrouillés que le script robocopy de tufup doit remplacer.
+            # Let the response make it back to the JS side, close the window,
+            # then kill the process outright to release the locked files that
+            # tufup's robocopy script has to replace.
             time.sleep(0.3)
             for window in webview.windows:
                 with contextlib.suppress(Exception):
@@ -125,16 +125,16 @@ class FlashExcelAPI:
             os._exit(0)
 
         try:
-            import update  # ty: ignore[unresolved-import]  # module généré au build, embarqué à la racine du bundle
+            import update  # ty: ignore[unresolved-import]  # generated at build time, bundled at the archive root
 
-            # Retour normal = aucune maj appliquée (déjà à jour). Une maj
-            # effective ne revient jamais ici : tufup lève SystemExit après
-            # avoir lancé son script d'installation.
+            # A normal return means no update was applied (already current).
+            # An actual update never comes back here: tufup raises SystemExit
+            # once it has launched its install script.
             applied = update.check_and_apply(skip_confirmation=True)
             log("INFO", f"update apply: no-op (applied={applied})")
             return _ok({"applied": bool(applied)})
         except SystemExit:
-            log("INFO", "update apply: installer lancé (SystemExit) → force quit")
+            log("INFO", "update apply: installer launched (SystemExit) -> force quit")
             threading.Thread(target=_force_quit, daemon=True).start()
             return _ok({"applied": True})
         except Exception as exc:
@@ -247,7 +247,7 @@ class FlashExcelAPI:
             name = name.strip()
             new_path = PRESETS_DIR / f"{self._name_to_filename(name)}.toml"
 
-            # Si le nom a changé, supprimer l'ancien fichier.
+            # Delete the old file when the name has changed.
             if (
                 self._current_preset_path is not None
                 and self._current_preset_path != new_path

@@ -8,8 +8,8 @@ import { STEP_ACTIONS } from '../steps-registry.js';
 const ACTION_ORDER = STEP_ACTIONS;
 
 /**
- * Supprime des payloads toute référence aux colonnes disparues.
- * Retourne un nouvel objet payloads nettoyé.
+ * Strips every reference to vanished columns from the payloads.
+ * Returns a new, cleaned payloads object.
  */
 function purgePayloads(payloads, missingCols) {
   const missing = new Set(missingCols);
@@ -68,7 +68,7 @@ const IDENT_RE = /^[A-Za-z_]\w*$/;
 function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`); }
 
 /**
- * Remplace toute référence à `oldName` par `newName` dans une expression
+ * Replaces every reference to `oldName` with `newName` in an
  * add_computed_column (syntaxe `[Nom de colonne]` ou identifiant brut).
  */
 function renameInExpression(expr, oldName, newName) {
@@ -82,9 +82,9 @@ function renameInExpression(expr, oldName, newName) {
 }
 
 /**
- * Réécrit les références à `oldName` en `newName` dans tous les steps
- * situés après `fromAction` dans le pipeline (propagation d'un renommage
- * de colonne, qu'il vienne de rename_columns ou d'add_computed_column).
+ * Rewrites references to `oldName` as `newName` in every step located
+ * after `fromAction` in the pipeline (propagating a column rename,
+ * whether it comes from rename_columns or from add_computed_column).
  */
 function renameColumnDownstream(payloads, fromAction, oldName, newName) {
   if (oldName === newName) return payloads;
@@ -151,7 +151,7 @@ export default {
       fileInfo: null,
       fileSchema: {},
       presetColumns: [],
-      templateFile: '',     // nom du fichier modèle mémorisé dans le preset
+      templateFile: '',     // template file name recorded in the preset
       payloads: {},
       // Mismatch modal state
       mismatch: null,   // null | { pending, missing, added }
@@ -181,8 +181,8 @@ export default {
         this.fileInfo = null;
         this.fileSchema = data.source_types || {};
         this.presetColumns = data.source_columns || [];
-        // Fallback : si le preset a des colonnes mais pas encore de source_file
-        // (sauvé avant l'ajout du champ), on affiche quand même l'état template.
+        // Fallback: when the preset has columns but no source_file yet
+        // (saved before the field existed), still show the template state.
         this.templateFile = data.source_file || (this.presetColumns.length ? this.t('file.template_unknown') : '');
         this.payloads = {};
         for (const step of data.steps) {
@@ -242,7 +242,7 @@ export default {
       try {
         const res = await api.openFileDialog();
         if (res?.cancelled) return;
-        // Comparer avec les colonnes enregistrées dans le preset
+        // Compare against the columns recorded in the preset
         const savedCols = this.presetColumns;
         if (savedCols.length > 0) {
           const missing = savedCols.filter(c => !res.columns.includes(c));
@@ -290,7 +290,7 @@ export default {
       let result = newPayloads;
       const old = this.payloads;
 
-      // Renommage d'une colonne source (rename_columns) → propager aux steps suivantes
+      // Renaming a source column (rename_columns) -> propagate to later steps
       const oldMapping = old.rename_columns?.mapping || {};
       const newMapping = newPayloads.rename_columns?.mapping || {};
       for (const src of Object.keys(newMapping)) {
@@ -299,7 +299,7 @@ export default {
         }
       }
 
-      // Renommage d'une colonne calculée (add_computed_column.target) → propager aux steps suivantes
+      // Renaming a computed column (add_computed_column.target) -> propagate to later steps
       const oldItems = old.add_computed_column?.items || [];
       const newItems = newPayloads.add_computed_column?.items || [];
       newItems.forEach((item, i) => {

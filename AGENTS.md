@@ -39,9 +39,15 @@ This is a public repository: **write all new content in English** — commit
 messages, docstrings, comments, documentation, and the source UI strings in
 `locales/en.js` (`locales/fr.js` holds the French translations).
 
-Some existing inline comments are in French, a leftover from an earlier phase.
-Leave them alone: do not retro-translate a file you are editing for another
-reason. New comments go in English, next to them if need be.
+English is the convention everywhere, with no exception left over: comments,
+docstrings, config comments, build scripts, CLI output and log messages.
+
+Two things are deliberately **not** English and must stay as they are:
+
+- the computed-column function names (`CONCATENER`, `MAJUSCULE`, `SI`…), which
+  are the preset expression DSL, modelled on French Excel. Renaming one would
+  break every preset already written;
+- `locales/fr.js`, which is the French translation itself.
 
 Commits follow Conventional Commits (`type(scope): imperative description`),
 with a body explaining the *why* — see `git log` for the established tone.

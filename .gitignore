@@ -1,11 +1,11 @@
 # =============================================================================
-# GITIGNORE RACINE
+# ROOT GITIGNORE
 # =============================================================================
-# Ce fichier contient les exclusions GLOBALES et COMMUNES
-# Les sous-dossiers ont leurs propres .gitignore pour les exclusions spécifiques
+# This file holds the GLOBAL, SHARED exclusions
+# Subdirectories carry their own .gitignore for specific exclusions
 
 # =============================================================================
-# PYTHON - FICHIERS DE BASE (COMMUNS)
+# PYTHON - BASE FILES (SHARED)
 # =============================================================================
 # Bytecode Python
 __pycache__/
@@ -16,7 +16,7 @@ __pycache__/
 *.so
 .Python
 
-# Environnements virtuels
+# Virtual environments
 .venv/
 env/
 venv/
@@ -26,9 +26,9 @@ venv.bak/
 .conda/
 
 # =============================================================================
-# BUILD ET DISTRIBUTION (COMMUNS)
+# BUILD AND DISTRIBUTION (SHARED)
 # =============================================================================
-# Artifacts de build
+# Build artifacts
 build/
 !.scripts/build/
 dist/
@@ -53,9 +53,9 @@ share/python-wheels/
 MANIFEST
 
 # =============================================================================
-# CACHE ET FICHIERS TEMPORAIRES (COMMUNS)
+# CACHES AND TEMPORARY FILES (SHARED)
 # =============================================================================
-# Caches des outils de développement
+# Development tool caches
 .pytest_cache/
 .ruff_cache/
 .mypy_cache/
@@ -77,27 +77,27 @@ node_modules/
 .yarn/
 
 # =============================================================================
-# RAPPORTS ET ANALYSES DE QUALITÉ DE CODE (COMMUNS)
+# CODE QUALITY REPORTS AND ANALYSES (SHARED)
 # =============================================================================
-# Rapports de sécurité (Bandit)
+# Security reports (Bandit)
 bandit-report.json
 bandit-report.xml
 bandit-report.html
 bandit_report.html
 
-# Rapports de couverture de code (pytest-cov, coverage)
+# Code coverage reports (pytest-cov, coverage)
 .coverage
 coverage.xml
 htmlcov/
 .coverage.*
 
-# Rapports de linting et formatage
+# Linting and formatting reports
 ruff-report.json
 flake8-report.txt
 black-report.txt
 mypy-report.txt
 
-# Rapports de tests
+# Test reports
 test-results/
 junit.xml
 test-report.xml
@@ -105,49 +105,49 @@ nosetests.xml
 *.cover
 *.py,cover
 
-# Rapports de documentation
+# Documentation reports
 doc8-report.txt
 doc8-report.html
 
-# Rapports de complexité et métriques
+# Complexity and metrics reports
 radon-report.json
 mccabe-report.txt
 complexity-report.html
 
-# Rapports de dépendances
+# Dependency reports
 safety-report.json
 pip-audit-report.json
 dependency-check-report.xml
 
-# Rapports de performance
+# Performance reports
 py-spy-report.svg
 py-spy-report.txt
 memory-profiler-report.txt
 
-# Rapports de type checking avancés
+# Advanced type checking reports
 pyre-report.json
 pyright-report.json
 pytype-report.txt
 
-# Rapports de formatage et style
+# Formatting and style reports
 autopep8-report.txt
 yapf-report.txt
 isort-report.txt
 
-# Rapports de sécurité avancés
+# Advanced security reports
 semgrep-report.json
 semgrep-report.sarif
 codeql-report.json
 
-# Rapports de qualité générale
+# General quality reports
 sonarqube-report.json
 codeclimate-report.json
 codacy-report.json
 
 # =============================================================================
-# LOGS ET FICHIERS TEMPORAIRES
+# LOGS AND TEMPORARY FILES
 # =============================================================================
-# Logs d'application
+# Application logs
 .logs/
 *.log
 *.xlsx
@@ -155,7 +155,7 @@ codacy-report.json
 version_info.txt
 
 # =============================================================================
-# IDE ET ÉDITEURS (COMMUNS)
+# IDES AND EDITORS (SHARED)
 # =============================================================================
 # Visual Studio Code
 .vscode/
@@ -195,7 +195,7 @@ GEMINI.md
 .cline/
 
 # =============================================================================
-# FICHIERS SYSTÈME (COMMUNS)
+# SYSTEM FILES (SHARED)
 # =============================================================================
 # Windows
 Thumbs.db
@@ -215,16 +215,16 @@ $RECYCLE.BIN/
 .Trash-*
 
 # =============================================================================
-# EXCLUSIONS GLOBALES (COMMUNES)
+# GLOBAL EXCLUSIONS (SHARED)
 # =============================================================================
-# Fichiers de sauvegarde
+# Backup files
 *.bak
 *.backup
 *.old
 *.orig
 *.rej
 
-# Fichiers temporaires
+# Temporary files
 *.pid
 *.tmp
 *.temp
@@ -234,9 +234,9 @@ tmp/
 tmpclaude-*
 
 # =============================================================================
-# EXCLUSIONS SPÉCIFIQUES AU PROJET RACINE
+# EXCLUSIONS SPECIFIC TO THIS PROJECT
 # =============================================================================
-# Fichiers de configuration globaux et sensibles
+# Global and sensitive configuration files
 .env
 .env.*
 .env.local
@@ -253,23 +253,23 @@ keys/
 .tufup/repo/targets/
 
 # =============================================================================
-# PATTERNS ADDITIONNELS
+# ADDITIONAL PATTERNS
 # =============================================================================
-# Commit messages temporaires
+# Temporary commit messages
 commit_message.txt
 
-# Fichiers de test temporaires
+# Temporary test files
 test_output/
 temp_projects/
 
-# Fichiers client d'auto-update générés par ezcompiler au build
-# (UpdaterService.generate → racine, à côté de main.py). Régénérés à chaque
-# build (settings.py embarque la VERSION), donc jamais versionnés.
+# Auto-update client files generated by ezcompiler at build time
+# (UpdaterService.generate -> project root, next to main.py). Regenerated on
+# every build (settings.py embeds the VERSION), so never tracked.
 /update.py
 /settings.py
 /root.json
 
-# Configuration locale utilisateur
+# Machine-local user configuration
 local_config/
 user_settings/
 bin/presets

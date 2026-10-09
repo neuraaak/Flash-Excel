@@ -3,7 +3,7 @@ import { toRaw } from '../../vendor/vue.esm-browser.prod.js';
 const ALL_OPS = ['trim', 'collapse', 'accents', 'special'];
 const ALL_CASES = ['none', 'lower', 'upper', 'title'];
 
-// Types Polars et types de cast JS considérés comme texte
+// Polars dtypes and JS cast types treated as text
 const STRING_TYPES = new Set([
   'Utf8', 'String', 'LargeUtf8', 'Categorical', 'Enum',
   'string',
@@ -33,7 +33,7 @@ export default {
       const stringOnly = Object.keys(this.schema).length
         ? base.filter(c => !this.schema[c] || STRING_TYPES.has(this.schema[c]))
         : base;
-      // Exclure les colonnes déjà couvertes par une autre règle (sauf en mode édition)
+      // Exclude columns already covered by another rule (except when editing)
       const usedElsewhere = new Set(
         this.items
           .filter((_, i) => i !== this.editIdx)
@@ -59,7 +59,7 @@ export default {
 
     emit() {
       this._emitting = true;
-      // Clone items pour éviter de passer le proxy Vue par référence au parent.
+      // Clone items so the Vue proxy is not handed to the parent by reference.
       const snapshot = structuredClone(toRaw(this.items));
       this._dbg(`emit: ${snapshot.length} item(s) → ${JSON.stringify(snapshot)}`);
       this.$emit('update:payload', snapshot.length
