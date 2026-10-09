@@ -169,7 +169,7 @@ export default {
   methods: {
     async loadList() {
       try { this.presets = await api.getPresets(); }
-      catch (e) { this.showToast(`Failed to load presets: ${e.message}`, 'error'); }
+      catch (e) { this.showToast(this.t('toast.presets_load_failed', { error: e.message }), 'error'); }
     },
 
     async selectPreset(path) {
@@ -189,7 +189,7 @@ export default {
           const { action, ...rest } = step;
           this.payloads[action] = { action, ...rest };
         }
-      } catch (e) { this.showToast(`Load failed: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.preset_load_failed', { error: e.message }), 'error'); }
     },
 
     async newPreset() {
@@ -199,18 +199,18 @@ export default {
         this.isNew = true; this.selectedPath = null;
         this.presetName = name; this.fileInfo = null;
         this.fileSchema = {}; this.presetColumns = []; this.templateFile = ''; this.payloads = {};
-      } catch (e) { this.showToast(`Error: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.preset_create_failed', { error: e.message }), 'error'); }
     },
 
     async savePreset() {
-      if (!this.presetName.trim()) { this.showToast('Preset name cannot be empty', 'error'); return; }
+      if (!this.presetName.trim()) { this.showToast(this.t('toast.preset_name_empty'), 'error'); return; }
       try {
         const steps = ACTION_ORDER.map(a => this.payloads[a]).filter(p => p && Object.keys(p).length > 1);
         const res = await api.savePreset(this.presetName, steps);
         this.selectedPath = res.path; this.isNew = false;
         await this.loadList();
-        this.showToast('Preset saved');
-      } catch (e) { this.showToast(`Save failed: ${e.message}`, 'error'); }
+        this.showToast(this.t('toast.preset_saved'));
+      } catch (e) { this.showToast(this.t('toast.preset_save_failed', { error: e.message }), 'error'); }
     },
 
     deletePreset() {
@@ -225,8 +225,8 @@ export default {
         this.presetName = ''; this.fileInfo = null;
         this.fileSchema = {}; this.templateFile = ''; this.payloads = {};
         await this.loadList();
-        this.showToast('Preset deleted');
-      } catch (e) { this.showToast(`Delete failed: ${e.message}`, 'error'); }
+        this.showToast(this.t('toast.preset_deleted'));
+      } catch (e) { this.showToast(this.t('toast.preset_delete_failed', { error: e.message }), 'error'); }
     },
     cancelDelete() { this.showDeleteConfirm = false; },
 
@@ -234,8 +234,8 @@ export default {
       if (!this.selectedPath) return;
       try {
         const res = await api.exportPreset(this.selectedPath);
-        if (!res?.cancelled) this.showToast('Preset exported');
-      } catch (e) { this.showToast(`Export failed: ${e.message}`, 'error'); }
+        if (!res?.cancelled) this.showToast(this.t('toast.preset_exported'));
+      } catch (e) { this.showToast(this.t('toast.preset_export_failed', { error: e.message }), 'error'); }
     },
 
     async loadFile() {
@@ -254,7 +254,7 @@ export default {
           }
         }
         this._applyFile(res);
-      } catch (e) { this.showToast(`File error: ${e.message}`, 'error'); }
+      } catch (e) { this.showToast(this.t('toast.file_error', { error: e.message }), 'error'); }
     },
 
     async clearFile() {
@@ -279,7 +279,7 @@ export default {
       this._applyFile(pending);
       this.payloads = purgePayloads(this.payloads, missing);
       this.mismatch = null;
-      if (missing.length > 0) this.showToast(`${missing.length} obsolete reference(s) removed`);
+      if (missing.length > 0) this.showToast(this.t('toast.refs_removed', { n: missing.length }));
     },
 
     mismatchCancel() {

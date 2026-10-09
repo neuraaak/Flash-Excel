@@ -57,6 +57,20 @@ export default {
   'presets.step2.title': 'Action configuration',
   'presets.step2.hint': 'Load a file to enable column mapping',
 
+  // Toasts — presets page
+  'toast.presets_load_failed': 'Failed to load presets: {error}',
+  'toast.preset_load_failed': 'Load failed: {error}',
+  'toast.preset_create_failed': 'Creation failed: {error}',
+  'toast.preset_name_empty': 'Preset name cannot be empty',
+  'toast.preset_saved': 'Preset saved',
+  'toast.preset_save_failed': 'Save failed: {error}',
+  'toast.preset_deleted': 'Preset deleted',
+  'toast.preset_delete_failed': 'Delete failed: {error}',
+  'toast.preset_exported': 'Preset exported',
+  'toast.preset_export_failed': 'Export failed: {error}',
+  'toast.file_error': 'File error: {error}',
+  'toast.refs_removed': '{n} obsolete reference(s) removed',
+
   // Toolbar buttons
   'toolbar.save': 'Save',
   'toolbar.delete': 'Delete',

@@ -57,6 +57,20 @@ export default {
   'presets.step2.title': 'Configuration des actions',
   'presets.step2.hint': 'Chargez un fichier pour activer le mapping de colonnes',
 
+  // Toasts — presets page
+  'toast.presets_load_failed': 'Échec du chargement des préréglages : {error}',
+  'toast.preset_load_failed': 'Échec du chargement : {error}',
+  'toast.preset_create_failed': 'Échec de la création : {error}',
+  'toast.preset_name_empty': 'Le nom du préréglage ne peut pas être vide',
+  'toast.preset_saved': 'Préréglage enregistré',
+  'toast.preset_save_failed': "Échec de l'enregistrement : {error}",
+  'toast.preset_deleted': 'Préréglage supprimé',
+  'toast.preset_delete_failed': 'Échec de la suppression : {error}',
+  'toast.preset_exported': 'Préréglage exporté',
+  'toast.preset_export_failed': "Échec de l'export : {error}",
+  'toast.file_error': 'Erreur de fichier : {error}',
+  'toast.refs_removed': '{n} référence(s) obsolète(s) supprimée(s)',
+
   // Toolbar buttons
   'toolbar.save': 'Enregistrer',
   'toolbar.delete': 'Supprimer',
