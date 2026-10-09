@@ -190,7 +190,6 @@ GEMINI.md
 # Claude (Anthropic)
 .clinerules
 .claude/
-CLAUDE.md
 
 # Cline (VS Code extension)
 .cline/
