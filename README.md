@@ -80,7 +80,8 @@ uv run build.py --skip-build    # reuse dist/ as-is, to iterate on the installer
 
 Publishing is a separate, explicit step, run once the build has been checked.
 Two helpers wrap it, so the project root and the credentials in the gitignored
-`.env` do not have to be handled by hand:
+`.env` do not have to be handled by hand -- copy [example.env](example.env) to
+`.env` and fill it in:
 
 ```bat
 .scripts\build\publish-update.cmd     :: public TUF tree -> R2
