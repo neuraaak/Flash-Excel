@@ -202,11 +202,14 @@ compiler = "PyInstaller"
 [tool.ezcompiler.pyinstaller]
 optimize = true
 strip = false
-onefile = false                   # Folder mode (onedir) - no single .exe
-contents-directory = "."          # Disables _internal: everything flat in dist/
-collect-all = ["webview", "fastexcel"]  # Collects every pywebview asset/hook + the fastexcel Rust backend
-collect-data = "flash_excel"      # Collects the package data (web/, assets...)
-exclude-module = "webview.platforms.android"  # No Android module on Windows
+onefile = false # Folder mode (onedir) - no single .exe
+contents-directory = "." # Disables _internal: everything flat in dist/
+collect-all = [
+    "webview",
+    "fastexcel",
+] # Collects every pywebview asset/hook + the fastexcel Rust backend
+collect-data = "flash_excel" # Collects the package data (web/, assets...)
+exclude-module = "webview.platforms.android" # No Android module on Windows
 
 # TUF update channel pushed to Cloudflare R2.
 #   repo_endpoint   = "<bucket>/<prefix>" (objects under repository/flash-excel/)
@@ -259,9 +262,9 @@ architecture = "x64"
 per_user = true
 
 # Shortcuts and post-install (default values, spelled out for the record).
-desktop_icon = true          # "desktopicon" task, unchecked by default
-launch_after_install = true  # case "Lancer flash-excel" en fin d'assistant
-add_to_path = false          # GUI app: no command to expose to the shell
+desktop_icon = true         # "desktopicon" task, unchecked by default
+launch_after_install = true # case "Lancer flash-excel" en fin d'assistant
+add_to_path = false         # GUI app: no command to expose to the shell
 
 # The app runs from its install folder: an upgrade must close the running
 # instance, otherwise the .exe/.dll files stay locked.
