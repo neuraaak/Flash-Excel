@@ -66,7 +66,8 @@ src/flash_excel/
 │                        #   replace, clean, fill, computed, filter,
 │                        #   deduplicate, sort, reorder
 ├── io/
-│   ├── loader.py        # File → Polars DataFrame (+ read_schema)
+│   ├── loader.py        # File → Polars DataFrame (+ read_schema,
+│   │                    #   detect_separator)
 │   ├── writer.py        # DataFrame → output file
 │   └── models.py        # I/O config models
 ├── presets/

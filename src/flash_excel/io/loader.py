@@ -7,9 +7,9 @@
 File loading utilities for flash-excel.
 
 Provides functions to read Excel files (via the fastexcel/calamine
-Rust backend) and CSV files (via Polars' native reader). A lightweight
-`read_headers` function loads only column names without materializing
-the full DataFrame, enabling fast schema inspection in the UI.
+Rust backend) and CSV files (via Polars' native reader), plus
+`read_schema`, which reads only what the UI needs to populate its column
+dropdowns without materializing the full DataFrame.
 """
 
 from __future__ import annotations
@@ -18,6 +18,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
+import csv
 from pathlib import Path
 
 # Third-party imports
@@ -26,6 +27,48 @@ import polars as pl
 # ///////////////////////////////////////////////////////////////
 # FUNCTIONS
 # ///////////////////////////////////////////////////////////////
+
+
+def detect_separator(path: Path, default: str = ";") -> str:
+    """Guess a CSV file's column separator from its first lines.
+
+    Excel exports semicolons in French locales and commas elsewhere, and
+    reading with the wrong one yields a single column holding the whole row.
+    Falls back to ``default`` when the sample is undecidable — which is the
+    case for a genuinely single-column file, where the separator is moot.
+
+    Args:
+        path: Path to the CSV file.
+        default: Separator to return when detection fails.
+
+    Returns:
+        str: The detected separator, or ``default``.
+    """
+    try:
+        with path.open("r", encoding="utf-8", errors="replace", newline="") as handle:
+            sample = handle.read(8192)
+        return csv.Sniffer().sniff(sample, delimiters=";,	|").delimiter
+    except (OSError, csv.Error):
+        return default
+
+
+def _first_sheet(result: pl.DataFrame | dict) -> pl.DataFrame | None:
+    """Return the sheet polars gives back, whether as a frame or a {name: frame}.
+
+    ``pl.read_excel`` returns a DataFrame for a single sheet and a dict when the
+    sheet selector matches several, so every caller has to unwrap it.
+    Returns ``None`` when the workbook holds no readable sheet.
+    """
+    if isinstance(result, pl.DataFrame):
+        return result
+    if isinstance(result, dict):
+        if not result:
+            return None
+        first = next(iter(result.values()))
+        if not isinstance(first, pl.DataFrame):
+            raise TypeError("Unexpected sheet payload type from polars.read_excel().")
+        return first
+    raise TypeError("Unexpected return type from polars.read_excel().")
 
 
 def read_excel(path: Path, sheet: int = 0) -> pl.DataFrame:
@@ -56,17 +99,10 @@ def read_excel(path: Path, sheet: int = 0) -> pl.DataFrame:
         >>> df.shape
         (1500, 12)
     """
-    excel_data = pl.read_excel(path, sheet_id=sheet, engine="calamine")
-    if isinstance(excel_data, pl.DataFrame):
-        return excel_data
-    if isinstance(excel_data, dict):
-        if not excel_data:
-            raise ValueError("Excel file contains no readable sheets.")
-        first_sheet = next(iter(excel_data.values()))
-        if isinstance(first_sheet, pl.DataFrame):
-            return first_sheet
-        raise TypeError("Unexpected sheet payload type from polars.read_excel().")
-    raise TypeError("Unexpected return type from polars.read_excel().")
+    df = _first_sheet(pl.read_excel(path, sheet_id=sheet, engine="calamine"))
+    if df is None:
+        raise ValueError("Excel file contains no readable sheets.")
+    return df
 
 
 def read_csv(
@@ -101,68 +137,21 @@ def read_csv(
         >>> df.shape
         (200, 5)
     """
-    return pl.read_csv(path, separator=separator, encoding=encoding)
-
-
-def read_headers(path: Path, separator: str = ";") -> list[str]:
-    """Read only the column names from a file without loading all rows.
-
-    Dispatches to the correct reader based on file extension:
-    - ``.xlsx`` / ``.xls``: reads the first sheet via fastexcel.
-    - All other extensions: treated as CSV with ``n_rows=0``.
-
-    This provides fast schema inspection for the UI (e.g., to populate
-    column dropdowns) without the cost of loading the full dataset.
-
-    Args:
-        path: Path to the source file.
-        separator: CSV delimiter (ignored for Excel files).
-
-    Returns:
-        list[str]: Ordered list of column names.
-
-    Raises:
-        FileNotFoundError: If ``path`` does not exist.
-
-    Example:
-        >>> from pathlib import Path
-        >>> headers = read_headers(Path("data/report.xlsx"))
-        >>> headers
-        ['nom', 'prenom', 'salaire', 'statut']
-    """
-    suffix = path.suffix.lower()
-
-    if suffix in {".xlsx", ".xls", ".xlsm"}:
-        # Read only first row via calamine to get the column names.
-        excel_data = pl.read_excel(path, sheet_id=0, engine="calamine")
-        if isinstance(excel_data, pl.DataFrame):
-            return excel_data.columns
-        if isinstance(excel_data, dict):
-            if not excel_data:
-                return []
-            first_sheet = next(iter(excel_data.values()))
-            if not isinstance(first_sheet, pl.DataFrame):
-                raise TypeError(
-                    "Unexpected sheet payload type from polars.read_excel()."
-                )
-            return first_sheet.columns
-        raise TypeError("Unexpected return type from polars.read_excel().")
-
-    # For CSV, n_rows=0 returns an empty DataFrame with the correct schema.
-    df = pl.read_csv(
+    # infer_schema_length=None scans every row: with the default 100, a column
+    # that is numeric at the top and textual further down fails the whole load.
+    return pl.read_csv(
         path,
         separator=separator,
-        encoding="utf8-lossy",
-        n_rows=0,
+        encoding=encoding,
+        infer_schema_length=None,
     )
-    return df.columns
 
 
 def read_schema(path: Path, separator: str = ";") -> dict[str, str]:
     """Read inferred schema (column -> dtype name) for a source file.
 
-    For Excel files, the first sheet schema is used. For CSV files,
-    Polars infers schema from a small row sample.
+    For Excel files, the first sheet's schema is used without reading its
+    rows. For CSV files, Polars infers the schema from a bounded row sample.
 
     Args:
         path: Path to the source file.
@@ -174,122 +163,33 @@ def read_schema(path: Path, separator: str = ";") -> dict[str, str]:
     suffix = path.suffix.lower()
 
     if suffix in {".xlsx", ".xls", ".xlsm"}:
-        excel_data = pl.read_excel(path, sheet_id=0, engine="calamine")
-        if isinstance(excel_data, pl.DataFrame):
-            return {name: str(dtype) for name, dtype in excel_data.schema.items()}
-        if isinstance(excel_data, dict):
-            if not excel_data:
-                return {}
-            first_sheet = next(iter(excel_data.values()))
-            if not isinstance(first_sheet, pl.DataFrame):
-                raise TypeError(
-                    "Unexpected sheet payload type from polars.read_excel()."
-                )
-            return {name: str(dtype) for name, dtype in first_sheet.schema.items()}
-        raise TypeError("Unexpected return type from polars.read_excel().")
+        # n_rows=1: calamine infers the dtypes from its own sample regardless,
+        # so one row is enough here — reading the whole sheet just to show the
+        # column dropdowns froze the window on large workbooks.
+        df = _first_sheet(
+            pl.read_excel(
+                path,
+                sheet_id=0,
+                engine="calamine",
+                read_options={"n_rows": 1},
+            )
+        )
+        if df is None:
+            return {}
+        return {name: str(dtype) for name, dtype in df.schema.items()}
 
+    # shortcut: the preview infers from the first 300 rows only, so a column
+    # that turns textual further down shows its early type here while the run
+    # (infer_schema_length=None) sees the real one. Upgrade to a full scan if a
+    # mismatch ever confuses users — it costs a complete read per file pick.
     df = pl.read_csv(
         path,
         separator=separator,
         encoding="utf8-lossy",
         n_rows=300,
-        infer_schema_length=500,
+        infer_schema_length=None,
     )
     return {name: str(dtype) for name, dtype in df.schema.items()}
-
-
-def read_unique_values(
-    path: Path,
-    column: str,
-    separator: str = ";",
-    limit: int = 300,
-) -> list[str]:
-    """Read distinct non-null values for one column (bounded for UI use).
-
-    Args:
-        path: Path to the source file.
-        column: Source column name to inspect.
-        separator: CSV delimiter (ignored for Excel files).
-        limit: Maximum number of distinct values to return.
-
-    Returns:
-        list[str]: Distinct values converted to strings.
-    """
-    suffix = path.suffix.lower()
-
-    if suffix in {".xlsx", ".xls", ".xlsm"}:
-        df = read_excel(path)
-    else:
-        df = pl.read_csv(
-            path,
-            separator=separator,
-            encoding="utf8-lossy",
-            columns=[column],
-        )
-
-    if column not in df.columns:
-        return []
-
-    series = df.get_column(column).drop_nulls().unique().sort()
-    bounded = series.head(max(1, limit)).to_list()
-    return [str(value) for value in bounded]
-
-
-def read_unique_values_many(
-    path: Path,
-    columns: list[str],
-    separator: str = ";",
-    limit: int = 300,
-) -> dict[str, list[str]]:
-    """Read distinct non-null values for multiple columns in one file pass.
-
-    This avoids repeated full-file reads when the UI needs quick-filter values
-    for many columns at once.
-
-    Args:
-        path: Path to the source file.
-        columns: Source column names to inspect.
-        separator: CSV delimiter (ignored for Excel files).
-        limit: Maximum number of distinct values per column.
-
-    Returns:
-        dict[str, list[str]]: Mapping column -> distinct string values.
-    """
-    if not columns:
-        return {}
-
-    seen: set[str] = set()
-    ordered_columns: list[str] = []
-    for name in columns:
-        if name in seen:
-            continue
-        seen.add(name)
-        ordered_columns.append(name)
-
-    suffix = path.suffix.lower()
-
-    if suffix in {".xlsx", ".xls", ".xlsm"}:
-        df = read_excel(path)
-    else:
-        df = pl.read_csv(
-            path,
-            separator=separator,
-            encoding="utf8-lossy",
-            columns=ordered_columns,
-        )
-
-    result: dict[str, list[str]] = {}
-    bounded_limit = max(1, limit)
-    for column in ordered_columns:
-        if column not in df.columns:
-            result[column] = []
-            continue
-
-        series = df.get_column(column).drop_nulls().unique().sort()
-        values = series.head(bounded_limit).to_list()
-        result[column] = [str(value) for value in values]
-
-    return result
 
 
 # ///////////////////////////////////////////////////////////////
@@ -299,8 +199,6 @@ def read_unique_values_many(
 __all__ = [
     "read_excel",
     "read_csv",
-    "read_headers",
     "read_schema",
-    "read_unique_values",
-    "read_unique_values_many",
+    "detect_separator",
 ]

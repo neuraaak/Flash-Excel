@@ -350,7 +350,8 @@ class PresetMeta(BaseModel):
     Attributes:
         name: Human-readable preset name.
         description: Optional description of what the preset does.
-        csv_separator: Column separator used when reading/writing CSV files.
+        csv_separator: Column separator for CSV files. ``None`` (the default)
+            means detect it from the file; set it to force one.
         csv_encoding: Encoding used when reading CSV files.
         source_columns: Cached source columns from the model file used
             to bootstrap step editors without reloading a file.
@@ -363,7 +364,7 @@ class PresetMeta(BaseModel):
 
     name: str
     description: str = ""
-    csv_separator: str = ";"
+    csv_separator: str | None = None
     csv_encoding: str = "utf8-lossy"
     source_columns: list[str] = Field(default_factory=list)
     source_types: dict[str, str] = Field(default_factory=dict)
