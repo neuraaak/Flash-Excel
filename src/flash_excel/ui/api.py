@@ -517,6 +517,58 @@ class FlashExcelAPI:
         except Exception as exc:
             log("ERROR", f"_push failed: {exc}")
 
+    def _read_source(self, source: Path, preset: Preset):
+        """Load the source file using the input settings saved by its preset."""
+        from flash_excel.io.loader import detect_separator, read_csv, read_excel
+
+        if source.suffix.lower() == ".csv":
+            separator = preset.meta.csv_separator or detect_separator(source)
+            return read_csv(source, separator, preset.meta.csv_encoding)
+        return read_excel(source)
+
+    def _run_steps(self, df, preset: Preset, error_mode: str):
+        """Apply preset steps and emit progress; return None when execution stops."""
+        from flash_excel.core.registry import REGISTRY
+
+        for idx, step in enumerate(preset.steps):
+            if self._stop_event.is_set():
+                self._push("log", {"level": "warn", "key": "log.run_stopped"})
+                return None
+
+            step_name = step.action
+            rows_in = len(df)
+            try:
+                handler = REGISTRY.get(step_name)
+                if handler is None:
+                    raise KeyError(f"No handler for action '{step_name}'")
+                df = handler(df, **step.model_dump(exclude={"action"}))
+                self._push(
+                    "step",
+                    {
+                        "step_index": idx,
+                        "step_name": step_name,
+                        "rows_in": rows_in,
+                        "rows_out": len(df),
+                    },
+                )
+            except Exception as exc:
+                self._push(
+                    "error",
+                    {"step_index": idx, "step_name": step_name, "message": str(exc)},
+                )
+                if error_mode != "ignore":
+                    if error_mode == "skip":
+                        self._push(
+                            "log",
+                            {
+                                "level": "warn",
+                                "key": "log.skip_error",
+                                "params": {"step": step_name},
+                            },
+                        )
+                    return None
+        return df
+
     def _run_worker(
         self,
         preset_path: str,
@@ -524,8 +576,6 @@ class FlashExcelAPI:
         output_config: dict,
     ) -> None:
         """Pipeline execution worker — runs in a background thread."""
-        from flash_excel.core.registry import REGISTRY
-        from flash_excel.io.loader import detect_separator, read_csv, read_excel
         from flash_excel.io.writer import write_dataframe
         from flash_excel.presets import load_preset as _load_preset
 
@@ -541,11 +591,7 @@ class FlashExcelAPI:
                 "log",
                 {"level": "info", "key": "log.loading", "params": {"file": src.name}},
             )
-            if src.suffix.lower() == ".csv":
-                separator = preset.meta.csv_separator or detect_separator(src)
-                df = read_csv(src, separator, preset.meta.csv_encoding)
-            else:
-                df = read_excel(src)
+            df = self._read_source(src, preset)
             self._push(
                 "log",
                 {
@@ -555,8 +601,7 @@ class FlashExcelAPI:
                 },
             )
 
-            steps = preset.steps
-            total = len(steps)
+            total = len(preset.steps)
             self._push(
                 "log",
                 {
@@ -566,51 +611,9 @@ class FlashExcelAPI:
                 },
             )
 
-            for idx, step in enumerate(steps):
-                if self._stop_event.is_set():
-                    self._push("log", {"level": "warn", "key": "log.run_stopped"})
-                    return
-
-                step_name = step.action
-                rows_in = len(df)
-                try:
-                    handler = REGISTRY.get(step_name)
-                    if handler is None:
-                        raise KeyError(f"No handler for action '{step_name}'")
-                    kwargs = step.model_dump(exclude={"action"})
-                    df = handler(df, **kwargs)
-                    rows_out = len(df)
-                    self._push(
-                        "step",
-                        {
-                            "step_index": idx,
-                            "step_name": step_name,
-                            "rows_in": rows_in,
-                            "rows_out": rows_out,
-                        },
-                    )
-                except Exception as exc:
-                    self._push(
-                        "error",
-                        {
-                            "step_index": idx,
-                            "step_name": step_name,
-                            "message": str(exc),
-                        },
-                    )
-                    if error_mode == "stop":
-                        return
-                    elif error_mode == "skip":
-                        self._push(
-                            "log",
-                            {
-                                "level": "warn",
-                                "key": "log.skip_error",
-                                "params": {"step": step_name},
-                            },
-                        )
-                        return
-                    # ignore: continue with current df
+            df = self._run_steps(df, preset, error_mode)
+            if df is None:
+                return
 
             out_path, fmt = self._resolve_output_path(file_path, output_config)
             self._push(
