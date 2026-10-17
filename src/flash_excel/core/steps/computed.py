@@ -43,6 +43,9 @@ def _make_namespace(df: pl.DataFrame) -> dict:
         return col.str.slice(0, n)  # noqa: N802
 
     def DROITE(col: pl.Expr, n: int) -> pl.Expr:
+        # slice(-0) is slice(0), i.e. the whole string — Excel's RIGHT(x, 0) is "".
+        if n == 0:
+            return pl.lit("")  # noqa: N802
         return col.str.slice(-n)  # noqa: N802
 
     def NBCAR(col: pl.Expr) -> pl.Expr:
@@ -350,7 +353,8 @@ def add_computed_column(
         # eval() is safe here: the AST is fully validated by _SafeVisitor before
         # reaching this point (whitelist of node types + allowed names), builtins
         # are stripped, and the namespace contains only Polars wrappers + column refs.
-        expr = eval(code_obj, {"__builtins__": {}}, namespace)  # noqa: S307  # nosec B307
+        no_builtins: dict = {"__builtins__": {}}
+        expr = eval(code_obj, no_builtins, namespace)  # noqa: S307  # nosec B307
     except Exception as exc:
         raise ValueError(f"Evaluation error: {exc}") from exc
 

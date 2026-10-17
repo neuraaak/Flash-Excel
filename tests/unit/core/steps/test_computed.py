@@ -178,3 +178,9 @@ def test_unknown_column_raises_name_error_wrapped_in_value_error():
     df = pl.DataFrame({"a": [1]})
     with pytest.raises(ValueError, match="not allowed"):
         add_computed_column(df, "test", "MAJUSCULE(missing)")
+
+
+def test_droite_with_zero_returns_empty_string():
+    df = pl.DataFrame({"nom": ["Alice"]})
+    out = add_computed_column(df, "test", "DROITE(nom, 0)")
+    assert out["test"].to_list() == [""]

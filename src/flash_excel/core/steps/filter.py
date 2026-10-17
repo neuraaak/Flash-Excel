@@ -45,7 +45,9 @@ _OPERATOR_MAP: dict[str, Callable[[pl.Expr, str | int | float], pl.Expr]] = {
     "gte": lambda col, v: col >= v,
     "lt": lambda col, v: col < v,
     "lte": lambda col, v: col <= v,
-    "contains": lambda col, v: col.cast(pl.String).str.contains(str(v)),
+    # literal=True: the user types plain text, not a regex — without it "C++"
+    # also matches "C+ dev" and "." matches any character.
+    "contains": lambda col, v: col.cast(pl.String).str.contains(str(v), literal=True),
     "startswith": lambda col, v: col.cast(pl.String).str.starts_with(str(v)),
     "endswith": lambda col, v: col.cast(pl.String).str.ends_with(str(v)),
 }
@@ -64,10 +66,16 @@ def _coerce_value(
     even when the target column is numeric.
     """
     if isinstance(value, str):
-        if dtype.is_integer():
-            return int(value)
-        if dtype.is_float():
-            return float(value)
+        try:
+            if dtype.is_integer():
+                return int(value)
+            if dtype.is_float():
+                return float(value)
+        except ValueError:
+            raise ValueError(
+                f"'{value}' is not a number, but the column holds numbers "
+                f"({dtype}). Enter a numeric value."
+            ) from None
         if dtype == pl.Boolean:
             return value.lower() in ("true", "1", "yes")
     return value

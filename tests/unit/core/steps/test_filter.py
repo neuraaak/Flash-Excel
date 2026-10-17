@@ -44,3 +44,17 @@ def test_filter_rows_invalid_combine_raises():
     cond = FilterCondition(column="age", operator="eq", value=15)
     with pytest.raises(ValueError, match="Invalid combine value"):
         filter_rows(df, conditions=[cond], combine="XOR")
+
+
+def test_filter_rows_contains_is_literal_not_regex():
+    df = pl.DataFrame({"name": ["C++ dev", "C+ dev", "Java dev"]})
+    cond = FilterCondition(column="name", operator="contains", value="C++")
+    out = filter_rows(df, conditions=[cond])
+    assert out["name"].to_list() == ["C++ dev"]
+
+
+def test_filter_rows_non_numeric_value_on_numeric_column_raises_readable_error():
+    df = pl.DataFrame({"age": [15, 25]})
+    cond = FilterCondition(column="age", operator="gte", value="18 ans")
+    with pytest.raises(ValueError, match="is not a number"):
+        filter_rows(df, conditions=[cond])
