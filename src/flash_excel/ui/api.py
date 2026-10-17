@@ -447,6 +447,42 @@ class FlashExcelAPI:
         except Exception as exc:
             return _err(str(exc))
 
+    def on_file_drop(self, event: dict) -> None:
+        """Load the files dropped onto the window and tell the front-end.
+
+        pywebview resolves each dropped file to a real path under
+        ``pywebviewFullPath``; the browser's own File object has none. Files
+        the application cannot read are skipped rather than failing the whole
+        drop, since a user dragging a folder's contents catches stray ones.
+
+        Args:
+            event: The DOM drop event relayed by pywebview.
+        """
+        paths = [
+            file["pywebviewFullPath"]
+            for file in event.get("dataTransfer", {}).get("files", [])
+            if file.get("pywebviewFullPath")
+        ]
+        if not paths:
+            return
+
+        files: list[dict] = []
+        for path in paths:
+            try:
+                if files:
+                    files.append(self._file_summary(Path(path)))
+                    continue
+                # The first one the application can read is the file the step
+                # editors take their columns from, so it is loaded in full.
+                loaded = self._load_file_path(path)
+                if loaded["ok"]:
+                    files.append(loaded["data"])
+            except Exception as exc:
+                log("WARNING", f"dropped file ignored: {Path(path).name}: {exc}")
+
+        if files:
+            self._push("files_dropped", {"files": files})
+
     @staticmethod
     def _file_summary(path: Path) -> dict:
         """Queue-row metadata for a file whose schema is not read."""

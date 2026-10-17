@@ -244,3 +244,69 @@ def test_push_stamps_the_file_being_processed(monkeypatch):
 
     assert '"file_index": 2' in sent[0]
     assert '"rows_out": 7' in sent[0]
+
+
+def test_on_file_drop_loads_the_real_paths(monkeypatch, tmp_path):
+    """The browser's File objects carry no path; pywebview resolves them."""
+    first = tmp_path / "a.csv"
+    first.write_text("name;value\nAda;1\n", encoding="utf-8")
+    second = tmp_path / "b.csv"
+    second.write_text("name;value\nGrace;2\n", encoding="utf-8")
+
+    api = FlashExcelAPI()
+    events: list[tuple[str, dict]] = []
+    monkeypatch.setattr(api, "_push", lambda event, data: events.append((event, data)))
+
+    api.on_file_drop(
+        {
+            "dataTransfer": {
+                "files": [
+                    {"name": "a.csv", "pywebviewFullPath": str(first)},
+                    {"name": "b.csv", "pywebviewFullPath": str(second)},
+                ]
+            }
+        }
+    )
+
+    assert events[0][0] == "files_dropped"
+    files = events[0][1]["files"]
+    assert [f["file_name"] for f in files] == ["a.csv", "b.csv"]
+    # Only the first is read in full: it feeds the step editors.
+    assert files[0]["columns"] == ["name", "value"]
+    assert files[1]["columns"] == []
+
+
+def test_on_file_drop_skips_what_it_cannot_read(monkeypatch, tmp_path):
+    """Dragging a folder's contents catches stray files; they must not fail it."""
+    good = tmp_path / "a.csv"
+    good.write_text("name\nAda\n", encoding="utf-8")
+    stray = tmp_path / "notes.txt"
+    stray.write_text("hello", encoding="utf-8")
+
+    api = FlashExcelAPI()
+    events: list[tuple[str, dict]] = []
+    monkeypatch.setattr(api, "_push", lambda event, data: events.append((event, data)))
+
+    api.on_file_drop(
+        {
+            "dataTransfer": {
+                "files": [
+                    {"name": "notes.txt", "pywebviewFullPath": str(stray)},
+                    {"name": "a.csv", "pywebviewFullPath": str(good)},
+                ]
+            }
+        }
+    )
+
+    assert [f["file_name"] for f in events[0][1]["files"]] == ["a.csv"]
+
+
+def test_on_file_drop_ignores_a_drop_without_resolved_paths(monkeypatch):
+    """A drag from inside the page carries no pywebviewFullPath."""
+    api = FlashExcelAPI()
+    events: list[tuple[str, dict]] = []
+    monkeypatch.setattr(api, "_push", lambda event, data: events.append((event, data)))
+
+    api.on_file_drop({"dataTransfer": {"files": [{"name": "a.csv"}]}})
+
+    assert events == []

@@ -227,7 +227,7 @@ export default {
   'proc.n_files': '{count} file(s)',
   'proc.no_files': '0 files',
   'proc.load_file': 'Load file',
-  'proc.dropzone': 'Drop one Excel/CSV file here',
+  'proc.dropzone': 'Drop your Excel/CSV files here',
   'proc.dropzone_or': '— or click to browse',
   'proc.no_file': 'No file loaded',
   'proc.no_file_sub': 'Load one file to process it with the active preset.',

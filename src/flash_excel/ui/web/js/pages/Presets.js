@@ -144,6 +144,18 @@ export default {
     sourceSchema() { return this.fileSchema; },
   },
   async created() { await this.loadList(); },
+
+  mounted() {
+    // The drop handler lives on the window body, so this page gets the event
+    // too. Without a listener here the Python side would still have swapped
+    // the loaded file, with nothing on screen saying so.
+    window.flashEvent = (type, data) => {
+      if (type === 'files_dropped' && data.files?.length) this.acceptFile(data.files[0]);
+    };
+  },
+
+  beforeUnmount() { delete window.flashEvent; },
+
   methods: {
     async loadList() {
       try { this.presets = await api.getPresets(); }
@@ -227,19 +239,24 @@ export default {
       try {
         const res = await api.openFileDialog();
         if (res?.cancelled) return;
-        // Compare against the columns recorded in the preset
-        const savedCols = this.presetColumns;
-        if (savedCols.length > 0) {
-          const missing = savedCols.filter(c => !res.columns.includes(c));
-          const added = res.columns.filter(c => !savedCols.includes(c));
-          if (missing.length > 0 || added.length > 0) {
-            // Stocker en attente et afficher le modal
-            this.mismatch = { pending: res, missing, added };
-            return;
-          }
-        }
-        this._applyFile(res);
+        this.acceptFile(res);
       } catch (e) { this.showToast(this.t('toast.file_error', { error: e.message }), 'error'); }
+    },
+
+    // Shared by the picker and by a file dropped onto the window.
+    acceptFile(res) {
+      // Compare against the columns recorded in the preset
+      const savedCols = this.presetColumns;
+      if (savedCols.length > 0) {
+        const missing = savedCols.filter(c => !res.columns.includes(c));
+        const added = res.columns.filter(c => !savedCols.includes(c));
+        if (missing.length > 0 || added.length > 0) {
+          // Stocker en attente et afficher le modal
+          this.mismatch = { pending: res, missing, added };
+          return;
+        }
+      }
+      this._applyFile(res);
     },
 
     async clearFile() {

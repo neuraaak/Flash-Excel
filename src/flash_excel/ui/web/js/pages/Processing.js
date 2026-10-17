@@ -194,6 +194,12 @@ export default {
         // data.fatal: the worker gave up before the step loop, so no 'done'
         // will follow for this file whatever the error mode says.
         if (file) file.status = (data.fatal || em === 'stop') ? 'error' : 'skipped';
+      } else if (type === 'files_dropped') {
+        // Python resolved the real paths: the browser's File objects have none.
+        if (this.runState !== 'running') {
+          this.files = data.files;
+          this.resetRun();
+        }
       } else if (type === 'log') {
         if (data.level === 'warn') this.stats.warnings++;
         this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
@@ -243,7 +249,7 @@ export default {
         <h2>{{ i18n.t('proc.input_file') }}</h2>
         <span class="ah-meta">{{ files.length ? i18n.t('proc.n_files', { count: files.length }) : i18n.t('proc.no_files') }}</span>
         <span style="flex:1 1 auto"></span>
-        <button class="link-btn" @click="openFile" :disabled="runState === 'running'">
+        <button v-if="files.length" class="link-btn" @click="openFile" :disabled="runState === 'running'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           {{ i18n.t('proc.load_file') }}
         </button>

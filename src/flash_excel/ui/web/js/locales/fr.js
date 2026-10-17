@@ -227,7 +227,7 @@ export default {
   'proc.n_files': '{count} fichier(s)',
   'proc.no_files': '0 fichier',
   'proc.load_file': 'Charger un fichier',
-  'proc.dropzone': 'Déposez un fichier Excel/CSV ici',
+  'proc.dropzone': 'Déposez vos fichiers Excel/CSV ici',
   'proc.dropzone_or': '— ou cliquez pour parcourir',
   'proc.no_file': 'Aucun fichier chargé',
   'proc.no_file_sub': 'Chargez un fichier pour le traiter avec le preset actif.',
