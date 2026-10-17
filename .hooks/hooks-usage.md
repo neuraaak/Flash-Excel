@@ -19,7 +19,8 @@ automatically — no manual `git config` required.
 
 ## What runs on each commit
 
-Defined in `.pre-commit-config.yaml`, mirroring `.scripts/dev/lint.py`:
+Defined in `.pre-commit-config.yaml`, mirroring the `[tool.poe.tasks]` gate in
+`pyproject.toml` (`poe check`):
 
 | Step         | Tool                | Action                                                      |
 | ------------ | ------------------- | ----------------------------------------------------------- |

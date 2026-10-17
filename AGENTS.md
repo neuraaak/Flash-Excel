@@ -233,18 +233,33 @@ and exist only for `migration.py`.
 
 ## Development workflow
 
+Every development command is a [Poe the Poet](https://poethepoet.natn.io/) task
+defined in `pyproject.toml` (`[tool.poe.tasks]`) — the single definition the CI
+workflow also calls, so local and CI cannot drift apart. `uv run poe` lists
+them all.
+
 ```bash
 uv sync                    # Install everything (dev group, which includes test)
-uv run python main.py      # Run the app
-uv run pytest              # Run tests (coverage gate: 70%)
-uv run ruff check .        # Lint
-uv run ruff format .       # Format
-uv run ty check            # Type check
-uv run lint-imports        # Layer dependency contracts
+uv run poe run             # Run the app  (poe run-debug for devtools + verbose logs)
+uv run poe check           # Full local gate — what CI runs
+uv run poe test            # Run tests (no coverage floor: partial runs stay usable)
+uv run poe test-ci         # Tests + the 70% coverage gate
+uv run poe lint            # Lint        (poe lint-fix to auto-fix)
+uv run poe format          # Format      (poe format-check to verify only)
+uv run poe typecheck       # Type check (ty — the single gate; pyright is IDE-only)
+uv run poe imports         # Layer dependency contracts
+uv run poe security        # Bandit security scan
 ```
 
+`poe check` chains `format-check → lint → typecheck → security → imports →
+test-ci`, in that order. The coverage floor is carried by `test-ci` and not by
+`[tool.pytest.ini_options].addopts`, so a narrowed run (`-k`, a marker, a single
+file) does not fail on coverage.
+
 Pre-commit hooks run ruff, ty, import-linter and a `_version.py` sync on every
-commit (`uv run pre-commit install` once, after cloning).
+commit (`uv run pre-commit install` once, after cloning). They stay file-scoped
+on staged files and deliberately do not call the poe tasks, which run on the
+whole tree.
 
 A plain clone runs and tests fine. Only the auto-update path is inert: it is
 guarded by `sys.frozen`, because the tufup client module is generated at build

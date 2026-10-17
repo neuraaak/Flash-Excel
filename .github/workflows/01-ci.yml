@@ -40,19 +40,19 @@ jobs:
         run: uv sync --frozen --group dev
 
       - name: Lint (ruff check)
-        run: uv run --frozen ruff check .
+        run: uv run --frozen poe lint
 
       - name: Format check (ruff format)
-        run: uv run --frozen ruff format --check .
+        run: uv run --frozen poe format-check
 
       - name: Type check (ty)
-        run: uv run --frozen ty check
+        run: uv run --frozen poe typecheck
 
       - name: Security scan (bandit)
-        run: uv run --frozen bandit -r src/ -ll
+        run: uv run --frozen poe security
 
       - name: Import contracts (import-linter)
-        run: uv run --frozen lint-imports
+        run: uv run --frozen poe imports
 
   test:
     name: Test
@@ -78,4 +78,4 @@ jobs:
         run: uv sync --frozen --group test
 
       - name: Run tests
-        run: uv run --frozen pytest --cov=src/ --cov-report=xml -q
+        run: uv run --frozen poe test-ci
