@@ -1,7 +1,6 @@
 import { toRaw } from '../../vendor/vue.esm-browser.prod.js';
 
 const ALL_OPS = ['trim', 'collapse', 'accents', 'special'];
-const ALL_CASES = ['none', 'lower', 'upper', 'title'];
 
 // Polars dtypes and JS cast types treated as text
 const STRING_TYPES = new Set([
@@ -53,7 +52,7 @@ export default {
   },
   methods: {
     _dbg(msg) {
-      console.log('[CleanTable]', msg);
+      console.debug('[CleanTable]', msg);
       if (globalThis.pywebview?.api?.debug_log) globalThis.pywebview.api.debug_log(msg);
     },
 

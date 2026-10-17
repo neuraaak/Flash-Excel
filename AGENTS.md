@@ -253,7 +253,12 @@ uv run poe format          # Format      (poe format-check to verify only)
 uv run poe typecheck       # Type check (ty — the single gate; pyright is IDE-only)
 uv run poe imports         # Layer dependency contracts
 uv run poe security        # Bandit security scan
+uv run poe lint-js         # ESLint on the web UI JS (lint-js-fix to auto-fix)
 ```
+
+Front-end linting needs `pnpm install` once per clone (ESLint only — no
+formatter, so nothing rewrites the hand-aligned source). It is deliberately
+**not** part of `poe check`: a clone without Node still passes the Python gate.
 
 `poe check` chains `format-check → lint → typecheck → security → imports →
 test-ci`, in that order. The coverage floor is carried by `test-ci` and not by

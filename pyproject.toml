@@ -143,6 +143,19 @@ test-fast = "pytest -n auto -m 'not slow'"
 # No `docs` tasks yet: the documentation pass is deferred and will pick its
 # own generator and layout. Nothing doc-related is wired from here meanwhile.
 
+# Front-end linting. Requires `pnpm install` once per clone (node_modules is
+# gitignored); deliberately out of the `check` sequence, so a clone without
+# Node still passes the Python gate.
+# `shell` and not `cmd`: on Windows pnpm is a .cmd shim, which poe's direct
+# spawn cannot find.
+[tool.poe.tasks.lint-js]
+help = "Lint the web UI JavaScript (ESLint)"
+shell = "pnpm run lint"
+
+[tool.poe.tasks.lint-js-fix]
+help = "Lint the web UI JavaScript with auto-fix"
+shell = "pnpm run lint:fix"
+
 [tool.poe.tasks.imports]
 help = "Check import-linter layer contracts"
 cmd = "lint-imports"
