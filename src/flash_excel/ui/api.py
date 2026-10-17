@@ -36,6 +36,36 @@ from flash_excel.presets import delete_preset, list_presets, load_preset, save_p
 
 _step_adapter: TypeAdapter[Step] = TypeAdapter(Step)
 
+_NO_ACTIVE_WINDOW = "No active window"
+
+# Actions the UI edits as one multi-row table but the preset stores as one step
+# per row. Per action: the item keys kept when aggregating, and the keys that
+# must be truthy for a row to be worth expanding back into a step.
+_AGGREGATED_ACTIONS: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {
+    "add_computed_column": (("target", "expression"), ("target", "expression")),
+    "clean_text": (("columns", "ops", "case"), ("columns",)),
+    "replace_values": (("column", "mapping"), ("column", "mapping")),
+}
+
+
+def _expand_items(steps_payload: list) -> list[dict]:
+    """Flatten the UI's items[] payloads into one raw step dict per row."""
+    expanded: list[dict] = []
+    for raw in steps_payload:
+        if not raw:
+            continue
+        action = raw.get("action")
+        required = _AGGREGATED_ACTIONS.get(action, (None, None))[1]
+        if required is None or "items" not in raw:
+            expanded.append(raw)
+            continue
+        expanded.extend(
+            {"action": action, **item}
+            for item in raw["items"]
+            if all(item.get(key) for key in required)
+        )
+    return expanded
+
 
 def _ok(data: Any = None) -> dict:
     return {"ok": True, "data": data}
@@ -133,7 +163,7 @@ class FlashExcelAPI:
             applied = update.check_and_apply(skip_confirmation=True)
             log("INFO", f"update apply: no-op (applied={applied})")
             return _ok({"applied": bool(applied)})
-        except SystemExit:
+        except SystemExit:  # NOSONAR - see docstring: not reraised on purpose
             log("INFO", "update apply: installer launched (SystemExit) -> force quit")
             threading.Thread(target=_force_quit, daemon=True).start()
             return _ok({"applied": True})
@@ -277,31 +307,9 @@ class FlashExcelAPI:
                     "Choose another name."
                 )
 
-            # Expand items-array payloads into individual steps.
-            expanded: list = []
-            for raw in steps_payload:
-                if not raw:
-                    continue
-                if raw.get("action") == "add_computed_column" and "items" in raw:
-                    for item in raw["items"]:
-                        if item.get("target") and item.get("expression"):
-                            expanded.append({"action": "add_computed_column", **item})
-                elif raw.get("action") == "clean_text" and "items" in raw:
-                    for item in raw["items"]:
-                        if item.get("columns"):
-                            expanded.append({"action": "clean_text", **item})
-                elif raw.get("action") == "replace_values" and "items" in raw:
-                    for item in raw["items"]:
-                        if item.get("column") and item.get("mapping"):
-                            expanded.append({"action": "replace_values", **item})
-                else:
-                    expanded.append(raw)
-
             steps: list[Step] = []
             rejected: list[dict] = []
-            for raw in expanded:
-                if not raw:
-                    continue
+            for raw in _expand_items(steps_payload):
                 try:
                     steps.append(_step_adapter.validate_python(raw))
                 except Exception as exc:
@@ -349,7 +357,7 @@ class FlashExcelAPI:
                 return _err("Preset file not found")
             window = webview.active_window()
             if window is None:
-                return _err("No active window")
+                return _err(_NO_ACTIVE_WINDOW)
             result = window.create_file_dialog(  # type: ignore[union-attr]
                 FileDialog.SAVE,
                 directory=str(Path.home()),
@@ -375,7 +383,7 @@ class FlashExcelAPI:
         try:
             window = webview.active_window()
             if window is None:
-                return _err("No active window")
+                return _err(_NO_ACTIVE_WINDOW)
             result = window.create_file_dialog(  # type: ignore[union-attr]
                 FileDialog.OPEN,
                 allow_multiple=False,
@@ -392,7 +400,7 @@ class FlashExcelAPI:
         try:
             window = webview.active_window()
             if window is None:
-                return _err("No active window")
+                return _err(_NO_ACTIVE_WINDOW)
             result = window.create_file_dialog(  # type: ignore[union-attr]
                 FileDialog.FOLDER,
             )
@@ -648,36 +656,21 @@ class FlashExcelAPI:
         # Aggregate multi-step actions (add_computed_column, clean_text,
         # replace_values) into single payloads with items[], keeping the
         # position of the first occurrence of each aggregated action.
-        _AGGREGATE = {"add_computed_column", "clean_text", "replace_values"}
-        aggregated: dict[str, list[dict]] = {a: [] for a in _AGGREGATE}
+        aggregated: dict[str, list[dict]] = {a: [] for a in _AGGREGATED_ACTIONS}
         first_pos: dict[str, int] = {}
         other_steps: list[dict | None] = []
 
         for s in preset.steps:
             d = s.model_dump()
             action = d["action"]
-            if action in _AGGREGATE:
-                if action not in first_pos:
-                    first_pos[action] = len(other_steps)
-                    other_steps.append(None)  # placeholder
-                if action == "add_computed_column":
-                    aggregated[action].append(
-                        {"target": d["target"], "expression": d["expression"]}
-                    )
-                elif action == "clean_text":
-                    aggregated[action].append(
-                        {
-                            "columns": d["columns"],
-                            "ops": d.get("ops", []),
-                            "case": d.get("case", "none"),
-                        }
-                    )
-                elif action == "replace_values":
-                    aggregated[action].append(
-                        {"column": d["column"], "mapping": d["mapping"]}
-                    )
-            else:
+            keys = _AGGREGATED_ACTIONS.get(action, (None, None))[0]
+            if keys is None:
                 other_steps.append(d)
+                continue
+            if action not in first_pos:
+                first_pos[action] = len(other_steps)
+                other_steps.append(None)  # placeholder
+            aggregated[action].append({k: d[k] for k in keys})
 
         # Fill placeholders with aggregated payloads.
         for action, items in aggregated.items():
