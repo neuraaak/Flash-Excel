@@ -137,62 +137,6 @@ _STATIC_ALLOWED = {
     "col",
 }
 
-# Public catalog for the JS layer (same order as UI display)
-FUNCTION_CATALOG: list[dict] = [
-    {
-        "name": "CONCATENER",
-        "label": "CONCATENER",
-        "cat": "Texte",
-        "hint": "CONCATENER(col1, col2, …)",
-    },
-    {
-        "name": "MAJUSCULE",
-        "label": "MAJUSCULE",
-        "cat": "Texte",
-        "hint": "MAJUSCULE(col)",
-    },
-    {
-        "name": "MINUSCULE",
-        "label": "MINUSCULE",
-        "cat": "Texte",
-        "hint": "MINUSCULE(col)",
-    },
-    {"name": "GAUCHE", "label": "GAUCHE", "cat": "Texte", "hint": "GAUCHE(col, n)"},
-    {"name": "DROITE", "label": "DROITE", "cat": "Texte", "hint": "DROITE(col, n)"},
-    {"name": "NBCAR", "label": "NBCAR", "cat": "Texte", "hint": "NBCAR(col)"},
-    {
-        "name": "SUPPRESPACE",
-        "label": "SUPPRESPACE",
-        "cat": "Texte",
-        "hint": "SUPPRESPACE(col)",
-    },
-    {"name": "ARRONDI", "label": "ARRONDI", "cat": "Math", "hint": "ARRONDI(col, n)"},
-    {"name": "ABS", "label": "ABS", "cat": "Math", "hint": "ABS(col)"},
-    {
-        "name": "MULTIPLIER",
-        "label": "MULTIPLIER",
-        "cat": "Math",
-        "hint": "MULTIPLIER(col, n)",
-    },
-    {
-        "name": "AJOUTER",
-        "label": "AJOUTER",
-        "cat": "Math",
-        "hint": "AJOUTER(col1, col2)",
-    },
-    {"name": "ANNEE", "label": "ANNEE", "cat": "Date", "hint": "ANNEE(col)"},
-    {"name": "MOIS", "label": "MOIS", "cat": "Date", "hint": "MOIS(col)"},
-    {"name": "JOUR", "label": "JOUR", "cat": "Date", "hint": "JOUR(col)"},
-    {
-        "name": "AUJOURD_HUI",
-        "label": "AUJOURD'HUI",
-        "cat": "Date",
-        "hint": "AUJOURD_HUI()",
-    },
-    {"name": "SI", "label": "SI", "cat": "Logique", "hint": "SI(cond, alors, sinon)"},
-]
-
-
 # ///////////////////////////////////////////////////////////////
 # AST VALIDATOR
 # ///////////////////////////////////////////////////////////////
@@ -366,4 +310,4 @@ def add_computed_column(
     return df.with_columns(expr.alias(target))
 
 
-__all__ = ["add_computed_column", "FUNCTION_CATALOG"]
+__all__ = ["add_computed_column"]

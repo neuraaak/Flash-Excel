@@ -61,7 +61,7 @@ src/flash_excel/
 ├── core/
 │   ├── models.py        # Pydantic discriminated-union models (Preset, steps)
 │   ├── registry.py      # @action("name") decorator → REGISTRY dict
-│   ├── pipeline.py      # run_pipeline() + compute_schema_at_step()
+│   ├── pipeline.py      # run_pipeline()
 │   └── steps/           # One file per step: rename, select, drop, cast,
 │                        #   replace, clean, fill, computed, filter,
 │                        #   deduplicate, sort, reorder
@@ -153,9 +153,12 @@ an editor + the i18n keys in both locale files.**
 
 ### Schema tracking without data loading
 
-`compute_schema_at_step(preset, step_index)` simulates structural transformations
-(drop, select, rename, reorder) against a schema snapshot — no file I/O.
-Used by the front-end to show the columns available at each step.
+Column availability per step is simulated **client-side**, in
+`web/js/components/ActionSteps.js` (`applyStepToColumns` / `applyStepToSchema`,
+chained through `columnsByStep` / `schemaByStep`): it tracks names *and* types,
+and recomputes on every keystroke without a bridge round-trip. There is
+deliberately no Python equivalent — one existed, was never called, and was
+deleted.
 
 ---
 

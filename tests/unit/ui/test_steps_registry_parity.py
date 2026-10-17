@@ -13,7 +13,9 @@ import typing
 
 import pytest
 
-from flash_excel.core import steps as _steps  # noqa: F401  # populates REGISTRY
+from flash_excel.core import (  # importing the package is what fills REGISTRY
+    steps as _steps,  # noqa: F401  # pyright: ignore[reportUnusedImport]
+)
 from flash_excel.core.models import RECOMMENDED_ACTION_ORDER, Step
 from flash_excel.core.registry import REGISTRY
 from flash_excel.paths import PACKAGE_DIR
@@ -69,3 +71,41 @@ def test_step_labels_and_descriptions_are_translated(locale):
 
 def test_recommended_order_covers_every_modelled_action():
     assert set(RECOMMENDED_ACTION_ORDER) == _modelled_actions()
+
+
+# ---------------------------------------------------------------------------
+# Computed-column function catalogue
+# ---------------------------------------------------------------------------
+# The catalogue used to be declared twice — FUNCTION_CATALOG in computed.py and
+# FUNCTIONS in ComputedTable.js — with nothing keeping them in step. The Python
+# copy had no caller and was deleted; this test is what replaces it, so a
+# function offered by the editor can never be missing from the evaluator.
+
+_COMPUTED_TABLE_JS = (
+    PACKAGE_DIR / "ui" / "web" / "js" / "components" / "tables" / "ComputedTable.js"
+)
+
+
+def _ui_functions() -> set[str]:
+    """Function names the computed-column editor offers."""
+    source = _COMPUTED_TABLE_JS.read_text(encoding="utf-8")
+    return set(re.findall(r'\{ name: "(\w+)"', source))
+
+
+def test_every_function_offered_by_the_editor_exists_in_the_evaluator():
+    from flash_excel.core.steps.computed import _STATIC_ALLOWED
+
+    missing = _ui_functions() - _STATIC_ALLOWED
+    assert not missing, f"offered by the UI but not evaluable: {sorted(missing)}"
+
+
+@pytest.mark.parametrize("locale", ["en", "fr"])
+def test_every_offered_function_is_documented_in_both_locales(locale):
+    locale_file = PACKAGE_DIR / "ui" / "web" / "js" / "locales" / f"{locale}.js"
+    translated = set(
+        re.findall(r"^\s*'([^']+)':", locale_file.read_text(encoding="utf-8"), re.M)
+    )
+    for name in _ui_functions():
+        assert f"fn.{name}.desc" in translated, (
+            f"fn.{name}.desc missing from {locale}.js"
+        )

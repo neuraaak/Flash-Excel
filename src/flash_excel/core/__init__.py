@@ -27,7 +27,7 @@ from .models import (
     SortRowsStep,
     Step,
 )
-from .pipeline import compute_schema_at_step, run_pipeline
+from .pipeline import run_pipeline
 from .registry import REGISTRY, action
 
 # ///////////////////////////////////////////////////////////////
@@ -46,7 +46,6 @@ __all__ = [
     "Step",
     # Pipeline
     "run_pipeline",
-    "compute_schema_at_step",
     # Registry
     "REGISTRY",
     "action",
