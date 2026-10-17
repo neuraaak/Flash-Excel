@@ -216,6 +216,12 @@ of `FlashExcelAPI` becomes `await window.pywebview.api.<method>()` in JS.
 - The local web page is loaded through `Path.as_uri()` — never a hand-built
   `file://` string, which breaks on Windows drive letters.
 
+**Run events.** `run_preset` takes a *list* of files and processes them in
+order on one thread. Every event pushed to `window.flashEvent` is stamped by
+`_push` with the `file_index` it belongs to, so the front-end routes it to its
+queue row; a final `batch_done` carries `succeeded`/`total`. Error mode
+`stop` ends the whole batch, not just the current file.
+
 ### Styling — design tokens, no hardcoded colors
 
 Colors live as CSS custom properties in `web/css/tokens.css`

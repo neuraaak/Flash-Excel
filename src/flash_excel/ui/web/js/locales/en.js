@@ -224,7 +224,7 @@ export default {
 
   // Processing page
   'proc.input_file': 'Input file',
-  'proc.one_file': '1 file',
+  'proc.n_files': '{count} file(s)',
   'proc.no_files': '0 files',
   'proc.load_file': 'Load file',
   'proc.dropzone': 'Drop one Excel/CSV file here',

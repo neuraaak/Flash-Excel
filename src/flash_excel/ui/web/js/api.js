@@ -23,6 +23,7 @@ export const api = {
 
   // File
   openFileDialog:   ()               => call('open_file_dialog'),
+  openFilesDialog:  ()               => call('open_files_dialog'),
   openFolderDialog: ()               => call('open_folder_dialog'),
   clearFile:        ()               => call('clear_file'),
   getSourceColumns: ()               => call('get_source_columns'),
@@ -33,8 +34,8 @@ export const api = {
   setStepPayload: (action, payload)  => call('set_step_payload', action, payload),
 
   // Processing
-  runPreset: (presetPath, filePath, outputConfig) =>
-    call('run_preset', presetPath, filePath, outputConfig),
+  runPreset: (presetPath, filePaths, outputConfig) =>
+    call('run_preset', presetPath, filePaths, outputConfig),
   stopRun: () => call('stop_run'),
 
   // Settings & themes

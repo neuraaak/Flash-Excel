@@ -13,7 +13,10 @@ export default {
       presets: [],
       selectedPresetPath: '',
       selectedPreset: null,   // full preset dict from api.loadPreset
-      fileInfo: null,   // { path, file_name, size_bytes, columns, ... }
+      files: [],        // [{ path, file_name, size_bytes, columns, ... }]
+      // Per-file run state, parallel to files[] and indexed by the
+      // file_index every backend event carries.
+      fileStates: [],   // [{ status, progress }]
       outputConfig: {
         format: 'keep',
         folder: '',
@@ -21,8 +24,6 @@ export default {
         error_mode: 'skip',
       },
       runState: 'idle',    // 'idle' | 'running' | 'done' | 'error' | 'stopped'
-      fileStatus: 'pending', // 'pending' | 'running' | 'done' | 'error' | 'skipped'
-      fileProgress: 0,
       stats: { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null },
       logs: [],
       consoleCollapsed: false,
@@ -52,7 +53,13 @@ export default {
     },
     totalSteps() { return this.selectedPreset?.steps?.length ?? 0; },
     stepNames() { return this.selectedPreset?.steps?.map(s => s.action) ?? []; },
-    canRun() { return !!this.fileInfo && !!this.selectedPresetPath && this.runState !== 'running'; },
+    canRun() { return this.files.length > 0 && !!this.selectedPresetPath && this.runState !== 'running'; },
+    // The footer bar covers the whole batch, not the file in flight.
+    overallProgress() {
+      if (!this.fileStates.length) return 0;
+      const sum = this.fileStates.reduce((acc, f) => acc + f.progress, 0);
+      return Math.round(sum / this.fileStates.length);
+    },
     filteredLogs() {
       const f = this.consoleFilter;
       if (f === 'all') return this.logs;
@@ -116,27 +123,34 @@ export default {
 
     async openFile() {
       try {
-        const data = await api.openFileDialog();
+        const data = await api.openFilesDialog();
         if (data?.cancelled) return;
-        this.fileInfo = data;
+        this.files = data.files;
         this.resetRun();
       } catch (e) {
         this.showToast(e.message, 'error');
       }
     },
 
+    clearFiles() {
+      this.files = [];
+      this.resetRun();
+    },
+
     async runPreset() {
       if (!this.canRun) return;
+      this.resetRun();
       this.runState = 'running';
-      this.fileStatus = 'running';
-      this.fileProgress = 0;
-      this.stats = { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null };
-      this.logs = [];
+      this.fileStates[0].status = 'running';
       try {
-        await api.runPreset(this.selectedPresetPath, this.fileInfo.path, this.outputConfig);
+        await api.runPreset(
+          this.selectedPresetPath,
+          this.files.map(f => f.path),
+          this.outputConfig,
+        );
       } catch (e) {
         this.runState = 'error';
-        this.fileStatus = 'error';
+        this.fileStates[0].status = 'error';
         this.pushLog('err', e.message);
       }
     },
@@ -151,28 +165,35 @@ export default {
     },
 
     onFlashEvent(type, data) {
+      // Every backend event carries the file it belongs to, so a batch
+      // updates its own queue row and never the one before it.
+      const file = this.fileStates[data.file_index];
+      if (file && file.status === 'pending') file.status = 'running';
+
       if (type === 'step') {
         const idx = data.step_index + 1;
-        this.fileProgress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
+        if (file) file.progress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
         this.pushLog('step', `${stepLabel(data.step_name, this.i18n.t)} ✓ (${data.rows_in} → ${data.rows_out} rows)`);
       } else if (type === 'done') {
-        this.runState = 'done';
-        this.fileStatus = 'done';
-        this.fileProgress = 100;
-        this.stats.rows_out = data.rows_out;
-        this.stats.elapsed_s = data.elapsed_s;
+        if (file) { file.status = 'done'; file.progress = 100; }
+        this.stats.rows_out += data.rows_out;
         this.pushLog('ok', this.i18n.t('log.done', { elapsed: data.elapsed_s, path: data.output_path }));
+      } else if (type === 'batch_done') {
+        this.stats.elapsed_s = data.elapsed_s;
+        // Files left pending were never reached: the run stopped before them.
+        for (const f of this.fileStates) {
+          if (f.status === 'pending' || f.status === 'running') f.status = 'skipped';
+        }
+        if (this.runState === 'running') {
+          this.runState = data.succeeded === data.total ? 'done' : 'error';
+        }
       } else if (type === 'error') {
         const em = this.outputConfig.error_mode;
         this.stats.errors++;
         this.pushLog('err', data.message);
         // data.fatal: the worker gave up before the step loop, so no 'done'
-        // will follow whatever the error mode says.
-        if (data.fatal || em === 'stop') {
-          this.runState = 'error'; this.fileStatus = 'error';
-        } else if (em === 'skip') {
-          this.runState = 'done'; this.fileStatus = 'skipped';
-        }
+        // will follow for this file whatever the error mode says.
+        if (file) file.status = (data.fatal || em === 'stop') ? 'error' : 'skipped';
       } else if (type === 'log') {
         if (data.level === 'warn') this.stats.warnings++;
         this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
@@ -194,8 +215,7 @@ export default {
 
     resetRun() {
       this.runState = 'idle';
-      this.fileStatus = 'pending';
-      this.fileProgress = 0;
+      this.fileStates = this.files.map(() => ({ status: 'pending', progress: 0 }));
       this.stats = { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null };
       this.logs = [];
     },
@@ -221,21 +241,21 @@ export default {
     <div class="files-area">
       <div class="area-head">
         <h2>{{ i18n.t('proc.input_file') }}</h2>
-        <span class="ah-meta">{{ fileInfo ? i18n.t('proc.one_file') : i18n.t('proc.no_files') }}</span>
+        <span class="ah-meta">{{ files.length ? i18n.t('proc.n_files', { count: files.length }) : i18n.t('proc.no_files') }}</span>
         <span style="flex:1 1 auto"></span>
         <button class="link-btn" @click="openFile" :disabled="runState === 'running'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           {{ i18n.t('proc.load_file') }}
         </button>
-        <button v-if="fileInfo" class="link-btn danger"
-          @click="fileInfo = null; resetRun()" :disabled="runState === 'running'">
+        <button v-if="files.length" class="link-btn danger"
+          @click="clearFiles" :disabled="runState === 'running'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
           {{ i18n.t('file.clear') }}
         </button>
       </div>
 
       <!-- Drop zone -->
-      <div v-if="!fileInfo" class="dropzone" @click="openFile">
+      <div v-if="!files.length" class="dropzone" @click="openFile">
         <span class="dz-ico">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 16V8M9 11l3-3 3 3"/>
@@ -248,30 +268,30 @@ export default {
       </div>
 
       <!-- File row -->
-      <div v-if="fileInfo" class="file-queue">
-        <div class="file-row"
-          :class="{ running: fileStatus === 'running', error: fileStatus === 'error' }">
-          <span class="file-ico" :class="{ csv: fileExt(fileInfo.file_name) === 'csv' }">
-            {{ fileExt(fileInfo.file_name).slice(0,4).toUpperCase() }}
+      <div v-if="files.length" class="file-queue">
+        <div v-for="(file, i) in files" :key="file.path" class="file-row"
+          :class="{ running: fileStates[i]?.status === 'running', error: fileStates[i]?.status === 'error' }">
+          <span class="file-ico" :class="{ csv: fileExt(file.file_name) === 'csv' }">
+            {{ fileExt(file.file_name).slice(0,4).toUpperCase() }}
           </span>
           <div class="file-main">
             <div class="file-top">
-              <span class="file-name">{{ fileInfo.file_name }}</span>
-              <span class="file-size">{{ fileSizeLabel(fileInfo.size_bytes) }}</span>
+              <span class="file-name">{{ file.file_name }}</span>
+              <span class="file-size">{{ fileSizeLabel(file.size_bytes) }}</span>
             </div>
-            <div class="file-sub">{{ fileInfo.columns?.length ?? 0 }} {{ i18n.t('proc.columns') }}</div>
-            <div class="file-prog"><i :style="{ width: fileProgress + '%' }"></i></div>
+            <div v-if="i === 0" class="file-sub">{{ file.columns?.length ?? 0 }} {{ i18n.t('proc.columns') }}</div>
+            <div class="file-prog"><i :style="{ width: (fileStates[i]?.progress ?? 0) + '%' }"></i></div>
           </div>
           <div class="file-right">
-            <span class="status-badge" :class="fileStatus">
-              <span class="dot"></span>{{ STATUS_LABEL[fileStatus] }}
+            <span class="status-badge" :class="fileStates[i]?.status ?? 'pending'">
+              <span class="dot"></span>{{ STATUS_LABEL[fileStates[i]?.status ?? 'pending'] }}
             </span>
           </div>
         </div>
       </div>
 
       <!-- Empty state (shown below drop zone when no file) -->
-      <div v-if="!fileInfo" class="empty-state" style="margin-top:14px">
+      <div v-if="!files.length" class="empty-state" style="margin-top:14px">
         <span class="es-title">{{ i18n.t('proc.no_file') }}</span>
         <span class="es-sub">{{ i18n.t('proc.no_file_sub') }}</span>
       </div>
@@ -399,9 +419,9 @@ export default {
       <div class="ov-prog">
         <div class="ov-top">
           <span class="ov-label">{{ i18n.t('proc.progress') }}</span>
-          <span class="ov-pct">{{ fileProgress }}%</span>
+          <span class="ov-pct">{{ overallProgress }}%</span>
         </div>
-        <div class="ov-bar"><i :style="{ width: fileProgress + '%' }"></i></div>
+        <div class="ov-bar"><i :style="{ width: overallProgress + '%' }"></i></div>
       </div>
       <div class="stat-grid">
         <div class="stat ok">

@@ -93,6 +93,9 @@ class FlashExcelAPI:
         self._step_payloads: dict[str, dict] = {}
         self._run_thread: threading.Thread | None = None
         self._stop_event: threading.Event = threading.Event()
+        # Index of the file currently being processed, stamped onto every
+        # event so the queue rows can be updated independently.
+        self._file_index: int = 0
 
     # ------------------------------------------------------------------
     # Debug bridge (JS → Python)
@@ -413,6 +416,50 @@ class FlashExcelAPI:
         except Exception as exc:
             return _err(str(exc))
 
+    def open_files_dialog(self) -> dict:
+        """Open the native picker in multi-select mode and load the selection.
+
+        Only the first file is read for its schema: the step editors are
+        column-driven and a batch is meant to hold files of the same shape.
+        Reading all of them would freeze the window for no gain.
+
+        Returns:
+            dict: ``{"files": [...]}``, the first entry carrying the schema.
+        """
+        try:
+            window = webview.active_window()
+            if window is None:
+                return _err(_NO_ACTIVE_WINDOW)
+            result = window.create_file_dialog(  # type: ignore[union-attr]
+                FileDialog.OPEN,
+                allow_multiple=True,
+                file_types=("Supported files (*.xlsx;*.xls;*.xlsm;*.csv)",),
+            )
+            if not result:
+                return _ok({"cancelled": True})
+
+            first = self._load_file_path(result[0])
+            if not first["ok"]:
+                return first
+            files = [first["data"]]
+            files.extend(self._file_summary(Path(p)) for p in result[1:])
+            return _ok({"files": files})
+        except Exception as exc:
+            return _err(str(exc))
+
+    @staticmethod
+    def _file_summary(path: Path) -> dict:
+        """Queue-row metadata for a file whose schema is not read."""
+        result = FileLoaderResult.from_path(path)
+        return {
+            "path": str(path),
+            "file_name": result.file_name,
+            "size_bytes": result.size_bytes,
+            "file_type": result.file_type,
+            "columns": [],
+            "schema": {},
+        }
+
     def open_folder_dialog(self) -> dict:
         """Open native folder picker and return the selected path."""
         try:
@@ -498,19 +545,23 @@ class FlashExcelAPI:
     def run_preset(
         self,
         preset_path: str,
-        file_path: str,
+        file_paths: list[str],
         output_config: dict,
     ) -> dict:
-        """Start pipeline execution in a background thread.
+        """Start pipeline execution over one or more files, in a background thread.
 
-        Returns immediately. Progress is pushed via window.flashEvent().
+        Returns immediately. Progress is pushed via window.flashEvent(); every
+        event carries the ``file_index`` it belongs to, and a final
+        ``batch_done`` closes the run.
         """
         if self._run_thread is not None and self._run_thread.is_alive():
             return _err("A run is already in progress")
+        if not file_paths:
+            return _err("No input file")
         self._stop_event = threading.Event()
         self._run_thread = threading.Thread(
             target=self._run_worker,
-            args=(preset_path, file_path, output_config),
+            args=(preset_path, file_paths, output_config),
             daemon=True,
         )
         self._run_thread.start()
@@ -522,7 +573,13 @@ class FlashExcelAPI:
         return _ok()
 
     def _push(self, event_type: str, data: dict) -> None:
-        """Push an event to the JS layer via evaluate_js."""
+        """Push an event to the JS layer via evaluate_js.
+
+        The index of the file being processed is stamped here rather than at
+        every call site, so the front-end can always route an event to its
+        queue row.
+        """
+        data = {**data, "file_index": self._file_index}
         js = f"window.flashEvent && window.flashEvent({json.dumps(event_type)}, {json.dumps(data)})"
         try:
             webview.windows[0].evaluate_js(js)
@@ -589,21 +646,57 @@ class FlashExcelAPI:
     def _run_worker(
         self,
         preset_path: str,
-        file_path: str,
+        file_paths: list[str],
         output_config: dict,
     ) -> None:
         """Pipeline execution worker — runs in a background thread."""
-        from flash_excel.io.writer import write_dataframe
         from flash_excel.presets import load_preset as _load_preset
 
         t_start = time.monotonic()
         error_mode = output_config.get("error_mode", "skip")
+        succeeded = 0
 
         try:
-            src = Path(file_path)
-            # The preset comes first: it carries the CSV separator and encoding
-            # the read needs.
+            # The preset comes first: it carries the CSV separator and
+            # encoding the read needs.
             preset = _load_preset(Path(preset_path))
+        except Exception as exc:
+            self._fatal(exc, t_start)
+            return
+
+        for index, file_path in enumerate(file_paths):
+            self._file_index = index
+            if self._stop_event.is_set():
+                self._push("log", {"level": "warn", "key": "log.run_stopped"})
+                break
+            if self._process_one(Path(file_path), preset, output_config, error_mode):
+                succeeded += 1
+            elif error_mode == "stop":
+                # "stop" is about the whole run, not just the current file:
+                # going on would write outputs the user asked not to produce.
+                break
+
+        self._push(
+            "batch_done",
+            {
+                "elapsed_s": round(time.monotonic() - t_start, 2),
+                "succeeded": succeeded,
+                "total": len(file_paths),
+            },
+        )
+
+    def _process_one(
+        self,
+        src: Path,
+        preset: Preset,
+        output_config: dict,
+        error_mode: str,
+    ) -> bool:
+        """Run the preset over one file. Returns False when it did not finish."""
+        from flash_excel.io.writer import write_dataframe
+
+        t_start = time.monotonic()
+        try:
             self._push(
                 "log",
                 {"level": "info", "key": "log.loading", "params": {"file": src.name}},
@@ -618,21 +711,20 @@ class FlashExcelAPI:
                 },
             )
 
-            total = len(preset.steps)
             self._push(
                 "log",
                 {
                     "level": "info",
                     "key": "log.preset_steps",
-                    "params": {"name": preset.meta.name, "count": total},
+                    "params": {"name": preset.meta.name, "count": len(preset.steps)},
                 },
             )
 
             df = self._run_steps(df, preset, error_mode)
             if df is None:
-                return
+                return False
 
-            out_path, fmt = self._resolve_output_path(file_path, output_config)
+            out_path, fmt = self._resolve_output_path(str(src), output_config)
             self._push(
                 "log",
                 {
@@ -652,38 +744,43 @@ class FlashExcelAPI:
                 decimal_comma=decimal_comma,
             )
 
-            elapsed = round(time.monotonic() - t_start, 2)
             self._push(
                 "done",
                 {
-                    "elapsed_s": elapsed,
+                    "elapsed_s": round(time.monotonic() - t_start, 2),
                     "rows_out": len(df),
                     "output_path": out_path,
                 },
             )
+            return True
 
         except Exception as exc:
-            elapsed = round(time.monotonic() - t_start, 2)
-            # fatal: nothing follows this, not even a "done". Without the flag
-            # the UI stays on "running" forever under error_mode "ignore" —
-            # which is where a source file locked by Excel lands.
-            self._push(
-                "error",
-                {
-                    "step_index": -1,
-                    "step_name": "init",
-                    "message": str(exc),
-                    "fatal": True,
-                },
-            )
-            self._push(
-                "log",
-                {
-                    "level": "err",
-                    "key": "log.run_failed",
-                    "params": {"elapsed": elapsed, "error": str(exc)},
-                },
-            )
+            self._fatal(exc, t_start)
+            return False
+
+    def _fatal(self, exc: Exception, t_start: float) -> None:
+        """Report an error that ended a file before its step loop could run."""
+        elapsed = round(time.monotonic() - t_start, 2)
+        # fatal: nothing follows this for that file, not even a "done".
+        # Without the flag the UI stays on "running" forever under error_mode
+        # "ignore" — which is where a source file locked by Excel lands.
+        self._push(
+            "error",
+            {
+                "step_index": -1,
+                "step_name": "init",
+                "message": str(exc),
+                "fatal": True,
+            },
+        )
+        self._push(
+            "log",
+            {
+                "level": "err",
+                "key": "log.run_failed",
+                "params": {"elapsed": elapsed, "error": str(exc)},
+            },
+        )
 
     @staticmethod
     def _preset_to_dict(preset: Preset) -> dict:
