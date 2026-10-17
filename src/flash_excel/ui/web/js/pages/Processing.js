@@ -356,7 +356,7 @@ export default {
             v-model="selectedPresetPath" @change="onPresetChange">
             <option value="" disabled>{{ i18n.t('proc.preset_ph') }}</option>
             <option v-for="p in presets" :key="p.path" :value="p.path">
-              {{ p.name }} — {{ p.step_count }} actions
+              {{ p.name }} — {{ p.label }} — {{ p.step_count }} actions
             </option>
           </select>
           <span style="position:absolute;right:11px;top:50%;width:7px;height:7px;border-right:2px solid var(--text_secondary);border-bottom:2px solid var(--text_secondary);transform:translateY(-70%) rotate(45deg);pointer-events:none"></span>

@@ -40,8 +40,8 @@ export const api = {
 
   // Settings & themes
   getAppConfig:   ()                 => call('get_app_config'),
-  saveAppConfig:  (palette, mode, locale = 'en', csvSeparator = 'auto', csvDecimal = 'auto') =>
-                                     call('save_app_config', palette, mode, locale, csvSeparator, csvDecimal),
+  saveAppConfig:  (palette, mode, locale = 'en', csvSeparator = 'auto', csvDecimal = 'auto', presetSources = null) =>
+                                     call('save_app_config', palette, mode, locale, csvSeparator, csvDecimal, presetSources),
   getThemes:      ()                 => call('get_themes'),
 
   // Version & auto-update

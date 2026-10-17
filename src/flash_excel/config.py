@@ -33,6 +33,7 @@ _DEFAULTS: dict = {
         "separator": "auto",
         "decimal": "auto",
     },
+    "presets": {"sources": []},
 }
 
 # Regional settings Excel itself reads to decide how a CSV is parsed and
@@ -207,6 +208,7 @@ def _defaults() -> dict:
         "appearance": dict(_DEFAULTS["appearance"]),
         "locale": _DEFAULTS["locale"],
         "csv": dict(_DEFAULTS["csv"]),
+        "presets": {"sources": []},
     }
 
 
@@ -217,6 +219,21 @@ def _valid(value: object, allowed: set[str] | frozenset[str]) -> str:
     automatic behaviour rather than reach the writer as a delimiter.
     """
     return value if isinstance(value, str) and value in allowed else "auto"
+
+
+def _preset_sources(value: object) -> list[dict[str, str]]:
+    """Return valid labelled, read-only preset source directories."""
+    if not isinstance(value, list):
+        return []
+    return [
+        {"label": item["label"].strip(), "path": item["path"].strip()}
+        for item in value
+        if isinstance(item, dict)
+        and isinstance(item.get("label"), str)
+        and item["label"].strip()
+        and isinstance(item.get("path"), str)
+        and item["path"].strip()
+    ]
 
 
 def load_app_config() -> dict:
@@ -235,6 +252,7 @@ def load_app_config() -> dict:
         raw = yaml.safe_load(APP_CONFIG.read_text(encoding="utf-8")) or {}
         app = raw.get("appearance", {})
         csv_section = raw.get("csv", {}) or {}
+        presets_section = raw.get("presets", {}) or {}
         return {
             "appearance": {
                 "palette": _resolve_palette(
@@ -249,6 +267,11 @@ def load_app_config() -> dict:
                 ),
                 "decimal": _valid(csv_section.get("decimal"), _DECIMAL_TOKENS),
             },
+            "presets": {
+                "sources": _preset_sources(
+                    presets_section.get("sources", raw.get("sources"))
+                )
+            },
         }
     except Exception:
         return _defaults()
@@ -260,14 +283,21 @@ def save_app_config(
     locale: str = "en",
     csv_separator: str = "auto",
     csv_decimal: str = "auto",
+    preset_sources: list[dict[str, str]] | None = None,
 ) -> None:
     """Persist the appearance, locale and CSV settings, keeping the comments."""
+    sources = (
+        _preset_sources(preset_sources)
+        if preset_sources is not None
+        else load_app_config()["presets"]["sources"]
+    )
     _write(
         palette,
         mode,
         locale,
         _valid(csv_separator, set(_SEPARATOR_TOKENS) | {"auto"}),
         _valid(csv_decimal, _DECIMAL_TOKENS),
+        sources,
     )
 
 
@@ -321,16 +351,24 @@ def load_themes() -> dict:
 
 
 def _write(
-    palette: str, mode: str, locale: str, csv_separator: str, csv_decimal: str
+    palette: str,
+    mode: str,
+    locale: str,
+    csv_separator: str,
+    csv_decimal: str,
+    preset_sources: list[dict[str, str]] | None = None,
 ) -> None:
     APP_CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    APP_CONFIG.write_text(
-        _template().format(
-            palette=palette,
-            mode=mode,
-            locale=locale,
-            csv_separator=csv_separator,
-            csv_decimal=csv_decimal,
-        ),
-        encoding="utf-8",
+    content = _template().format(
+        palette=palette,
+        mode=mode,
+        locale=locale,
+        csv_separator=csv_separator,
+        csv_decimal=csv_decimal,
     )
+    if preset_sources:
+        content += "\n\n# //////\n# Read-only preset sources\n"
+        content += yaml.safe_dump(
+            {"presets": {"sources": preset_sources}}, sort_keys=False
+        )
+    APP_CONFIG.write_text(content, encoding="utf-8")

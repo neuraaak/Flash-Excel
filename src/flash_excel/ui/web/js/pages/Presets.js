@@ -329,12 +329,12 @@ export default {
         <div class="tb-actions-cell">
           <template v-if="hasSelection">
             <input class="input name-input" v-model="presetName" :placeholder="t('presets.name')" :aria-label="t('presets.name')" />
-            <button class="btn primary" @click="savePreset">
+            <button class="btn primary" @click="savePreset" :disabled="presets.find(p => p.path === selectedPath)?.read_only">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
               {{ t('toolbar.save') }}
             </button>
             <span class="tb-spacer"></span>
-            <button class="btn danger-hover" @click="deletePreset" :disabled="!selectedPath">
+            <button class="btn danger-hover" @click="deletePreset" :disabled="!selectedPath || presets.find(p => p.path === selectedPath)?.read_only">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
               {{ t('toolbar.delete') }}
             </button>
@@ -358,6 +358,7 @@ export default {
             class="preset-card" :class="{ active: selectedPath === p.path, broken: p.error }"
             @click="selectPreset(p.path)">
             <span class="pc-name">{{ p.name }}</span>
+            <span class="pc-meta">{{ p.label }}</span>
             <span class="pc-meta" v-if="p.error" :title="p.error">{{ t('presets.unreadable') }}</span>
             <span class="pc-meta" v-else>{{ p.step_count }}</span>
           </div>

@@ -114,6 +114,10 @@ def test_new_preset_empty_name_returns_error(api):
 
 def test_get_presets_lists_valid_presets(api, monkeypatch, tmp_path):
     monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
+    monkeypatch.setattr(
+        "flash_excel.ui.api.load_app_config",
+        lambda: {"presets": {"sources": []}},
+    )
     preset = Preset(
         meta=PresetMeta(name="Test"),
         steps=[DropColumnsStep(action="drop_columns", columns=["a"])],
@@ -126,11 +130,60 @@ def test_get_presets_lists_valid_presets(api, monkeypatch, tmp_path):
     assert result["data"][0]["step_count"] == 1
 
 
+def test_get_presets_lists_local_before_configured_sources(api, monkeypatch, tmp_path):
+    local_dir = tmp_path / "local"
+    source_dir = tmp_path / "finance"
+    local_dir.mkdir()
+    source_dir.mkdir()
+    preset = Preset(meta=PresetMeta(name="Shared"), steps=[])
+    save_preset(preset, local_dir / "local.toml")
+    save_preset(preset, source_dir / "shared.toml")
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", local_dir)
+    monkeypatch.setattr(
+        "flash_excel.ui.api.load_app_config",
+        lambda: {
+            "presets": {"sources": [{"label": "Finance", "path": str(source_dir)}]}
+        },
+    )
+
+    result = api.get_presets()
+
+    assert [
+        (item["name"], item["read_only"], item["label"]) for item in result["data"]
+    ] == [
+        ("Shared", False, "Local"),
+        ("Shared", True, "Finance"),
+    ]
+
+
+def test_delete_preset_refuses_a_configured_source(api, monkeypatch, tmp_path):
+    source_dir = tmp_path / "finance"
+    source_dir.mkdir()
+    source = source_dir / "shared.toml"
+    source.write_text("[meta]\nname = 'Shared'\n", encoding="utf-8")
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path / "local")
+    monkeypatch.setattr(
+        "flash_excel.ui.api.load_app_config",
+        lambda: {
+            "presets": {"sources": [{"label": "Finance", "path": str(source_dir)}]}
+        },
+    )
+
+    result = api.delete_preset(str(source))
+
+    assert result == {"ok": False, "error": "Configured preset sources are read-only"}
+    assert source.exists()
+
+
 def test_get_presets_reports_invalid_files_instead_of_hiding_them(
     api, monkeypatch, tmp_path
 ):
     """An unreadable preset must stay visible: omitting it looks like deletion."""
     monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
+    monkeypatch.setattr(
+        "flash_excel.ui.api.load_app_config",
+        lambda: {"presets": {"sources": []}},
+    )
     (tmp_path / "broken.toml").write_text("not [valid toml", encoding="utf-8")
     result = api.get_presets()
     assert result["ok"] is True

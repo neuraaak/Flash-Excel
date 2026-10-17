@@ -23,6 +23,44 @@ def test_save_and_reload_locale(monkeypatch, tmp_path):
     assert result["locale"] == "fr"
 
 
+def test_load_app_config_keeps_only_valid_preset_sources(monkeypatch, tmp_path):
+    cfg_file = tmp_path / "app.config.yaml"
+    monkeypatch.setattr("flash_excel.config.APP_CONFIG", cfg_file)
+    cfg_file.write_text(
+        "presets:\n  sources:\n"
+        "    - label: Finance\n      path: \\srv\\finance\\presets\n"
+        "    - label: Missing path\n"
+        "    - label: 42\n      path: \\srv\\invalid\n",
+        encoding="utf-8",
+    )
+
+    assert load_app_config()["presets"]["sources"] == [
+        {"label": "Finance", "path": "\\srv\\finance\\presets"}
+    ]
+
+
+def test_save_and_reload_preset_sources(monkeypatch, tmp_path):
+    monkeypatch.setattr("flash_excel.config.APP_CONFIG", tmp_path / "app.config.yaml")
+    sources = [{"label": "Finance", "path": r"\\srv\finance\presets"}]
+
+    save_app_config("blue-gray", "dark", preset_sources=sources)
+
+    assert load_app_config()["presets"]["sources"] == sources
+
+
+def test_load_recovers_sources_written_at_the_yaml_root(monkeypatch, tmp_path):
+    cfg_file = tmp_path / "app.config.yaml"
+    monkeypatch.setattr("flash_excel.config.APP_CONFIG", cfg_file)
+    cfg_file.write_text(
+        "presets:\nsources:\n  - label: Finance\n    path: C:\\Shared\n",
+        encoding="utf-8",
+    )
+
+    assert load_app_config()["presets"]["sources"] == [
+        {"label": "Finance", "path": "C:\\Shared"}
+    ]
+
+
 def _isolate_themes(
     monkeypatch, tmp_path, shipped="palette:\n  blue-gray:\n    dark: {}\n"
 ):

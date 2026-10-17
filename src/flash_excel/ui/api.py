@@ -197,10 +197,13 @@ class FlashExcelAPI:
         locale: str = "en",
         csv_separator: str = "auto",
         csv_decimal: str = "auto",
+        preset_sources: list[dict[str, str]] | None = None,
     ) -> dict:
         """Persist appearance, locale and CSV settings to app.config.yaml."""
         try:
-            save_app_config(palette, mode, locale, csv_separator, csv_decimal)
+            save_app_config(
+                palette, mode, locale, csv_separator, csv_decimal, preset_sources
+            )
             return _ok()
         except Exception as exc:
             return _err(str(exc))
@@ -224,34 +227,63 @@ class FlashExcelAPI:
         look like a deleted one.
         """
         try:
-            paths = list_presets(PRESETS_DIR)
             result = []
-            for p in paths:
-                try:
-                    preset = load_preset(p)
-                except Exception as exc:
-                    log("ERROR", f"unreadable preset {p.name}: {exc}")
-                    result.append(
-                        {
-                            "name": p.stem,
-                            "description": "",
-                            "step_count": 0,
-                            "path": str(p),
-                            "error": str(exc),
-                        }
-                    )
+            sources = [(PRESETS_DIR, "Local", False)]
+            for source in load_app_config()["presets"]["sources"]:
+                directory = Path(source["path"])
+                if not directory.is_dir():
+                    log("WARNING", f"preset source unavailable: {directory}")
                     continue
-                result.append(
-                    {
-                        "name": preset.meta.name,
-                        "description": preset.meta.description or "",
-                        "step_count": len(preset.steps),
-                        "path": str(p),
-                    }
-                )
+                sources.append((directory, source["label"], True))
+            for directory, label, read_only in sources:
+                for p in list_presets(directory):
+                    self._append_preset_row(result, p, label, read_only)
             return _ok(result)
         except Exception as exc:
             return _err(str(exc))
+
+    @staticmethod
+    def _append_preset_row(
+        result: list[dict], p: Path, label: str, read_only: bool
+    ) -> None:
+        """Append one listed preset, retaining corrupt files for repair."""
+        try:
+            preset = load_preset(p)
+        except Exception as exc:
+            log("ERROR", f"unreadable preset {p.name}: {exc}")
+            result.append(
+                {
+                    "name": p.stem,
+                    "description": "",
+                    "step_count": 0,
+                    "path": str(p),
+                    "error": str(exc),
+                    "label": label,
+                    "read_only": read_only,
+                }
+            )
+            return
+        result.append(
+            {
+                "name": preset.meta.name,
+                "description": preset.meta.description or "",
+                "step_count": len(preset.steps),
+                "path": str(p),
+                "label": label,
+                "read_only": read_only,
+            }
+        )
+
+    @staticmethod
+    def _is_read_only_preset(path: Path) -> bool:
+        """Return whether a path belongs to a configured source directory."""
+        for source in load_app_config()["presets"]["sources"]:
+            try:
+                path.resolve().relative_to(Path(source["path"]).resolve())
+            except ValueError:
+                continue
+            return True
+        return False
 
     def load_preset(self, preset_path: str) -> dict:
         """Load a preset by absolute path and return its full data."""
@@ -312,6 +344,8 @@ class FlashExcelAPI:
             name = name.strip()
             new_path = PRESETS_DIR / f"{self._name_to_filename(name)}.toml"
             old_path = self._current_preset_path
+            if old_path is not None and self._is_read_only_preset(old_path):
+                return _err("Configured preset sources are read-only")
             renaming = old_path is not None and old_path != new_path
 
             # Two presets whose names differ only by punctuation share a
@@ -356,6 +390,8 @@ class FlashExcelAPI:
         """Delete a preset file."""
         try:
             path = Path(preset_path)
+            if self._is_read_only_preset(path):
+                return _err("Configured preset sources are read-only")
             delete_preset(path)
             if self._current_preset_path == path:
                 self._current_preset_path = None
