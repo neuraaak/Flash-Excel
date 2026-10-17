@@ -8,7 +8,7 @@ Preset store utilities for flash-excel.
 
 Provides filesystem-level operations for managing TOML preset files:
 listing available presets in a directory, persisting a `Preset`
-instance to disk, and removing a preset file.
+instance to disk via `tomli_w`, and removing a preset file.
 """
 
 from __future__ import annotations
@@ -18,6 +18,9 @@ from __future__ import annotations
 # ///////////////////////////////////////////////////////////////
 # Standard library imports
 from pathlib import Path
+
+# Third-party imports
+import tomli_w
 
 # Local imports
 from flash_excel.core.models import Preset
@@ -57,9 +60,12 @@ def save_preset(preset: Preset, path: Path) -> None:
     """Serialize a Preset instance to a TOML file on disk.
 
     Creates any missing parent directories. Overwrites any existing
-    file at ``path``. The TOML is generated from the Pydantic model's
-    ``model_dump`` output and formatted to match the expected preset
-    structure (``[meta]`` + ``[[steps]]``).
+    file at ``path``. The TOML is produced by ``tomli_w`` from the
+    Pydantic model's own ``model_dump`` output, so the written file
+    always round-trips back through ``presets.parser.load_preset``.
+
+    Optional fields left unset are omitted rather than written as a null
+    (TOML has no null): the model defaults restore them on load.
 
     Args:
         preset: Validated Preset instance to persist.
@@ -68,6 +74,8 @@ def save_preset(preset: Preset, path: Path) -> None:
     Raises:
         OSError: If the file cannot be written (e.g., permission
             denied, disk full).
+        ValueError: If the preset holds a value TOML cannot express,
+            such as a ``replace_values`` mapping onto null.
 
     Example:
         >>> from pathlib import Path
@@ -75,8 +83,18 @@ def save_preset(preset: Preset, path: Path) -> None:
         >>> p = Preset(meta=PresetMeta(name="Test"), steps=[])
         >>> save_preset(p, Path("presets/test.toml"))
     """
+    try:
+        toml_content = tomli_w.dumps(preset.model_dump(exclude_none=True))
+    except TypeError as exc:
+        # Nested nulls (e.g. a replace_values mapping onto null) survive
+        # exclude_none, and TOML has no way to write them. Fail here rather
+        # than emit a file that can never be read back.
+        raise ValueError(
+            f"The preset '{preset.meta.name}' holds a value that cannot be "
+            f"saved to TOML (a null inside a step). Details: {exc}"
+        ) from exc
+
     path.parent.mkdir(parents=True, exist_ok=True)
-    toml_content = _preset_to_toml(preset)
     path.write_text(toml_content, encoding="utf-8")
 
 
@@ -99,91 +117,6 @@ def delete_preset(path: Path) -> None:
     """
     if path.exists():
         path.unlink()
-
-
-# ///////////////////////////////////////////////////////////////
-# PRIVATE HELPERS
-# ///////////////////////////////////////////////////////////////
-
-
-def _preset_to_toml(preset: Preset) -> str:
-    """Serialize a Preset to a TOML-formatted string.
-
-    Produces a human-readable TOML document with a ``[meta]`` section
-    followed by one ``[[steps]]`` block per step.
-
-    Args:
-        preset: The Preset instance to serialize.
-
-    Returns:
-        str: TOML-formatted string representing the preset.
-    """
-    lines: list[str] = []
-
-    # [meta] section
-    lines.append("[meta]")
-    lines.append(f"name = {_toml_value(preset.meta.name)}")
-    lines.append(f"description = {_toml_value(preset.meta.description)}")
-    lines.append(f"csv_separator = {_toml_value(preset.meta.csv_separator)}")
-    lines.append(f"csv_encoding = {_toml_value(preset.meta.csv_encoding)}")
-    lines.append(f"source_columns = {_toml_value(preset.meta.source_columns)}")
-    lines.append(f"source_types = {_toml_value(preset.meta.source_types)}")
-    lines.append("")
-
-    # [[steps]] sections
-    for step in preset.steps:
-        lines.append("[[steps]]")
-        step_data = step.model_dump()
-        for key, value in step_data.items():
-            lines.append(f"{key} = {_toml_value(value)}")
-        lines.append("")
-
-    return "\n".join(lines)
-
-
-def _toml_value(value: object) -> str:
-    """Convert a Python value to its TOML literal representation.
-
-    Handles strings, booleans, integers, floats, lists, and dicts.
-    Nested structures (e.g., ``conditions`` list of dicts) are
-    serialized as inline TOML tables.
-
-    Args:
-        value: Python value to convert.
-
-    Returns:
-        str: TOML-compatible string representation.
-    """
-    if isinstance(value, bool):
-        # Must be checked before int, since bool is a subclass of int.
-        return "true" if value else "false"
-    if isinstance(value, str):
-        escaped = (
-            value.replace("\\", "\\\\")
-            .replace('"', '\\"')
-            .replace("\n", "\\n")
-            .replace("\r", "\\r")
-            .replace("\t", "\\t")
-        )
-        return f'"{escaped}"'
-    if isinstance(value, int | float):
-        return str(value)
-    if isinstance(value, list):
-        items = ", ".join(_toml_value(item) for item in value)
-        return f"[{items}]"
-    if isinstance(value, dict):
-        # Inline table: { key = value, ... }
-        pairs = ", ".join(
-            f"{_toml_key(str(k))} = {_toml_value(v)}" for k, v in value.items()
-        )
-        return "{" + pairs + "}"
-    return str(value)
-
-
-def _toml_key(key: str) -> str:
-    """Return a TOML-safe inline-table key (always quoted)."""
-    escaped = key.replace("\\", "\\\\").replace('"', '\\"')
-    return f'"{escaped}"'
 
 
 # ///////////////////////////////////////////////////////////////

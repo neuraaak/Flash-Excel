@@ -592,6 +592,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pywebview" },
     { name = "pyyaml" },
+    { name = "tomli-w" },
     { name = "xlsxwriter" },
 ]
 
@@ -631,6 +632,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pywebview", specifier = ">=5.0.0" },
     { name = "pyyaml", specifier = ">=6.0.0" },
+    { name = "tomli-w", specifier = ">=1.0.0" },
     { name = "xlsxwriter", specifier = ">=3.2.9" },
 ]
 

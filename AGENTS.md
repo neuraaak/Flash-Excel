@@ -21,7 +21,7 @@ file, selects or creates a preset, and executes a sequence of typed steps
 | Front-end   | Vue 3 (ESM browser build) + Tailwind, both vendored |
 | Data engine | Polars + fastexcel (read) / xlsxwriter (write)      |
 | Validation  | Pydantic v2 (discriminated unions)                  |
-| Presets     | TOML                                                |
+| Presets     | TOML (`tomllib` read / `tomli-w` write)             |
 | Config      | YAML (`app.config.yaml`, `theme.config.yaml`)       |
 | Logging     | ezplog                                              |
 | Build       | ezcompiler (PyInstaller + Inno Setup + tufup/TUF)   |
@@ -286,8 +286,11 @@ permanently.
 - **No literal UI strings** — every visible string is an i18n key in `en.js` + `fr.js`.
 - **Nothing written to the install folder** — use the `paths.py` constants.
 - **Bridge methods return `{ok, data|error}`** and never raise across the boundary.
-- **Schema-aware UI**: when building step editors, use `compute_schema_at_step()`
-  to populate column dropdowns, not the raw source file schema.
+- **Schema-aware UI**: when building step editors, populate column dropdowns
+  from `ActionSteps.js`'s per-step schema chain, not the raw source file schema.
+- **Presets are serialized by `tomli_w`**, never by hand: the writer dumps
+  `model_dump(exclude_none=True)`, so every model field round-trips and a value
+  TOML cannot express fails loudly instead of producing an unreadable file.
 - **Layer contracts** (enforced by import-linter, see `pyproject.toml`):
   `ui` → `presets`/`io` → `core` → `migration` → `config` → `logs` → `paths`.
   `presets` and `io` are independent siblings; `core` must never import `ui`.
