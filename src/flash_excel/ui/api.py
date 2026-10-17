@@ -26,7 +26,12 @@ from pydantic import TypeAdapter
 from webview import FileDialog  # type: ignore[import-untyped]  # noqa: F401
 
 from flash_excel._version import __version__
-from flash_excel.config import load_app_config, load_themes, save_app_config
+from flash_excel.config import (
+    load_app_config,
+    load_themes,
+    resolve_csv_output,
+    save_app_config,
+)
 from flash_excel.core.models import Preset, PresetMeta, Step
 from flash_excel.io.loader import detect_separator, read_schema
 from flash_excel.io.models import FileLoaderResult
@@ -182,10 +187,17 @@ class FlashExcelAPI:
         except Exception as exc:
             return _err(str(exc))
 
-    def save_app_config(self, palette: str, mode: str, locale: str = "en") -> dict:
-        """Persist appearance settings and locale to app.config.yaml."""
+    def save_app_config(
+        self,
+        palette: str,
+        mode: str,
+        locale: str = "en",
+        csv_separator: str = "auto",
+        csv_decimal: str = "auto",
+    ) -> dict:
+        """Persist appearance, locale and CSV settings to app.config.yaml."""
         try:
-            save_app_config(palette, mode, locale)
+            save_app_config(palette, mode, locale, csv_separator, csv_decimal)
             return _ok()
         except Exception as exc:
             return _err(str(exc))
@@ -523,7 +535,12 @@ class FlashExcelAPI:
 
         if source.suffix.lower() == ".csv":
             separator = preset.meta.csv_separator or detect_separator(source)
-            return read_csv(source, separator, preset.meta.csv_encoding)
+            return read_csv(
+                source,
+                separator,
+                preset.meta.csv_encoding,
+                preset.meta.csv_decimal_comma,
+            )
         return read_excel(source)
 
     def _run_steps(self, df, preset: Preset, error_mode: str):
@@ -624,8 +641,16 @@ class FlashExcelAPI:
                     "params": {"path": out_path},
                 },
             )
-            locale = load_app_config().get("locale", "en")
-            write_dataframe(df, Path(out_path), fmt, locale=locale)
+            app_config = load_app_config()
+            separator, decimal_comma = resolve_csv_output(app_config.get("csv"))
+            write_dataframe(
+                df,
+                Path(out_path),
+                fmt,
+                locale=app_config.get("locale", "en"),
+                separator=separator,
+                decimal_comma=decimal_comma,
+            )
 
             elapsed = round(time.monotonic() - t_start, 2)
             self._push(

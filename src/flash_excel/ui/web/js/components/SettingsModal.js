@@ -21,6 +21,10 @@ export default {
       palette: 'blue-gray',
       mode: 'dark',
       locale: 'en',
+      csvSeparator: 'auto',
+      csvDecimal: 'auto',
+      SEPARATORS: ['auto', 'semicolon', 'comma', 'tab'],
+      DECIMALS: ['auto', 'comma', 'dot'],
       themes: {},
     };
   },
@@ -56,6 +60,8 @@ export default {
       this.mode = cfgRes.appearance.mode;
     }
     this.locale = cfgRes?.locale ?? 'en';
+    this.csvSeparator = cfgRes?.csv?.separator ?? 'auto';
+    this.csvDecimal = cfgRes?.csv?.decimal ?? 'auto';
     if (themesRes) this.themes = themesRes;
   },
 
@@ -63,17 +69,30 @@ export default {
     async setPalette(key) {
       this.palette = key;
       this._applyTheme();
-      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => { });
+      await this._save();
     },
     async setMode(m) {
       this.mode = m;
       this._applyTheme();
-      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => { });
+      await this._save();
     },
     async setLanguage(code) {
       this.locale = code;
       i18n.setLocale(code);
-      await api.saveAppConfig(this.palette, this.mode, code).catch(() => { });
+      await this._save();
+    },
+    async setCsvSeparator(token) {
+      this.csvSeparator = token;
+      await this._save();
+    },
+    async setCsvDecimal(token) {
+      this.csvDecimal = token;
+      await this._save();
+    },
+    _save() {
+      return api
+        .saveAppConfig(this.palette, this.mode, this.locale, this.csvSeparator, this.csvDecimal)
+        .catch(() => { });
     },
     _applyTheme() {
       const tokens = this.themes[this.palette]?.[this.mode];
@@ -159,6 +178,41 @@ export default {
                 </button>
               </div>
             </div>
+          </div>
+
+          <!-- CSV -->
+          <div class="settings-section">
+            <div class="settings-section-label">{{ t('settings.csv') }}</div>
+
+            <div class="settings-field">
+              <div class="settings-field-label">{{ t('settings.csv_separator') }}</div>
+              <div class="seg settings-mode-seg">
+                <button
+                  v-for="opt in SEPARATORS"
+                  :key="opt"
+                  :class="{ active: csvSeparator === opt }"
+                  @click="setCsvSeparator(opt)"
+                >
+                  {{ t('settings.csv_sep_' + opt) }}
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-field">
+              <div class="settings-field-label">{{ t('settings.csv_decimal') }}</div>
+              <div class="seg settings-mode-seg">
+                <button
+                  v-for="opt in DECIMALS"
+                  :key="opt"
+                  :class="{ active: csvDecimal === opt }"
+                  @click="setCsvDecimal(opt)"
+                >
+                  {{ t('settings.csv_dec_' + opt) }}
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-hint">{{ t('settings.csv_hint') }}</div>
           </div>
 
         </div>

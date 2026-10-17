@@ -117,6 +117,7 @@ def read_csv(
     path: Path,
     separator: str = ";",
     encoding: str = "utf8-lossy",
+    decimal_comma: bool = False,
 ) -> pl.DataFrame:
     """Read a CSV file into a Polars DataFrame.
 
@@ -129,6 +130,10 @@ def read_csv(
         separator: Column delimiter character. Defaults to ``";"``.
         encoding: File encoding. Defaults to ``"utf8-lossy"`` which
             replaces invalid UTF-8 bytes rather than raising an error.
+        decimal_comma: Parse ``1,5`` as a float. Off by default: a ``;`` file
+            exported by a program still uses a dot, and turning this on would
+            read those numbers as text. It is a per-preset opt-in for files
+            that really come out of a French Excel.
 
     Returns:
         pl.DataFrame: DataFrame with all rows parsed from the CSV.
@@ -152,6 +157,7 @@ def read_csv(
         separator=separator,
         encoding=encoding,
         infer_schema_length=None,
+        decimal_comma=decimal_comma,
     )
 
 

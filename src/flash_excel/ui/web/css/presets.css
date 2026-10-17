@@ -1205,6 +1205,13 @@
   color: var(--text_secondary);
 }
 
+/* Explanatory line under a settings group */
+.settings-hint {
+  font-size: var(--fs-xs);
+  color: var(--text_secondary);
+  line-height: 1.45;
+}
+
 /* Grille de cartes palette */
 .palette-grid {
   display: grid;

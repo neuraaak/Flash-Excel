@@ -10,13 +10,27 @@
 appearance:
   # Palette de couleurs active.
   # Valeurs disponibles : blue-gray | github-dark | warm-dark
-  palette: {palette}
+  palette: "{palette}"
 
   # Mode d'affichage.
   # Valeurs disponibles : dark | light
-  mode: {mode}
+  mode: "{mode}"
 
 # //////
 # Langue
 # Valeurs disponibles : en | fr
-locale: {locale}
+locale: "{locale}"
+
+# //////
+# CSV
+# Applies to the files the application writes. "auto" follows the Windows
+# regional settings — the same ones Excel reads, so an "auto" file opens in
+# columns on a double-click.
+csv:
+  # Column delimiter.
+  # Available values: auto | semicolon | comma | tab
+  separator: "{csv_separator}"
+
+  # Decimal mark of numeric columns.
+  # Available values: auto | comma | dot
+  decimal: "{csv_decimal}"

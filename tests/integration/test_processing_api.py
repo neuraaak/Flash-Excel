@@ -90,12 +90,17 @@ def test_run_worker_reports_progress_and_writes_the_processed_data(
     )
     api = FlashExcelAPI()
     events: list[tuple[str, dict]] = []
-    writes: list[tuple[list[str], Path, str, str]] = []
+    writes: list[tuple[list[str], Path, str, str, str, bool]] = []
     monkeypatch.setattr(api, "_push", lambda event, data: events.append((event, data)))
     monkeypatch.setattr("flash_excel.ui.api.load_app_config", lambda: {"locale": "en"})
     monkeypatch.setattr(
         "flash_excel.io.writer.write_dataframe",
-        lambda df, path, fmt, locale: writes.append((df.columns, path, fmt, locale)),
+        lambda df, path, fmt, locale, separator, decimal_comma: writes.append(
+            (df.columns, path, fmt, locale, separator, decimal_comma)
+        ),
+    )
+    monkeypatch.setattr(
+        "flash_excel.ui.api.resolve_csv_output", lambda _csv_config: (";", True)
     )
 
     api._run_worker(
@@ -109,4 +114,4 @@ def test_run_worker_reports_progress_and_writes_the_processed_data(
         {"step_index": 0, "step_name": "drop_columns", "rows_in": 1, "rows_out": 1},
     ) in events
     assert events[-1][0] == "done"
-    assert writes == [(["name"], tmp_path / "source_clean.csv", "csv", "en")]
+    assert writes == [(["name"], tmp_path / "source_clean.csv", "csv", "en", ";", True)]

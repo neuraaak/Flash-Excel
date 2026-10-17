@@ -353,6 +353,8 @@ class PresetMeta(BaseModel):
         csv_separator: Column separator for CSV files. ``None`` (the default)
             means detect it from the file; set it to force one.
         csv_encoding: Encoding used when reading CSV files.
+        csv_decimal_comma: Parse ``1,5`` as a float when reading. Opt-in: only
+            set it for sources exported by a French Excel.
         source_columns: Cached source columns from the model file used
             to bootstrap step editors without reloading a file.
         source_types: Cached source schema (column -> logical/raw dtype)
@@ -366,6 +368,7 @@ class PresetMeta(BaseModel):
     description: str = ""
     csv_separator: str | None = None
     csv_encoding: str = "utf8-lossy"
+    csv_decimal_comma: bool = False
     source_columns: list[str] = Field(default_factory=list)
     source_types: dict[str, str] = Field(default_factory=dict)
     source_file: str = ""

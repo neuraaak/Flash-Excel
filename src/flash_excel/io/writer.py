@@ -87,6 +87,7 @@ def write_csv(
     df: pl.DataFrame,
     path: Path,
     separator: str = ";",
+    decimal_comma: bool = False,
 ) -> None:
     """Write a DataFrame to a CSV file.
 
@@ -94,10 +95,18 @@ def write_csv(
     the file if it already exists at ``path``. Uses semicolon as the
     default delimiter to match the French Excel convention.
 
+    The delimiter and the decimal mark travel together: a French Excel reading
+    a ``;`` file also expects ``1,5``, not ``1.5``, and shows a dotted column
+    as text. Callers resolve both from the regional settings — see
+    ``flash_excel.config.resolve_csv_output``.
+
     Args:
         df: DataFrame to write.
         path: Destination path for the CSV file.
         separator: Column delimiter character. Defaults to ``";"``.
+        decimal_comma: Write floats with a comma decimal mark. Must stay
+            ``False`` when ``separator`` is ``","``, or every float splits
+            its own cell.
 
     Raises:
         OSError: If the parent directory cannot be created or the file
@@ -110,7 +119,7 @@ def write_csv(
         >>> write_csv(df, Path("output/rapport.csv"), separator=";")
     """
     path.parent.mkdir(parents=True, exist_ok=True)
-    df.write_csv(path, separator=separator)
+    df.write_csv(path, separator=separator, decimal_comma=decimal_comma)
 
 
 def write_parquet(df: pl.DataFrame, path: Path) -> None:
@@ -126,7 +135,14 @@ def write_parquet(df: pl.DataFrame, path: Path) -> None:
     df.write_parquet(path)
 
 
-def write_dataframe(df: pl.DataFrame, path: Path, fmt: str, locale: str = "fr") -> None:
+def write_dataframe(
+    df: pl.DataFrame,
+    path: Path,
+    fmt: str,
+    locale: str = "fr",
+    separator: str = ";",
+    decimal_comma: bool = False,
+) -> None:
     """Dispatch DataFrame writing based on format.
 
     Args:
@@ -135,6 +151,8 @@ def write_dataframe(df: pl.DataFrame, path: Path, fmt: str, locale: str = "fr") 
         fmt: One of ``'xlsx'``, ``'csv'``, ``'parquet'``. Never ``'keep'`` — resolve first.
         locale: UI locale (``"en"`` or ``"fr"``), forwarded to ``write_excel``
             for boolean label formatting. Ignored for ``'csv'``/``'parquet'``.
+        separator: CSV delimiter. Ignored for ``'xlsx'``/``'parquet'``.
+        decimal_comma: CSV decimal mark. Ignored for ``'xlsx'``/``'parquet'``.
 
     Raises:
         ValueError: If fmt is not a supported format.
@@ -142,7 +160,7 @@ def write_dataframe(df: pl.DataFrame, path: Path, fmt: str, locale: str = "fr") 
     if fmt == "xlsx":
         write_excel(df, path, locale)
     elif fmt == "csv":
-        write_csv(df, path)
+        write_csv(df, path, separator, decimal_comma)
     elif fmt == "parquet":
         write_parquet(df, path)
     else:
