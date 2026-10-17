@@ -89,6 +89,12 @@
   background: var(--surface_overlay);
 }
 
+/* A preset whose file cannot be parsed: listed, but visibly not usable. */
+.preset-card.broken .pc-name,
+.preset-card.broken .pc-meta {
+  color: var(--semantic_error);
+}
+
 .preset-card.active::before {
   content: "";
   position: absolute;

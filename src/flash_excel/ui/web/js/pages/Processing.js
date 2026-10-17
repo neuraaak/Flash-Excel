@@ -16,7 +16,7 @@ export default {
       fileInfo: null,   // { path, file_name, size_bytes, columns, ... }
       outputConfig: {
         format: 'keep',
-        folder: './output/',
+        folder: '',
         pattern: '{name}_clean',
         error_mode: 'skip',
       },
@@ -66,6 +66,7 @@ export default {
   mounted() {
     window.flashEvent = (type, data) => this.onFlashEvent(type, data);
     this.loadPresets();
+    this.loadDefaultOutputFolder();
   },
 
   beforeUnmount() {
@@ -80,6 +81,15 @@ export default {
       } catch (e) {
         this.showToast(e.message, 'error');
       }
+    },
+
+    async loadDefaultOutputFolder() {
+      // Shown rather than assumed: an empty or relative folder would be
+      // written next to the executable, which auto-updates replace.
+      try {
+        const res = await api.getDefaultOutputFolder();
+        if (!this.outputConfig.folder) this.outputConfig.folder = res.folder;
+      } catch { /* the Python side resolves it anyway on run */ }
     },
 
     async loadPresets() {
@@ -156,7 +166,9 @@ export default {
         const em = this.outputConfig.error_mode;
         this.stats.errors++;
         this.pushLog('err', data.message);
-        if (em === 'stop') {
+        // data.fatal: the worker gave up before the step loop, so no 'done'
+        // will follow whatever the error mode says.
+        if (data.fatal || em === 'stop') {
           this.runState = 'error'; this.fileStatus = 'error';
         } else if (em === 'skip') {
           this.runState = 'done'; this.fileStatus = 'skipped';

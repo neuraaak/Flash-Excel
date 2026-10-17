@@ -28,10 +28,10 @@ from webview import FileDialog  # type: ignore[import-untyped]  # noqa: F401
 from flash_excel._version import __version__
 from flash_excel.config import load_app_config, load_themes, save_app_config
 from flash_excel.core.models import Preset, PresetMeta, Step
-from flash_excel.io.loader import read_schema
+from flash_excel.io.loader import detect_separator, read_schema
 from flash_excel.io.models import FileLoaderResult
 from flash_excel.logs import log
-from flash_excel.paths import PRESETS_DIR
+from flash_excel.paths import DEFAULT_OUTPUT_DIR, PRESETS_DIR
 from flash_excel.presets import delete_preset, list_presets, load_preset, save_preset
 
 _step_adapter: TypeAdapter[Step] = TypeAdapter(Step)
@@ -172,23 +172,38 @@ class FlashExcelAPI:
     # ------------------------------------------------------------------
 
     def get_presets(self) -> dict:
-        """Return list of preset metadata dicts."""
+        """Return list of preset metadata dicts.
+
+        A preset that cannot be read is still listed, carrying an ``error``
+        field instead of its metadata: dropping it would make a corrupt file
+        look like a deleted one.
+        """
         try:
             paths = list_presets(PRESETS_DIR)
             result = []
             for p in paths:
                 try:
                     preset = load_preset(p)
+                except Exception as exc:
+                    log("ERROR", f"unreadable preset {p.name}: {exc}")
                     result.append(
                         {
-                            "name": preset.meta.name,
-                            "description": preset.meta.description or "",
-                            "step_count": len(preset.steps),
+                            "name": p.stem,
+                            "description": "",
+                            "step_count": 0,
                             "path": str(p),
+                            "error": str(exc),
                         }
                     )
-                except Exception:  # noqa: S110  # nosec B110
-                    pass
+                    continue
+                result.append(
+                    {
+                        "name": preset.meta.name,
+                        "description": preset.meta.description or "",
+                        "step_count": len(preset.steps),
+                        "path": str(p),
+                    }
+                )
             return _ok(result)
         except Exception as exc:
             return _err(str(exc))
@@ -223,7 +238,7 @@ class FlashExcelAPI:
             if not name:
                 return _err("Preset name cannot be empty")
             preset = Preset(meta=PresetMeta(name=name), steps=[])
-            path = PRESETS_DIR / f"{name.lower().replace(' ', '_')}.toml"
+            path = PRESETS_DIR / f"{self._name_to_filename(name)}.toml"
             self._current_preset_path = path
             self._step_payloads = {}
             return _ok(self._preset_to_dict(preset))
@@ -242,20 +257,25 @@ class FlashExcelAPI:
         return slug or "preset"
 
     def save_preset(self, name: str, steps_payload: list) -> dict:
-        """Persist current preset to disk."""
+        """Persist current preset to disk.
+
+        Returns ``{"path": str, "rejected": [...]}``. ``rejected`` lists the
+        payloads that failed validation and are therefore *not* in the saved
+        file, so the UI can say so instead of losing them silently.
+        """
         try:
             name = name.strip()
             new_path = PRESETS_DIR / f"{self._name_to_filename(name)}.toml"
+            old_path = self._current_preset_path
+            renaming = old_path is not None and old_path != new_path
 
-            # Delete the old file when the name has changed.
-            if (
-                self._current_preset_path is not None
-                and self._current_preset_path != new_path
-                and self._current_preset_path.exists()
-            ):
-                self._current_preset_path.unlink()
-
-            self._current_preset_path = new_path
+            # Two presets whose names differ only by punctuation share a
+            # filename; overwriting the other one would destroy it.
+            if renaming and new_path.exists():
+                return _err(
+                    f"A preset already uses the file '{new_path.name}'. "
+                    "Choose another name."
+                )
 
             # Expand items-array payloads into individual steps.
             expanded: list = []
@@ -278,12 +298,17 @@ class FlashExcelAPI:
                     expanded.append(raw)
 
             steps: list[Step] = []
+            rejected: list[dict] = []
             for raw in expanded:
-                if raw:
-                    try:  # noqa: SIM105
-                        steps.append(_step_adapter.validate_python(raw))
-                    except Exception:  # noqa: S110  # nosec B110
-                        pass
+                if not raw:
+                    continue
+                try:
+                    steps.append(_step_adapter.validate_python(raw))
+                except Exception as exc:
+                    log("WARNING", f"step rejected on save: {raw.get('action')}: {exc}")
+                    rejected.append(
+                        {"action": raw.get("action", "?"), "reason": str(exc)}
+                    )
 
             preset = Preset(
                 meta=PresetMeta(
@@ -294,8 +319,13 @@ class FlashExcelAPI:
                 ),
                 steps=steps,
             )
-            save_preset(preset, self._current_preset_path)
-            return _ok({"path": str(self._current_preset_path)})
+            # Write before unlinking the previous file: a failed write must not
+            # leave the user with neither copy.
+            save_preset(preset, new_path)
+            if renaming and old_path is not None and old_path.exists():
+                old_path.unlink()
+            self._current_preset_path = new_path
+            return _ok({"path": str(new_path), "rejected": rejected})
         except Exception as exc:
             return _err(str(exc))
 
@@ -403,6 +433,10 @@ class FlashExcelAPI:
         """Return the column list of the currently loaded file."""
         return _ok(self._source_columns)
 
+    def get_default_output_folder(self) -> dict:
+        """Return the absolute folder a run writes to by default."""
+        return _ok({"folder": str(DEFAULT_OUTPUT_DIR)})
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
@@ -412,7 +446,9 @@ class FlashExcelAPI:
             path = Path(path_str)
             result = FileLoaderResult.from_path(path)
             self._loaded_file = result
-            self._source_schema = read_schema(path)
+            # No preset is selected yet at this point, so the separator can only
+            # come from the file itself (ignored for Excel).
+            self._source_schema = read_schema(path, detect_separator(path))
             self._source_columns = list(self._source_schema.keys())
             self._source_file = result.file_name
             self._source_file_path = str(path)
@@ -475,7 +511,7 @@ class FlashExcelAPI:
     ) -> None:
         """Pipeline execution worker — runs in a background thread."""
         from flash_excel.core.registry import REGISTRY
-        from flash_excel.io.loader import read_csv, read_excel
+        from flash_excel.io.loader import detect_separator, read_csv, read_excel
         from flash_excel.io.writer import write_dataframe
         from flash_excel.presets import load_preset as _load_preset
 
@@ -484,11 +520,18 @@ class FlashExcelAPI:
 
         try:
             src = Path(file_path)
+            # The preset comes first: it carries the CSV separator and encoding
+            # the read needs.
+            preset = _load_preset(Path(preset_path))
             self._push(
                 "log",
                 {"level": "info", "key": "log.loading", "params": {"file": src.name}},
             )
-            df = read_csv(src) if src.suffix.lower() == ".csv" else read_excel(src)
+            if src.suffix.lower() == ".csv":
+                separator = preset.meta.csv_separator or detect_separator(src)
+                df = read_csv(src, separator, preset.meta.csv_encoding)
+            else:
+                df = read_excel(src)
             self._push(
                 "log",
                 {
@@ -498,7 +541,6 @@ class FlashExcelAPI:
                 },
             )
 
-            preset = _load_preset(Path(preset_path))
             steps = preset.steps
             total = len(steps)
             self._push(
@@ -556,9 +598,7 @@ class FlashExcelAPI:
                         return
                     # ignore: continue with current df
 
-            out_path, fmt = self._resolve_output_path(
-                file_path, output_config, return_fmt=True
-            )
+            out_path, fmt = self._resolve_output_path(file_path, output_config)
             self._push(
                 "log",
                 {
@@ -582,9 +622,17 @@ class FlashExcelAPI:
 
         except Exception as exc:
             elapsed = round(time.monotonic() - t_start, 2)
+            # fatal: nothing follows this, not even a "done". Without the flag
+            # the UI stays on "running" forever under error_mode "ignore" —
+            # which is where a source file locked by Excel lands.
             self._push(
                 "error",
-                {"step_index": -1, "step_name": "init", "message": str(exc)},
+                {
+                    "step_index": -1,
+                    "step_name": "init",
+                    "message": str(exc),
+                    "fatal": True,
+                },
             )
             self._push(
                 "log",
@@ -649,9 +697,7 @@ class FlashExcelAPI:
     def _resolve_output_path(
         file_path: str,
         output_config: dict,
-        *,
-        return_fmt: bool = False,
-    ) -> str | tuple[str, str]:
+    ) -> tuple[str, str]:
         """Compute the output file path from source path and output config.
 
         Args:
@@ -659,10 +705,10 @@ class FlashExcelAPI:
             output_config: Dict with keys ``'format'``, ``'folder'``, ``'pattern'``.
                 ``'format'`` can be ``'keep'``, ``'xlsx'``, ``'csv'``, or ``'parquet'``.
                 ``'pattern'`` may contain ``'{name}'`` placeholder (stem of source).
-            return_fmt: If ``True``, return ``(path_str, resolved_fmt)`` tuple.
 
         Returns:
-            Output path string, or ``(path_str, fmt_str)`` if return_fmt is True.
+            tuple[str, str]: The output path, and the format it resolved to
+                (never ``'keep'`` — ``write_dataframe`` needs a real format).
         """
         src = Path(file_path)
         stem = src.stem
@@ -671,8 +717,10 @@ class FlashExcelAPI:
             fmt = src.suffix.lstrip(".") or "xlsx"
         pattern = output_config.get("pattern", "{name}_clean")
         base_name = pattern.replace("{name}", stem)
-        folder = output_config.get("folder", "./output/")
-        out_path = str(Path(folder) / f"{base_name}.{fmt}")
-        if return_fmt:
-            return out_path, fmt
-        return out_path
+        # A relative folder would resolve against the working directory, which
+        # for the installed app is the installation folder — replaced by every
+        # auto-update. Anchor it to the user's Documents instead.
+        folder = Path(output_config.get("folder") or DEFAULT_OUTPUT_DIR)
+        if not folder.is_absolute():
+            folder = DEFAULT_OUTPUT_DIR / folder
+        return str(folder / f"{base_name}.{fmt}"), fmt

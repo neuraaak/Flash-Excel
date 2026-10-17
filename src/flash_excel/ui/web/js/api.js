@@ -26,6 +26,7 @@ export const api = {
   openFolderDialog: ()               => call('open_folder_dialog'),
   clearFile:        ()               => call('clear_file'),
   getSourceColumns: ()               => call('get_source_columns'),
+  getDefaultOutputFolder: ()         => call('get_default_output_folder'),
 
   // Steps
   getStepPayload: (action)           => call('get_step_payload', action),

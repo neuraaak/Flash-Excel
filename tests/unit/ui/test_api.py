@@ -4,6 +4,7 @@ from pathlib import Path
 import pytest
 
 from flash_excel.core.models import DropColumnsStep, Preset, PresetMeta
+from flash_excel.presets.parser import load_preset
 from flash_excel.presets.store import save_preset
 from flash_excel.ui.api import FlashExcelAPI
 
@@ -125,12 +126,17 @@ def test_get_presets_lists_valid_presets(api, monkeypatch, tmp_path):
     assert result["data"][0]["step_count"] == 1
 
 
-def test_get_presets_skips_invalid_files(api, monkeypatch, tmp_path):
+def test_get_presets_reports_invalid_files_instead_of_hiding_them(
+    api, monkeypatch, tmp_path
+):
+    """An unreadable preset must stay visible: omitting it looks like deletion."""
     monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
     (tmp_path / "broken.toml").write_text("not [valid toml", encoding="utf-8")
     result = api.get_presets()
     assert result["ok"] is True
-    assert result["data"] == []
+    assert len(result["data"]) == 1
+    assert result["data"][0]["name"] == "broken"
+    assert result["data"][0]["error"]
 
 
 def test_load_preset_reads_file_and_caches_state(api, monkeypatch, tmp_path):
@@ -238,3 +244,43 @@ def test_run_preset_rejects_concurrent_run(api):
     finally:
         block.set()
         api._run_thread.join(timeout=1)
+
+
+def test_save_preset_reports_rejected_steps(api, monkeypatch, tmp_path):
+    """A step the model refuses is absent from the file — the UI must be told."""
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
+    payload = [
+        {"action": "drop_columns", "columns": ["a"]},
+        {"action": "drop_columns", "columns": []},  # min_length=1 → refused
+    ]
+    result = api.save_preset("Test", payload)
+    assert result["ok"] is True
+    assert [r["action"] for r in result["data"]["rejected"]] == ["drop_columns"]
+    assert len(load_preset(Path(result["data"]["path"])).steps) == 1
+
+
+def test_save_preset_refuses_to_overwrite_another_presets_file(
+    api, monkeypatch, tmp_path
+):
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
+    api.save_preset("My Report", [{"action": "drop_columns", "columns": ["a"]}])
+    api.new_preset("Other")
+    result = api.save_preset(
+        "My Report!", [{"action": "drop_columns", "columns": ["b"]}]
+    )
+    assert result["ok"] is False
+    assert "already uses the file" in result["error"]
+    # The first preset is untouched.
+    kept = load_preset(tmp_path / "my_report.toml")
+    assert kept.steps == [DropColumnsStep(action="drop_columns", columns=["a"])]
+
+
+def test_save_preset_rename_keeps_the_old_file_until_the_new_one_is_written(
+    api, monkeypatch, tmp_path
+):
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", tmp_path)
+    api.save_preset("First", [{"action": "drop_columns", "columns": ["a"]}])
+    assert (tmp_path / "first.toml").exists()
+    api.save_preset("Second", [{"action": "drop_columns", "columns": ["a"]}])
+    assert (tmp_path / "second.toml").exists()
+    assert not (tmp_path / "first.toml").exists()

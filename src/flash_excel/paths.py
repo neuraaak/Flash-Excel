@@ -129,6 +129,10 @@ LOG_FILE: Path = LOG_DIR / "flash-excel.log"
 
 USER_DOCUMENTS_DIR: Path = _get_documents_dir() / _APP_FOLDER_NAME
 PRESETS_DIR: Path = USER_DOCUMENTS_DIR / "presets"
+# Where a run writes when the user has not picked a folder. It must be absolute:
+# a relative default resolves against the working directory, which for the
+# installed application is the installation folder — wiped by every update.
+DEFAULT_OUTPUT_DIR: Path = USER_DOCUMENTS_DIR / "output"
 
 # Locations used before user data moved out of the installation directory,
 # read once by the startup migration (see flash_excel.migration).
@@ -141,6 +145,7 @@ __all__ = [
     "BIN_DIR",
     "BUNDLED_THEMES_CONFIG",
     "CONFIG_TEMPLATES_DIR",
+    "DEFAULT_OUTPUT_DIR",
     "INSTALLER_MARKER",
     "LEGACY_APP_CONFIG",
     "LEGACY_PRESETS_DIR",

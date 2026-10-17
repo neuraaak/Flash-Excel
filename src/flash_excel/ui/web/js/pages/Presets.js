@@ -1,7 +1,7 @@
 import { api } from '../api.js';
 import FileLoader from '../components/FileLoader.js';
 import ActionSteps from '../components/ActionSteps.js';
-import { STEP_ACTIONS } from '../steps-registry.js';
+import { STEP_ACTIONS, stepLabel } from '../steps-registry.js';
 
 // Single source of truth: this list used to be duplicated here, so a step added
 // to the registry silently kept its old position (or went missing) on save.
@@ -209,7 +209,14 @@ export default {
         const res = await api.savePreset(this.presetName, steps);
         this.selectedPath = res.path; this.isNew = false;
         await this.loadList();
-        this.showToast(this.t('toast.preset_saved'));
+        // Steps the model refused are absent from the saved file — say so
+        // rather than let them vanish.
+        if (res.rejected?.length) {
+          const names = res.rejected.map(r => stepLabel(r.action, this.i18n.t)).join(', ');
+          this.showToast(this.t('toast.preset_saved_with_rejected', { steps: names }), 'error');
+        } else {
+          this.showToast(this.t('toast.preset_saved'));
+        }
       } catch (e) { this.showToast(this.t('toast.preset_save_failed', { error: e.message }), 'error'); }
     },
 
@@ -353,10 +360,11 @@ export default {
             {{ t('presets.empty') }}
           </div>
           <div v-for="p in presets" :key="p.path"
-            class="preset-card" :class="{ active: selectedPath === p.path }"
+            class="preset-card" :class="{ active: selectedPath === p.path, broken: p.error }"
             @click="selectPreset(p.path)">
             <span class="pc-name">{{ p.name }}</span>
-            <span class="pc-meta">{{ p.step_count }}</span>
+            <span class="pc-meta" v-if="p.error" :title="p.error">{{ t('presets.unreadable') }}</span>
+            <span class="pc-meta" v-else>{{ p.step_count }}</span>
           </div>
         </aside>
 
