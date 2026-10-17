@@ -154,3 +154,20 @@ def test_unusable_marker_is_dropped_without_touching_the_locale(
     assert load_app_config()["locale"] == "en"
     # Deleted anyway: keeping it would replay the failure on every start.
     assert not marker.exists()
+
+
+def test_every_bundled_palette_carries_a_label_and_the_preview_tokens():
+    """The settings dialog reads these straight from the catalogue."""
+    import yaml
+
+    from flash_excel.paths import BUNDLED_THEMES_CONFIG
+
+    raw = yaml.safe_load(BUNDLED_THEMES_CONFIG.read_text(encoding="utf-8"))
+    palettes = raw["palette"]
+    assert palettes
+    for name, palette in palettes.items():
+        assert palette.get("label"), f"palette {name} has no label"
+        for mode in ("dark", "light"):
+            tokens = palette[mode]
+            for token in ("surface_raised", "accent_brand", "text_primary"):
+                assert tokens.get(token), f"{name}.{mode} missing {token}"

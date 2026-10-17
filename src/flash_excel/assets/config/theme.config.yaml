@@ -7,6 +7,7 @@ palette:
   # //////
   # Blue-Gray
   blue-gray:
+    label: Blue Gray
     # //////
     dark:
       # - Surfaces (darkest to lightest)
@@ -74,6 +75,7 @@ palette:
   # //////
   # Github Dark
   github-dark:
+    label: GitHub
     # //////
     dark:
       # - Surfaces (darkest to lightest)
@@ -140,6 +142,7 @@ palette:
   # //////
   # Warm Dark
   warm-dark:
+    label: Warm Dark
     # //////
     dark:
       # - Surfaces (darkest to lightest)

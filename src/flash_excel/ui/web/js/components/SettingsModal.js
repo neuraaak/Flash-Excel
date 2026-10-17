@@ -10,12 +10,6 @@ const THEME_TOKENS = [
   'semantic_success', 'semantic_warning', 'semantic_error', 'semantic_info',
 ];
 
-const PALETTE_PREVIEWS = {
-  'blue-gray':   { surface: '#212530', accent: '#96CD32', text: '#dadce4' },
-  'github-dark': { surface: '#161b22', accent: '#58a6ff', text: '#e6edf3' },
-  'warm-dark':   { surface: '#211c16', accent: '#d97706', text: '#e8ddd0' },
-};
-
 export default {
   name: 'SettingsModal',
   components: { LucideIcon },
@@ -28,21 +22,27 @@ export default {
       mode: 'dark',
       locale: 'en',
       themes: {},
-      palettes: [
-        { key: 'blue-gray',    label: 'Blue Gray' },
-        { key: 'github-dark',  label: 'GitHub' },
-        { key: 'warm-dark',    label: 'Warm Dark' },
-      ],
     };
   },
 
   computed: {
     t() { return this.i18n.t; },
+    // Derived from the catalogue, so a palette added to theme.config.yaml
+    // shows up here with no JS change. Swatches read the live tokens of the
+    // mode being previewed instead of a second, hand-copied set of hexes.
     paletteCards() {
-      return this.palettes.map(p => ({
-        ...p,
-        preview: PALETTE_PREVIEWS[p.key] || {},
-      }));
+      return Object.entries(this.themes).map(([key, palette]) => {
+        const tokens = palette?.[this.mode] ?? palette?.dark ?? {};
+        return {
+          key,
+          label: palette?.label ?? key,
+          preview: {
+            surface: tokens.surface_raised,
+            accent: tokens.accent_brand,
+            text: tokens.text_primary,
+          },
+        };
+      });
     },
   },
 
@@ -53,7 +53,7 @@ export default {
     ]);
     if (cfgRes?.appearance) {
       this.palette = cfgRes.appearance.palette;
-      this.mode    = cfgRes.appearance.mode;
+      this.mode = cfgRes.appearance.mode;
     }
     this.locale = cfgRes?.locale ?? 'en';
     if (themesRes) this.themes = themesRes;
@@ -63,17 +63,17 @@ export default {
     async setPalette(key) {
       this.palette = key;
       this._applyTheme();
-      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => {});
+      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => { });
     },
     async setMode(m) {
       this.mode = m;
       this._applyTheme();
-      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => {});
+      await api.saveAppConfig(this.palette, this.mode, this.locale).catch(() => { });
     },
     async setLanguage(code) {
       this.locale = code;
       i18n.setLocale(code);
-      await api.saveAppConfig(this.palette, this.mode, code).catch(() => {});
+      await api.saveAppConfig(this.palette, this.mode, code).catch(() => { });
     },
     _applyTheme() {
       const tokens = this.themes[this.palette]?.[this.mode];
