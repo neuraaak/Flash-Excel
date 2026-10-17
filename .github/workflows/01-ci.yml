@@ -1,81 +1,112 @@
-name: CI
+name: 01 · CI
 
-# Runs on PRs, and as the release gate via workflow_call from 02-tag-sync
-# (no bare `push` trigger → one CI run per change, no double runs).
+# Quality gate: quality/type-check run first and block the test matrix; security
+# runs in parallel and deliberately gates nothing (it reads an external advisory
+# feed, so it can turn red without the code changing). Runs on PRs, and as the
+# release gate via workflow_call from 02-tag-sync (no bare `push` trigger → one
+# CI run per change, no double runs).
+#
+# No `paths:` filter: a filtered trigger would hide a break the moment a check
+# grows past src/tests (ruff and import-linter already read the whole tree).
 
 on:
   pull_request:
+    branches: [main]
   workflow_call:
   workflow_dispatch:
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Four consumers (quality, type-check, security, test): all four install,
+  # so the primer is above the ~3-consumer heuristic on its own merits.
   install-deps:
-    permissions:
-      contents: read
+    name: Install & cache deps
     uses: ./.github/workflows/00-install-deps.yml
 
   quality:
-    name: Lint, Format, Type Check, Security
+    name: Lint & format
     needs: [install-deps]
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
       contents: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          enable-cache: true
           python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen --group dev
+      - run: uv run --frozen poe lint
+      - run: uv run --frozen poe format-check
 
-      - name: Install dependencies
-        run: uv sync --frozen --group dev
+  type-check:
+    name: Type check & contracts
+    needs: [install-deps]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen --group dev
+      - run: uv run --frozen poe typecheck
+      - run: uv run --frozen poe imports
 
-      - name: Lint (ruff check)
-        run: uv run --frozen poe lint
-
-      - name: Format check (ruff format)
-        run: uv run --frozen poe format-check
-
-      - name: Type check (ty)
-        run: uv run --frozen poe typecheck
-
-      - name: Security scan (bandit)
-        run: uv run --frozen poe security
-
-      - name: Import contracts (import-linter)
-        run: uv run --frozen poe imports
+  security:
+    name: Security scan
+    needs: [install-deps]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen --group dev
+      # Bandit only (SAST of the app's own code). No advisory is ignored here —
+      # if one ever has to be, document impact and exit condition next to it.
+      - run: uv run --frozen poe security
 
   test:
-    name: Test
-    needs: quality
+    name: Tests (Python ${{ matrix.python }})
+    needs: [quality, type-check]
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     permissions:
       contents: read
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.13"]
+        python: ["3.13"]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
-
-      - name: Set up uv
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
+          python-version: ${{ matrix.python }}
           enable-cache: true
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: uv sync --frozen --group test
-
-      - name: Run tests
-        run: uv run --frozen poe test-ci
+      - run: uv sync --frozen --group test
+      # `poe test-ci` carries the coverage threshold, which is deliberately
+      # not in addopts: a partial local run must not exit with code 1.
+      - run: uv run --frozen poe test-ci
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage.xml
+            htmlcov/
+          retention-days: 7

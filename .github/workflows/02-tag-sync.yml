@@ -1,238 +1,102 @@
-name: Tag Sync
+name: 02 · Tag Sync
+
+# Release orchestrator. On push to main it runs CI as the release gate, decides
+# a three-state `tag_action` (create | skip | preview) and creates the immutable
+# release tag on `create`.
+#
+# The cascade stops here: flash-excel is a Windows desktop app, not a published
+# package. Build, TUF signing and upload run locally via `build.py`, because the
+# signing keys are deliberately never uploaded as CI secrets.
 
 on:
   push:
-    branches:
-      - main
-  workflow_dispatch:
+    branches: [main]
+  workflow_dispatch: # run from any branch to exercise preview mode
 
-permissions: {}
+permissions:
+  contents: read
 
 concurrency:
   group: tag-sync-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: false # never interrupt an in-flight release
 
 jobs:
   ci:
-    name: Release gate (CI)
-    permissions:
-      contents: read
+    name: CI gate
     uses: ./.github/workflows/01-ci.yml
 
-  auto-tag:
-    name: Create and Push Tags
+  tag-sync:
+    name: Tag sync
     needs: ci
     runs-on: ubuntu-24.04
+    timeout-minutes: 15
     permissions:
-      contents: write
+      contents: write # push tags
     outputs:
-      new_tag: ${{ steps.version.outputs.found == 'true' && github.ref == 'refs/heads/main' }}
+      tag_action: ${{ steps.gate.outputs.tag_action }}
       version: ${{ steps.version.outputs.version }}
-      tag_name: ${{ steps.create_tags.outputs.tag_name }}
-      latest_tag: ${{ steps.create_tags.outputs.latest_tag }}
-      package_name: ${{ steps.metadata.outputs.package_name }}
-      python_version: ${{ steps.metadata.outputs.python_version }}
-      major_version: ${{ steps.metadata.outputs.major_version }}
-      is_prerelease: ${{ steps.metadata.outputs.is_prerelease }}
+      tag_name: ${{ steps.gate.outputs.tag_name }}
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # full history: need every tag
 
-      - name: Preview guard (non-main ref)
-        run: |
-          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
-            echo "🔎 Ref is ${{ github.ref }}, not main → preview mode (no tags will be created or pushed)"
-          fi
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
 
-      - name: Extract version from pyproject.toml
-        id: get_pyproject_version
-        run: |
-          if [ -f "pyproject.toml" ]; then
-            VERSION=$(grep -E '^version\s*=\s*"' pyproject.toml | head -1 | sed 's/.*version\s*=\s*"\([^"]*\)".*/\1/')
-            if [ -n "$VERSION" ]; then
-              echo "version=$VERSION" >> $GITHUB_OUTPUT
-              echo "source=pyproject.toml" >> $GITHUB_OUTPUT
-              echo "📋 Version found in pyproject.toml: $VERSION"
-              exit 0
-            fi
-          fi
-          echo "version=" >> $GITHUB_OUTPUT
-          echo "source=" >> $GITHUB_OUTPUT
-
-      - name: Extract version from src/_version.py
-        id: get_version_py
-        if: steps.get_pyproject_version.outputs.version == ''
-        run: |
-          VERSION_FILE=$(find src -name "_version.py" | head -1)
-          if [ -n "$VERSION_FILE" ]; then
-            VERSION=$(grep -E '^__version__\s*=\s*"' "$VERSION_FILE" | sed 's/.*"\([^"]*\)".*/\1/')
-            if [ -n "$VERSION" ]; then
-              echo "version=$VERSION" >> $GITHUB_OUTPUT
-              echo "source=$VERSION_FILE" >> $GITHUB_OUTPUT
-              echo "📋 Version found in $VERSION_FILE: $VERSION"
-              exit 0
-            fi
-          fi
-          echo "version=" >> $GITHUB_OUTPUT
-          echo "source=" >> $GITHUB_OUTPUT
-
-      - name: Determine final version
+      # `poe -q read-version` is the single source: nothing here re-implements
+      # a grep/sed over pyproject.toml.
+      - name: Resolve version
         id: version
         run: |
-          VERSION="${{ steps.get_pyproject_version.outputs.version }}"
-          SOURCE="${{ steps.get_pyproject_version.outputs.source }}"
-
+          VERSION=$(uv run --frozen poe -q read-version)
           if [ -z "$VERSION" ]; then
-            VERSION="${{ steps.get_version_py.outputs.version }}"
-            SOURCE="${{ steps.get_version_py.outputs.source }}"
+            echo "::error::No version found in pyproject.toml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Determine tag action
+        id: gate
+        run: |
+          TAG_NAME="v${{ steps.version.outputs.version }}"
+          echo "tag_name=$TAG_NAME" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.ref }}" != "refs/heads/main" ]; then
+            echo "tag_action=preview" >> "$GITHUB_OUTPUT"
+            echo "🔎 Off main → preview (dry-run, nothing mutating)"
+          elif git rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null; then
+            echo "tag_action=skip" >> "$GITHUB_OUTPUT"
+            echo "⏭️  $TAG_NAME already exists → skip (already released)"
+          else
+            echo "tag_action=create" >> "$GITHUB_OUTPUT"
+            echo "✅ New version → create $TAG_NAME"
           fi
 
-          if [ -z "$VERSION" ]; then
-            echo "→ [AUTO-TAG] No version found in pyproject.toml or src/_version.py"
-            echo "found=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "source=$SOURCE" >> $GITHUB_OUTPUT
-          echo "found=true" >> $GITHUB_OUTPUT
-          echo "✅ Final version: $VERSION (from $SOURCE)"
-
-      - name: Extract project metadata
-        id: metadata
-        if: steps.version.outputs.found == 'true'
+      - name: Configure git
+        if: steps.gate.outputs.tag_action == 'create'
         run: |
-          # Package name from pyproject.toml [project] name
-          PACKAGE_NAME=$(grep -E '^name\s*=' pyproject.toml | head -1 | sed 's/.*=\s*"\([^"]*\)".*/\1/')
-          echo "package_name=$PACKAGE_NAME" >> $GITHUB_OUTPUT
-          echo "📦 Package name: $PACKAGE_NAME"
-
-          # Python version from requires-python (e.g. ">=3.11" → "3.11")
-          PYTHON_VERSION=$(grep -E '^requires-python' pyproject.toml | head -1 \
-            | sed 's/.*>=\([0-9][0-9]*\.[0-9][0-9]*\).*/\1/')
-          [ -z "$PYTHON_VERSION" ] && PYTHON_VERSION="3.11"
-          echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
-          echo "🐍 Python version: $PYTHON_VERSION"
-
-          # Major version (v1.2.3 → 1)
-          VERSION="${{ steps.version.outputs.version }}"
-          MAJOR_VERSION=$(echo "$VERSION" | sed 's/^\([0-9]*\)\..*/\1/')
-          echo "major_version=$MAJOR_VERSION" >> $GITHUB_OUTPUT
-          echo "🔢 Major version: $MAJOR_VERSION"
-
-          # Pre-release detection (alpha / beta / rc / dev / a0 / b1 …)
-          echo "$VERSION" | grep -qE '(alpha|beta|rc|dev|a[0-9]+|b[0-9]+)' \
-            && IS_PRERELEASE="true" || IS_PRERELEASE="false"
-          echo "is_prerelease=$IS_PRERELEASE" >> $GITHUB_OUTPUT
-          echo "🏷️  Pre-release: $IS_PRERELEASE"
-
-      - name: Create and push tags
-        id: create_tags
-        if: steps.version.outputs.found == 'true' && github.ref == 'refs/heads/main'
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-          TAG_NAME="v$VERSION"
-
-          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Release tag is immutable: create it once, never move it afterwards.
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-            TAG_SHA=$(git rev-parse "$TAG_NAME")
-            HEAD_SHA=$(git rev-parse HEAD)
-            if [ "$TAG_SHA" = "$HEAD_SHA" ]; then
-              echo "✓ [AUTO-TAG] Tag $TAG_NAME already points to HEAD, no update needed"
-            else
-              echo "⚠️  [AUTO-TAG] Tag $TAG_NAME already exists and points elsewhere ($TAG_SHA)."
-              echo "⚠️  [AUTO-TAG] Refusing to move an immutable release tag. Bump the version to release a new tag."
-              exit 1
-            fi
-          else
-            git tag "$TAG_NAME"
-            echo "✓ [AUTO-TAG] Created: $TAG_NAME"
-          fi
-
-          # Create or update major version "latest" tag
-          MAJOR_VERSION=$(echo "$VERSION" | sed 's/^\([0-9]*\)\..*/\1/')
-          LATEST_TAG=""
-          if [ -n "$MAJOR_VERSION" ]; then
-            LATEST_TAG="v$MAJOR_VERSION-latest"
-            if git rev-parse "$LATEST_TAG" >/dev/null 2>&1; then
-              TAG_SHA=$(git rev-parse "$LATEST_TAG")
-              HEAD_SHA=$(git rev-parse HEAD)
-              if [ "$TAG_SHA" = "$HEAD_SHA" ]; then
-                echo "✓ [AUTO-TAG] Tag $LATEST_TAG already points to HEAD, no update needed"
-              else
-                git tag -f "$LATEST_TAG"
-                echo "✓ [AUTO-TAG] Updated: $LATEST_TAG"
-              fi
-            else
-              git tag "$LATEST_TAG"
-              echo "✓ [AUTO-TAG] Created: $LATEST_TAG"
-            fi
-          fi
-
-          # Export outputs for next steps
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "✅ [AUTO-TAG] Tags created/updated locally: $TAG_NAME"
-          if [ -n "$LATEST_TAG" ]; then
-            echo "✅ [AUTO-TAG] Tags created/updated locally: $LATEST_TAG"
-          fi
-
-      - name: Push tags to remote
-        id: push_tags
-        if: steps.version.outputs.found == 'true' && github.ref == 'refs/heads/main'
+      - name: Create tag & move alias
+        if: steps.gate.outputs.tag_action == 'create'
         run: |
-          TAG_NAME="${{ steps.create_tags.outputs.tag_name }}"
-          LATEST_TAG="${{ steps.create_tags.outputs.latest_tag }}"
-
-          # Push main version tag (never force: it is immutable once created)
-          if git push origin "$TAG_NAME" 2>&1; then
-            echo "✅ [AUTO-TAG] Tag pushed to remote: $TAG_NAME"
-          else
-            echo "⚠️  [AUTO-TAG] Failed to push tag to remote: $TAG_NAME"
-            exit 1
-          fi
-
-          # Push latest tag if it exists
-          if [ -n "$LATEST_TAG" ]; then
-            if git push origin --force "$LATEST_TAG" 2>&1; then
-              echo "✅ [AUTO-TAG] Tag pushed to remote with force: $LATEST_TAG"
-            else
-              echo "⚠️  [AUTO-TAG] Failed to push tag to remote: $LATEST_TAG"
-              exit 1
-            fi
-          fi
-
-          # Re-export outputs for job-level outputs
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "latest_tag=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "🎉 [AUTO-TAG] All tags pushed successfully!"
+          VERSION="${{ steps.version.outputs.version }}"
+          MAJOR="${VERSION%%.*}"
+          LATEST_TAG="v${MAJOR}-latest"
+          git tag "v$VERSION"                 # immutable: never force-pushed
+          git push origin "v$VERSION"
+          git tag -f "$LATEST_TAG"            # only the major alias ever moves
+          git push origin --force "$LATEST_TAG"
+          echo "✅ Tags pushed: v$VERSION, $LATEST_TAG"
 
       - name: Summary
-        if: steps.version.outputs.found == 'true'
         run: |
-          echo "## 🏷️ Auto-Tagging Summary" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- **Package**: ${{ steps.metadata.outputs.package_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Version**: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Source**: ${{ steps.version.outputs.source }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Python**: ${{ steps.metadata.outputs.python_version }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Pre-release**: ${{ steps.metadata.outputs.is_prerelease }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Main Tag**: ${{ steps.push_tags.outputs.tag_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ -n "${{ steps.push_tags.outputs.latest_tag }}" ]; then
-            echo "- **Latest Tag**: ${{ steps.push_tags.outputs.latest_tag }}" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Tags successfully created and pushed to remote!" >> $GITHUB_STEP_SUMMARY
-
-  # ========================================
-  # This app is not published to a package registry (installer/TUF release is
-  # done locally via `build.py` — see tool.ezcompiler in pyproject.toml).
-  # No further cascade: tagging is the last CI-side step.
-  # ========================================
+          echo "## 🏷️ Tag Sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Action**: ${{ steps.gate.outputs.tag_action }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Version**: ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Tag**: ${{ steps.gate.outputs.tag_name }}" >> "$GITHUB_STEP_SUMMARY"

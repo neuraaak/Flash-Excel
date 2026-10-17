@@ -5,8 +5,8 @@ order. The number sorts them in the file tree and documents the cascade.
 
 ```text
 00-install-deps  ← primes the uv cache (keyed on uv.lock)
-01-ci            ← lint/format/type-check/security → test; the quality gate
-02-tag-sync      ← orchestrator: CI gate → create/preview tag
+01-ci            ← quality + type-check + security in parallel → test
+02-tag-sync      ← orchestrator: CI gate → tag_action (create|skip|preview)
 ```
 
 There is **no publish stage**: flash-excel is a Windows desktop app, not a
@@ -18,15 +18,14 @@ TUF signing keys are never uploaded as CI secrets. See
 ## Tagging: `main` vs preview
 
 `02-tag-sync` does **not** bump the version — a human writes it in
-`pyproject.toml`. It gates every tag action on the ref:
+`pyproject.toml` (read by `poe -q read-version`, the single source). It then
+resolves a three-state `tag_action`:
 
-| Ref                                | Tag                            |
-| ---------------------------------- | ------------------------------ |
-| push to `main`                     | create `vX.Y.Z` + `vX-latest`* |
-| `workflow_dispatch` off non-`main` | **none** (preview, dry-run)    |
-
-\* Re-running on an unchanged version is a no-op (the tag already points to
-`HEAD`); it is not a separate `skip` state — it just doesn't move anything.
+| Ref / state                        | `tag_action` | Effect                     |
+| ---------------------------------- | ------------ | -------------------------- |
+| push to `main`, version untagged   | `create`     | `vX.Y.Z` + `vX-latest`     |
+| push to `main`, tag already exists | `skip`       | nothing (already released) |
+| `workflow_dispatch` off `main`     | `preview`    | dry-run, nothing mutating  |
 
 ## Tag immutability
 
@@ -44,20 +43,16 @@ relying on a `push: tags` event that would never fire.
 
 ## CI gates the release
 
-`auto-tag` runs `needs: ci`, where `ci: uses: ./01-ci.yml`. A failing
-lint/type/security/test step blocks tag creation — the release is never cut
+`tag-sync` runs `needs: ci`, where `ci: uses: ./01-ci.yml`. A failing
+quality, type-check, security or test job blocks tag creation — the release is never cut
 on a broken build.
 
 ## Local equivalents
 
+Every CI step is a Poe task, so the local gate and CI cannot drift:
+
 ```bash
-# 01-ci quality gate
-uv run ruff check .
-uv run ruff format --check .
-uv run ty check
-uv run bandit -r src/ -ll
-uv run lint-imports
-uv run pytest --cov=src/ --cov-report=xml -q
+uv run poe check        # format-check → lint → typecheck → security → imports → test-ci
 
 # Local release (never in CI)
 uv run build.py
