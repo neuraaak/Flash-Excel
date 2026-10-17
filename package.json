@@ -2,6 +2,7 @@
   "name": "flash-excel-ui",
   "private": true,
   "description": "Front-end tooling for the flash-excel web UI (src/flash_excel/ui/web)",
+  "packageManager": "pnpm@11.1.2",
   "scripts": {
     "lint": "eslint src/flash_excel/ui/web/js",
     "lint:fix": "eslint --fix src/flash_excel/ui/web/js"
