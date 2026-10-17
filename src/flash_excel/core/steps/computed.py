@@ -29,7 +29,9 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     """Build the restricted eval namespace with Excel-style functions + column refs."""
 
     # Uppercase names are intentional: they match Excel function conventions  # noqa: N802
-    def CONCATENER(*parts: pl.Expr | str, sep: str = "") -> pl.Expr:  # noqa: N802  # NOSONAR - public French Excel DSL syntax
+    def CONCATENER(  # NOSONAR - public French Excel DSL syntax
+        *parts: pl.Expr | str, sep: str = ""
+    ) -> pl.Expr:  # noqa: N802  # NOSONAR - public French Excel DSL syntax
         coerced = [pl.lit(p) if isinstance(p, str) else p for p in parts]
         return pl.concat_str(coerced, separator=sep)
 
@@ -39,12 +41,12 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     def MINUSCULE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.to_lowercase()  # noqa: N802
 
-    def GAUCHE(
+    def GAUCHE(  # NOSONAR - public French Excel DSL syntax
         col: pl.Expr, n: int
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.slice(0, n)  # noqa: N802
 
-    def DROITE(
+    def DROITE(  # NOSONAR - public French Excel DSL syntax
         col: pl.Expr, n: int
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         # slice(-0) is slice(0), i.e. the whole string — Excel's RIGHT(x, 0) is "".
@@ -55,12 +57,12 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     def NBCAR(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.len_chars()  # noqa: N802
 
-    def SUPPRESPACE(
+    def SUPPRESPACE(  # NOSONAR - public French Excel DSL syntax
         col: pl.Expr,
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.strip_chars()  # noqa: N802
 
-    def ARRONDI(
+    def ARRONDI(  # NOSONAR - public French Excel DSL syntax
         col: pl.Expr, n: int = 0
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.round(n)  # noqa: N802
@@ -68,12 +70,12 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     def ABS(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.abs()  # noqa: N802
 
-    def MULTIPLIER(
+    def MULTIPLIER(  # NOSONAR - public French Excel DSL syntax
         col: pl.Expr, n: float
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col * n  # noqa: N802
 
-    def AJOUTER(
+    def AJOUTER(  # NOSONAR - public French Excel DSL syntax
         col1: pl.Expr, col2: pl.Expr
     ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col1 + col2  # noqa: N802
