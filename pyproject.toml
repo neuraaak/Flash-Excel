@@ -462,7 +462,7 @@ root_packages = ["flash_excel"]
 name = "layer dependency flow"
 type = "layers"
 layers = [
-    "flash_excel.ui",
+    "flash_excel.ui : flash_excel.cli",
     "flash_excel.presets : flash_excel.io",
     "flash_excel.core",
     "flash_excel.migration",

@@ -725,29 +725,21 @@ class FlashExcelAPI:
         file_path: str,
         output_config: dict,
     ) -> tuple[str, str]:
-        """Compute the output file path from source path and output config.
+        """Unpack the UI's output config onto ``writer.resolve_output_path``.
 
         Args:
             file_path: Absolute path to the source file.
             output_config: Dict with keys ``'format'``, ``'folder'``, ``'pattern'``.
-                ``'format'`` can be ``'keep'``, ``'xlsx'``, ``'csv'``, or ``'parquet'``.
-                ``'pattern'`` may contain ``'{name}'`` placeholder (stem of source).
 
         Returns:
-            tuple[str, str]: The output path, and the format it resolved to
-                (never ``'keep'`` — ``write_dataframe`` needs a real format).
+            tuple[str, str]: The output path, and the format it resolved to.
         """
-        src = Path(file_path)
-        stem = src.stem
-        fmt = output_config.get("format", "keep")
-        if fmt == "keep":
-            fmt = src.suffix.lstrip(".") or "xlsx"
-        pattern = output_config.get("pattern", "{name}_clean")
-        base_name = pattern.replace("{name}", stem)
-        # A relative folder would resolve against the working directory, which
-        # for the installed app is the installation folder — replaced by every
-        # auto-update. Anchor it to the user's Documents instead.
-        folder = Path(output_config.get("folder") or DEFAULT_OUTPUT_DIR)
-        if not folder.is_absolute():
-            folder = DEFAULT_OUTPUT_DIR / folder
-        return str(folder / f"{base_name}.{fmt}"), fmt
+        from flash_excel.io.writer import resolve_output_path
+
+        path, fmt = resolve_output_path(
+            Path(file_path),
+            output_config.get("format", "keep"),
+            output_config.get("folder"),
+            output_config.get("pattern", "{name}_clean"),
+        )
+        return str(path), fmt

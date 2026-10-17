@@ -22,6 +22,9 @@ from pathlib import Path
 # Third-party imports
 import polars as pl
 
+# Local imports
+from flash_excel.paths import DEFAULT_OUTPUT_DIR
+
 # ///////////////////////////////////////////////////////////////
 # FUNCTIONS
 # ///////////////////////////////////////////////////////////////
@@ -135,6 +138,38 @@ def write_parquet(df: pl.DataFrame, path: Path) -> None:
     df.write_parquet(path)
 
 
+def resolve_output_path(
+    source: Path,
+    fmt: str = "keep",
+    folder: str | Path | None = None,
+    pattern: str = "{name}_clean",
+) -> tuple[Path, str]:
+    """Compute where a run writes, and the format it resolved to.
+
+    Args:
+        source: The source file being processed.
+        fmt: ``'keep'`` (reuse the source extension), ``'xlsx'``, ``'csv'``
+            or ``'parquet'``.
+        folder: Destination directory. ``None`` means the default output
+            folder.
+        pattern: Output stem, where ``{name}`` is the source stem.
+
+    Returns:
+        tuple[Path, str]: The output path, and the resolved format — never
+            ``'keep'``, which ``write_dataframe`` cannot dispatch.
+    """
+    if fmt == "keep":
+        fmt = source.suffix.lstrip(".") or "xlsx"
+    base_name = pattern.replace("{name}", source.stem)
+    # A relative folder would resolve against the working directory, which
+    # for the installed app is the installation folder — replaced by every
+    # auto-update. Anchor it to the user's Documents instead.
+    destination = Path(folder) if folder else DEFAULT_OUTPUT_DIR
+    if not destination.is_absolute():
+        destination = DEFAULT_OUTPUT_DIR / destination
+    return destination / f"{base_name}.{fmt}", fmt
+
+
 def write_dataframe(
     df: pl.DataFrame,
     path: Path,
@@ -174,6 +209,7 @@ def write_dataframe(
 # ///////////////////////////////////////////////////////////////
 
 __all__ = [
+    "resolve_output_path",
     "write_excel",
     "write_csv",
     "write_parquet",

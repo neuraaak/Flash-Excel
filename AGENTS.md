@@ -88,6 +88,7 @@ src/flash_excel/
 │           ├── pages/             # Processing.js, Presets.js
 │           └── vendor/            # vue.esm-browser.prod.js, tailwind.js, icons.js
 ├── assets/config/       # Packaged config templates (app + theme)
+├── cli.py               # Headless runner: --preset/--input, no window (see below)
 ├── config.py            # Load/save user config, theme resolution, installer locale
 ├── logs.py              # setup_logging() / log() — ezplog, rotating file
 ├── migration.py         # Moves legacy bin/ data to the user-data locations
@@ -176,6 +177,31 @@ webview.start(debug=…, icon=…)
 ```
 
 Run with `--debug` to enable the pywebview devtools and verbose logging.
+
+### Headless mode
+
+`main.py` dispatches on the command line: with `--preset`, it calls
+`flash_excel.cli.main` instead of opening the window, and `webview` is never
+imported. One executable serves both modes — the installer ships a single
+`.exe` and a scheduled task calls it directly.
+
+```bash
+python main.py --preset clean.toml --input a.xlsx b.xlsx --output out/
+```
+
+`--input` takes several files: each is processed independently, and one
+failure does not cancel the rest of the batch. Exit code `0` when every file
+succeeded, `1` when at least one failed, `2` on bad arguments.
+
+**Scheduling is deliberately not in the app.** The Windows Task Scheduler
+survives a reboot, runs without an open session and reports failures; a
+desktop application does none of that well. The UI's job is at most to hand
+the user a ready-made `schtasks` command.
+
+The packaged build is windowed (`console = false`), so `cli.py` attaches to
+the parent console when there is one. Output is therefore visible from a
+prompt and absent on a double-click, while the exit code and the log file
+work in both cases.
 
 ### The Python↔JS bridge
 
@@ -301,5 +327,5 @@ permanently.
   `model_dump(exclude_none=True)`, so every model field round-trips and a value
   TOML cannot express fails loudly instead of producing an unreadable file.
 - **Layer contracts** (enforced by import-linter, see `pyproject.toml`):
-  `ui` → `presets`/`io` → `core` → `migration` → `config` → `logs` → `paths`.
+  `ui`/`cli` → `presets`/`io` → `core` → `migration` → `config` → `logs` → `paths`.
   `presets` and `io` are independent siblings; `core` must never import `ui`.
