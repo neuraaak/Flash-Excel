@@ -1,7 +1,8 @@
 # ///////////////////////////////////////////////////////////////
 # PRE-COMMIT CONFIGURATION
 # ///////////////////////////////////////////////////////////////
-# Mirrors the quality checks in .scripts/dev/lint.py (in order):
+# Mirrors the quality checks of the `poe check` gate (pyproject.toml
+# [tool.poe.tasks]), in order:
 #   1. ruff format     — auto-format code
 #   2. ruff check      — lint with auto-fix
 #   3. ty check        — type checking
@@ -45,7 +46,7 @@ repos:
       - id: debug-statements
 
   # ///////////////////////////////////////////////////////////////
-  # RUFF — format then lint  (steps 1 & 2 of lint.py)
+  # RUFF — format then lint  (poe format-check + poe lint)
   # Config is read from pyproject.toml [tool.ruff]
   # ///////////////////////////////////////////////////////////////
   - repo: https://github.com/astral-sh/ruff-pre-commit

@@ -16,7 +16,7 @@ permissions: {}
 
 jobs:
   install:
-    name: Prime uv cache
+    name: Install & cache deps
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

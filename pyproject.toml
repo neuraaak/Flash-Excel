@@ -14,7 +14,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "flash-excel"
-version = "1.3.1"
+version = "1.3.2"
 description = "Desktop utility that transforms Excel/CSV files through declarative presets."
 readme = "README.md"
 license = { text = "MIT" }
@@ -61,6 +61,10 @@ dependencies = [
 
 [dependency-groups]
 test = [
+    # Task runner: declared here rather than in `dev` so the CI test job,
+    # which syncs this group alone, can call `poe test-ci` — the single
+    # definition of the coverage gate.
+    "poethepoet>=0.29.0",
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "pytest-mock>=3.10.0",
@@ -105,6 +109,58 @@ Releases = "https://github.com/neuraaak/flash-excel/releases"
 
 # [project.scripts]
 # "{{my_project}}" = "{{my_project}}.module:main"
+
+# /////////////////////////////////////////////////////////////////////
+# 🛠️ TASK RUNNER (POE THE POET)
+# Single definition of every development command. AGENTS.md and the CI
+# workflow refer to these tasks instead of re-typing the commands, so
+# local and CI cannot drift apart.
+# /////////////////////////////////////////////////////////////////////
+
+[tool.poe.tasks]
+lint = "ruff check ."
+lint-fix = "ruff check --fix ."
+format = "ruff format ."
+format-check = "ruff format --check ."
+# `ty` is the single type-checking gate (CI + pre-commit). Pyright powers the
+# IDE only, so it is deliberately not part of this task.
+typecheck = "ty check"
+run = "python main.py"
+run-debug = "python main.py --debug"
+version = "python .scripts/dev/update_version.py"
+# Machine-readable version for CI: the single source the workflows read,
+# instead of each one re-implementing a grep/sed on pyproject.toml.
+read-version = '''python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])"'''
+
+test = "pytest"
+# The coverage floor lives here and not in [tool.pytest.ini_options].addopts:
+# in addopts it fails any partial run (a single file, a -k, a marker).
+test-ci = "pytest --cov-fail-under=70"
+test-unit = "pytest -m unit"
+test-fast = "pytest -n auto -m 'not slow'"
+
+# No `docs` tasks yet: the documentation pass is deferred and will pick its
+# own generator and layout. Nothing doc-related is wired from here meanwhile.
+
+[tool.poe.tasks.imports]
+help = "Check import-linter layer contracts"
+cmd = "lint-imports"
+
+[tool.poe.tasks.security]
+help = "Run the Bandit security scan"
+cmd = "bandit -r src/ -ll"
+
+[tool.poe.tasks.check]
+help = "Full local quality gate (mirrors CI)"
+sequence = [
+    "format-check",
+    "lint",
+    "typecheck",
+    "security",
+    "imports",
+    "test-ci",
+]
+default_item_type = "ref"
 
 # /////////////////////////////////////////////////////////////////////
 # 📦 COMPILER CONFIGURATION
@@ -413,7 +469,9 @@ addopts = [
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--cov-fail-under=70",
+    # No --cov-fail-under here: it would make any partial run (one file, a
+    # -k, a marker) exit 1 on coverage. The threshold is carried by the
+    # gating task instead: `poe test-ci`.
     "--tb=short",
     "--color=yes",
     "--durations=10",
@@ -481,7 +539,9 @@ exclude_lines = [
 ]
 show_missing = true
 precision = 2
-fail_under = 70
+# No fail_under here either: like --cov-fail-under in addopts, a threshold in
+# the config leaks out of the run it was meant for and fails any narrowed
+# invocation. The gate is carried by the `poe test-ci` task alone.
 
 [tool.coverage.html]
 directory = "htmlcov"
