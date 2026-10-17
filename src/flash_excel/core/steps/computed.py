@@ -29,56 +29,68 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     """Build the restricted eval namespace with Excel-style functions + column refs."""
 
     # Uppercase names are intentional: they match Excel function conventions  # noqa: N802
-    def CONCATENER(*parts: pl.Expr | str, sep: str = "") -> pl.Expr:  # noqa: N802
+    def CONCATENER(*parts: pl.Expr | str, sep: str = "") -> pl.Expr:  # noqa: N802  # NOSONAR - public French Excel DSL syntax
         coerced = [pl.lit(p) if isinstance(p, str) else p for p in parts]
         return pl.concat_str(coerced, separator=sep)
 
-    def MAJUSCULE(col: pl.Expr) -> pl.Expr:
+    def MAJUSCULE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.to_uppercase()  # noqa: N802
 
-    def MINUSCULE(col: pl.Expr) -> pl.Expr:
+    def MINUSCULE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.to_lowercase()  # noqa: N802
 
-    def GAUCHE(col: pl.Expr, n: int) -> pl.Expr:
+    def GAUCHE(
+        col: pl.Expr, n: int
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.slice(0, n)  # noqa: N802
 
-    def DROITE(col: pl.Expr, n: int) -> pl.Expr:
+    def DROITE(
+        col: pl.Expr, n: int
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         # slice(-0) is slice(0), i.e. the whole string — Excel's RIGHT(x, 0) is "".
         if n == 0:
             return pl.lit("")  # noqa: N802
         return col.str.slice(-n)  # noqa: N802
 
-    def NBCAR(col: pl.Expr) -> pl.Expr:
+    def NBCAR(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.len_chars()  # noqa: N802
 
-    def SUPPRESPACE(col: pl.Expr) -> pl.Expr:
+    def SUPPRESPACE(
+        col: pl.Expr,
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.strip_chars()  # noqa: N802
 
-    def ARRONDI(col: pl.Expr, n: int = 0) -> pl.Expr:
+    def ARRONDI(
+        col: pl.Expr, n: int = 0
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.round(n)  # noqa: N802
 
-    def ABS(col: pl.Expr) -> pl.Expr:
+    def ABS(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.abs()  # noqa: N802
 
-    def MULTIPLIER(col: pl.Expr, n: float) -> pl.Expr:
+    def MULTIPLIER(
+        col: pl.Expr, n: float
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col * n  # noqa: N802
 
-    def AJOUTER(col1: pl.Expr, col2: pl.Expr) -> pl.Expr:
+    def AJOUTER(
+        col1: pl.Expr, col2: pl.Expr
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col1 + col2  # noqa: N802
 
-    def ANNEE(col: pl.Expr) -> pl.Expr:
+    def ANNEE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.year()  # noqa: N802
 
-    def MOIS(col: pl.Expr) -> pl.Expr:
+    def MOIS(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.month()  # noqa: N802
 
-    def JOUR(col: pl.Expr) -> pl.Expr:
+    def JOUR(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.day()  # noqa: N802
 
-    def AUJOURD_HUI() -> pl.Expr:
+    def AUJOURD_HUI() -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return pl.lit(datetime.date.today())  # noqa: N802
 
-    def SI(
+    def SI(  # NOSONAR - public French Excel DSL syntax
         cond: pl.Expr,
         alors: pl.Expr | str | int | float,  # noqa: N802
         sinon: pl.Expr | str | int | float,

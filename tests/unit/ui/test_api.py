@@ -181,6 +181,35 @@ def test_delete_preset_removes_file_and_clears_current(api, monkeypatch, tmp_pat
     assert api._current_preset_path is None
 
 
+def test_export_preset_rejects_a_file_outside_the_presets_directory(
+    api, monkeypatch, tmp_path
+):
+    presets_dir = tmp_path / "presets"
+    presets_dir.mkdir()
+    foreign_file = tmp_path / "private.toml"
+    foreign_file.write_text("private data", encoding="utf-8")
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", presets_dir)
+
+    result = api.export_preset(str(foreign_file))
+
+    assert result == {
+        "ok": False,
+        "error": "Preset file is outside the presets directory",
+    }
+
+
+def test_export_preset_rejects_a_non_toml_file(api, monkeypatch, tmp_path):
+    presets_dir = tmp_path / "presets"
+    presets_dir.mkdir()
+    other_file = presets_dir / "private.txt"
+    other_file.write_text("private data", encoding="utf-8")
+    monkeypatch.setattr("flash_excel.ui.api.PRESETS_DIR", presets_dir)
+
+    result = api.export_preset(str(other_file))
+
+    assert result == {"ok": False, "error": "Preset file must be a TOML file"}
+
+
 def test_load_file_path_reads_csv_and_updates_state(api, tmp_path):
     csv_path = tmp_path / "data.csv"
     csv_path.write_text("nom;age\nAlice;30\n", encoding="utf-8")

@@ -353,6 +353,12 @@ class FlashExcelAPI:
         """Open a save dialog and copy the preset TOML to the chosen location."""
         try:
             src = Path(preset_path)
+            try:
+                src.resolve().relative_to(PRESETS_DIR.resolve())
+            except ValueError:
+                return _err("Preset file is outside the presets directory")
+            if src.suffix.lower() != ".toml":
+                return _err("Preset file must be a TOML file")
             if not src.exists():
                 return _err("Preset file not found")
             window = webview.active_window()

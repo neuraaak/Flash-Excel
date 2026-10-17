@@ -25,6 +25,14 @@ from pathlib import Path
 import polars as pl
 
 # ///////////////////////////////////////////////////////////////
+# CONSTANTS
+# ///////////////////////////////////////////////////////////////
+
+_EXCEL_SUFFIXES = frozenset({".xlsx", ".xls", ".xlsm"})
+_UNEXPECTED_SHEET_PAYLOAD = "Unexpected sheet payload type from polars.read_excel()."
+_UNEXPECTED_EXCEL_RESULT = "Unexpected return type from polars.read_excel()."
+
+# ///////////////////////////////////////////////////////////////
 # FUNCTIONS
 # ///////////////////////////////////////////////////////////////
 
@@ -66,9 +74,9 @@ def _first_sheet(result: pl.DataFrame | dict) -> pl.DataFrame | None:
             return None
         first = next(iter(result.values()))
         if not isinstance(first, pl.DataFrame):
-            raise TypeError("Unexpected sheet payload type from polars.read_excel().")
+            raise TypeError(_UNEXPECTED_SHEET_PAYLOAD)
         return first
-    raise TypeError("Unexpected return type from polars.read_excel().")
+    raise TypeError(_UNEXPECTED_EXCEL_RESULT)
 
 
 def read_excel(path: Path, sheet: int = 0) -> pl.DataFrame:
@@ -162,7 +170,7 @@ def read_schema(path: Path, separator: str = ";") -> dict[str, str]:
     """
     suffix = path.suffix.lower()
 
-    if suffix in {".xlsx", ".xls", ".xlsm"}:
+    if suffix in _EXCEL_SUFFIXES:
         # n_rows=1: calamine infers the dtypes from its own sample regardless,
         # so one row is enough here — reading the whole sheet just to show the
         # column dropdowns froze the window on large workbooks.
