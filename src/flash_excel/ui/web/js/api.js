@@ -34,6 +34,7 @@ export const api = {
   setStepPayload: (action, payload)  => call('set_step_payload', action, payload),
 
   // Processing
+  previewPreset: (presetPath, filePath) => call('preview_preset', presetPath, filePath),
   runPreset: (presetPath, filePaths, outputConfig) =>
     call('run_preset', presetPath, filePaths, outputConfig),
   stopRun: () => call('stop_run'),

@@ -1,4 +1,13 @@
 export default {
+  'proc.preview': 'Preview',
+  'proc.preview_title': 'Transformation preview',
+  'proc.preview_close': 'Close preview',
+  'proc.preview_hint': 'First 100 input rows of {file}. No output file is written. Sorting and filtering apply only to this sample.',
+  'proc.preview_loading': 'Reading and transforming the sample…',
+  'proc.preview_error': 'Preview failed: {error}',
+  'proc.preview_empty': 'No rows remain in this sample after transformation. Rows beyond the first 100 may still match your filters.',
+  'proc.preview_count': '{count} rows after transformation',
+  'proc.preview_null': 'null',
   // AppShell
   'app.title': 'Flash Excel',
   'nav.toggle_menu': 'Toggle menu',

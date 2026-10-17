@@ -685,9 +685,83 @@
 .run-actions .btn {
   flex: 1 1 auto;
   justify-content: center;
+  min-width: 0;
+  padding-inline: 10px;
 }
 
 .btn.run-main {
   height: 40px;
   font-size: 13px;
+}
+
+.run-actions .preview-button {
+  flex: 0 0 auto;
+}
+
+.preview-dialog {
+  width: min(1000px, calc(100vw - 40px));
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  padding: 18px;
+  overflow: auto;
+}
+
+.preview-body p {
+  margin: 0;
+}
+
+.preview-hint,
+.preview-empty {
+  color: var(--text_secondary);
+  font-size: var(--fs-sm);
+}
+
+.preview-error {
+  color: var(--semantic_error);
+}
+
+.preview-table-scroll {
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid var(--border_subtle);
+  border-radius: var(--r-md);
+}
+
+.preview-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-sm);
+}
+
+.preview-table th,
+.preview-table td {
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border_subtle);
+  white-space: nowrap;
+}
+
+.preview-table th {
+  position: sticky;
+  top: 0;
+  background: var(--surface_overlay);
+  color: var(--text_primary);
+}
+
+.preview-table tbody tr:nth-child(even) {
+  background: var(--surface_base);
+}
+
+.preview-table .preview-null {
+  color: var(--text_secondary);
+  font-style: italic;
 }

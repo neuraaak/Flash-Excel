@@ -614,6 +614,24 @@ class FlashExcelAPI:
     # Run execution
     # ------------------------------------------------------------------
 
+    def preview_preset(
+        self, preset_path: str, file_path: str, limit: int = 100
+    ) -> dict:
+        """Transform up to 100 input rows without writing or changing run state."""
+        from flash_excel.core.pipeline import run_pipeline
+
+        if type(limit) is not int or not 1 <= limit <= 100:
+            return _err("Preview limit must be an integer between 1 and 100")
+        try:
+            preset = load_preset(Path(preset_path))
+            df = self._read_source(Path(file_path), preset).head(limit)
+            result = run_pipeline(df, preset)
+            return _ok(
+                {"columns": result.columns, "rows": json.loads(result.write_json())}
+            )
+        except Exception as exc:
+            return _err(str(exc))
+
     def run_preset(
         self,
         preset_path: str,

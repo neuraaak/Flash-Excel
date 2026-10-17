@@ -1,4 +1,13 @@
 export default {
+  'proc.preview': 'Aperçu',
+  'proc.preview_title': 'Aperçu de la transformation',
+  'proc.preview_close': 'Fermer l’aperçu',
+  'proc.preview_hint': 'Les 100 premières lignes de {file}. Aucun fichier de sortie n’est créé. Les tris et filtres s’appliquent uniquement à cet échantillon.',
+  'proc.preview_loading': 'Lecture et transformation de l’échantillon…',
+  'proc.preview_error': 'Échec de l’aperçu : {error}',
+  'proc.preview_empty': 'Aucune ligne ne reste dans cet échantillon après transformation. Les lignes au-delà des 100 premières peuvent encore correspondre à vos filtres.',
+  'proc.preview_count': '{count} lignes après transformation',
+  'proc.preview_null': 'null',
   // AppShell
   'app.title': 'Flash Excel',
   'nav.toggle_menu': 'Afficher/masquer le menu',

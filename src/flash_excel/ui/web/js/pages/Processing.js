@@ -29,6 +29,11 @@ export default {
       consoleCollapsed: false,
       consoleFilter: 'all',
       autoScroll: true,
+      previewOpen: false,
+      previewLoading: false,
+      previewData: null,
+      previewError: '',
+      previewFileName: '',
     };
   },
 
@@ -53,7 +58,7 @@ export default {
     },
     totalSteps() { return this.selectedPreset?.steps?.length ?? 0; },
     stepNames() { return this.selectedPreset?.steps?.map(s => s.action) ?? []; },
-    canRun() { return this.files.length > 0 && !!this.selectedPresetPath && this.runState !== 'running'; },
+    canRun() { return this.files.length > 0 && !!this.selectedPresetPath && this.runState !== 'running' && !this.previewLoading; },
     // The footer bar covers the whole batch, not the file in flight.
     overallProgress() {
       if (!this.fileStates.length) return 0;
@@ -81,6 +86,24 @@ export default {
   },
 
   methods: {
+    async previewPreset() {
+      if (!this.canRun) return;
+      const file = this.files[0];
+      this.previewFileName = file.file_name;
+      this.previewData = null;
+      this.previewError = '';
+      this.previewOpen = true;
+      this.previewLoading = true;
+      this.$nextTick(() => this.$refs.previewClose?.focus());
+      try {
+        this.previewData = await api.previewPreset(this.selectedPresetPath, file.path);
+      } catch (e) {
+        this.previewError = e.message;
+      } finally {
+        this.previewLoading = false;
+      }
+    },
+
     async browseFolder() {
       try {
         const res = await api.openFolderDialog();
@@ -448,6 +471,9 @@ export default {
         </div>
       </div>
       <div class="run-actions">
+        <button class="btn preview-button" @click="previewPreset" :disabled="!canRun">
+          {{ i18n.t('proc.preview') }}
+        </button>
         <button class="btn primary run-main" @click="runPreset" :disabled="!canRun">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           {{ i18n.t('proc.run') }}
@@ -461,5 +487,39 @@ export default {
   </aside>
 
 </div>
+
+<teleport to="body">
+  <div v-if="previewOpen" class="modal-overlay" @click.self="previewOpen = false" @keydown.esc.stop="previewOpen = false">
+    <div class="modal preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+      <div class="modal-head">
+        <h3 id="preview-title">{{ i18n.t('proc.preview_title') }}</h3>
+        <button class="icon-btn" ref="previewClose" @click="previewOpen = false" :aria-label="i18n.t('proc.preview_close')">×</button>
+      </div>
+      <div class="preview-body" :aria-busy="previewLoading">
+        <p class="preview-hint">{{ i18n.t('proc.preview_hint', { file: previewFileName }) }}</p>
+        <p v-if="previewLoading" role="status">{{ i18n.t('proc.preview_loading') }}</p>
+        <p v-else-if="previewError" class="preview-error" role="alert">{{ i18n.t('proc.preview_error', { error: previewError }) }}</p>
+        <template v-else-if="previewData">
+          <p v-if="!previewData.rows.length" class="preview-empty" role="status">{{ i18n.t('proc.preview_empty') }}</p>
+          <template v-else>
+            <p class="preview-hint">{{ i18n.t('proc.preview_count', { count: previewData.rows.length }) }}</p>
+            <div class="preview-table-scroll" tabindex="0" :aria-label="i18n.t('proc.preview_title')">
+              <table class="preview-table">
+                <thead><tr><th v-for="column in previewData.columns" :key="column" scope="col">{{ column }}</th></tr></thead>
+                <tbody>
+                  <tr v-for="(row, index) in previewData.rows" :key="index">
+                    <td v-for="column in previewData.columns" :key="column" :class="{ 'preview-null': row[column] === null }">
+                      {{ row[column] === null ? i18n.t('proc.preview_null') : row[column] }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+  </div>
+</teleport>
   `,
 };
