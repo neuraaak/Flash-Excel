@@ -1,10 +1,12 @@
 import { api } from '../api.js';
 import { stepLabel } from '../steps-registry.js';
+import ExecutionModal from '../components/ExecutionModal.js';
 
 const LEVEL_LABEL = { info: 'INFO', ok: 'OK', step: 'STEP', warn: 'WARN', err: 'ERROR' };
 
 export default {
   name: 'ProcessingPage',
+  components: { ExecutionModal },
   inject: ['showToast', 'i18n'],
 
   data() {
@@ -34,6 +36,7 @@ export default {
       previewData: null,
       previewError: '',
       previewFileName: '',
+      executionDraft: null,
     };
   },
 
@@ -86,6 +89,15 @@ export default {
   },
 
   methods: {
+    openExecutionSettings() {
+      if (!this.canRun) return;
+      this.executionDraft = {
+        presetPath: this.selectedPresetPath,
+        files: this.files.map(file => ({ path: file.path, file_name: file.file_name })),
+        outputConfig: { ...this.outputConfig },
+      };
+    },
+
     async previewPreset() {
       if (!this.canRun) return;
       const file = this.files[0];
@@ -379,7 +391,7 @@ export default {
             v-model="selectedPresetPath" @change="onPresetChange">
             <option value="" disabled>{{ i18n.t('proc.preset_ph') }}</option>
             <option v-for="p in presets" :key="p.path" :value="p.path">
-              {{ p.name }} — {{ p.label }} — {{ p.step_count }} actions
+              {{ p.name }} — {{ p.label }} — {{ p.step_count }} {{ i18n.t('proc.actions') }}
             </option>
           </select>
           <span style="position:absolute;right:11px;top:50%;width:7px;height:7px;border-right:2px solid var(--text_secondary);border-bottom:2px solid var(--text_secondary);transform:translateY(-70%) rotate(45deg);pointer-events:none"></span>
@@ -441,6 +453,14 @@ export default {
         </div>
       </div>
 
+      <div class="rp-block schedule-block">
+        <span class="rp-label">{{ i18n.t('execution.section') }}</span>
+        <p class="schedule-hint">{{ i18n.t('execution.intro') }}</p>
+        <button class="btn schedule-copy" @click="openExecutionSettings" :disabled="!canRun">
+          {{ i18n.t('execution.open') }}
+        </button>
+      </div>
+
     </div>
 
     <!-- Footer: progress + stats + run/stop buttons -->
@@ -471,7 +491,7 @@ export default {
         </div>
       </div>
       <div class="run-actions">
-        <button class="btn preview-button" @click="previewPreset" :disabled="!canRun">
+        <button class="btn preview-button run-main" @click="previewPreset" :disabled="!canRun">
           {{ i18n.t('proc.preview') }}
         </button>
         <button class="btn primary run-main" @click="runPreset" :disabled="!canRun">
@@ -486,7 +506,7 @@ export default {
     </div>
   </aside>
 
-</div>
+<ExecutionModal v-if="executionDraft" :execution="executionDraft" @close="executionDraft = null" />
 
 <teleport to="body">
   <div v-if="previewOpen" class="modal-overlay" @click.self="previewOpen = false" @keydown.esc.stop="previewOpen = false">
@@ -521,5 +541,6 @@ export default {
     </div>
   </div>
 </teleport>
+</div>
   `,
 };

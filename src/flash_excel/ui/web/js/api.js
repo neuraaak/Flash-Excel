@@ -34,6 +34,12 @@ export const api = {
   setStepPayload: (action, payload)  => call('set_step_payload', action, payload),
 
   // Processing
+  getScheduleCommand: (presetPath, filePaths, outputConfig, name = null, time = '08:00') =>
+    call('get_schedule_command', presetPath, filePaths, outputConfig, name, time),
+  createScheduledTask: (presetPath, filePaths, outputConfig, name, time, confirmed) =>
+    call('create_scheduled_task', presetPath, filePaths, outputConfig, name, time, confirmed),
+  createExecutionLauncher: (presetPath, filePaths, outputConfig, name) =>
+    call('create_execution_launcher', presetPath, filePaths, outputConfig, name),
   previewPreset: (presetPath, filePath) => call('preview_preset', presetPath, filePath),
   runPreset: (presetPath, filePaths, outputConfig) =>
     call('run_preset', presetPath, filePaths, outputConfig),

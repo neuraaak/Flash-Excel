@@ -614,6 +614,118 @@ class FlashExcelAPI:
     # Run execution
     # ------------------------------------------------------------------
 
+    def get_schedule_command(
+        self,
+        preset_path: str,
+        file_paths: list[str],
+        output_config: dict,
+        task_name: str | None = None,
+        start_time: str = "08:00",
+    ) -> dict:
+        """Build a command for the user to register in Windows Task Scheduler."""
+        from flash_excel.ui.scheduling import build_schedule_command
+
+        try:
+            return _ok(
+                build_schedule_command(
+                    preset_path, file_paths, output_config, task_name, start_time
+                )
+            )
+        except Exception as exc:
+            return _err(str(exc))
+
+    def create_scheduled_task(
+        self,
+        preset_path: str,
+        file_paths: list[str],
+        output_config: dict,
+        task_name: str,
+        start_time: str,
+        confirmed: bool = False,
+    ) -> dict:
+        """Register a daily task only after the UI's explicit confirmation."""
+        import subprocess
+        from shutil import which
+        from tempfile import TemporaryDirectory
+
+        from flash_excel.ui.scheduling import build_schedule_command, build_task_xml
+
+        if confirmed is not True:
+            return _err("Task creation requires confirmation")
+        try:
+            execution = build_schedule_command(
+                preset_path, file_paths, output_config, task_name, start_time
+            )
+            if sys.platform != "win32":
+                return _err("Task scheduling is only available on Windows")
+            scheduler = which("schtasks")
+            if scheduler is None:
+                return _err("Windows Task Scheduler command was not found")
+            with TemporaryDirectory(prefix="flash-excel-task-") as task_dir:
+                task_file = Path(task_dir) / "task.xml"
+                task_file.write_bytes(build_task_xml(execution))
+                result = subprocess.run(
+                    [
+                        scheduler,
+                        "/create",
+                        "/tn",
+                        execution["task_path"],
+                        "/xml",
+                        str(task_file),
+                    ],
+                    stdin=subprocess.DEVNULL,
+                    capture_output=True,
+                    text=True,
+                    encoding="oem",
+                    errors="replace",
+                    timeout=20,
+                    creationflags=subprocess.CREATE_NO_WINDOW,
+                    check=False,
+                )
+            if result.returncode:
+                return _err(
+                    result.stderr.strip()
+                    or result.stdout.strip()
+                    or "Windows could not create the task"
+                )
+            return _ok({"task_name": execution["task_name"], "start_time": start_time})
+        except Exception as exc:
+            return _err(str(exc))
+
+    def create_execution_launcher(
+        self,
+        preset_path: str,
+        file_paths: list[str],
+        output_config: dict,
+        name: str,
+    ) -> dict:
+        """Save a manual .cmd launcher using a native save dialog."""
+        from flash_excel.ui.scheduling import build_schedule_command
+
+        try:
+            execution = build_schedule_command(
+                preset_path, file_paths, output_config, name
+            )
+            window = webview.active_window()
+            if window is None:
+                return _err(_NO_ACTIVE_WINDOW)
+            result = window.create_file_dialog(
+                FileDialog.SAVE,
+                save_filename=f"{execution['task_name']}.cmd",
+                file_types=("Command files (*.cmd)",),
+            )
+            if not result:
+                return _ok({"cancelled": True})
+            dest = Path(
+                str(result[0]) if isinstance(result, (list, tuple)) else str(result)
+            )
+            if dest.suffix.lower() != ".cmd":
+                return _err("The launcher filename must end in .cmd")
+            dest.write_bytes(execution["launcher"].encode("utf-8"))
+            return _ok({"dest": str(dest)})
+        except Exception as exc:
+            return _err(str(exc))
+
     def preview_preset(
         self, preset_path: str, file_path: str, limit: int = 100
     ) -> dict:
