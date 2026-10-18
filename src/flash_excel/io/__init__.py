@@ -17,7 +17,7 @@ from __future__ import annotations
 # IMPORTS
 # ///////////////////////////////////////////////////////////////
 # Local imports
-from .loader import read_csv, read_excel, read_headers
+from .loader import read_csv, read_excel, read_schema
 from .models import FileLoaderResult
 from .writer import write_csv, write_excel
 
@@ -28,7 +28,7 @@ from .writer import write_csv, write_excel
 __all__ = [
     "read_excel",
     "read_csv",
-    "read_headers",
+    "read_schema",
     "FileLoaderResult",
     "write_excel",
     "write_csv",

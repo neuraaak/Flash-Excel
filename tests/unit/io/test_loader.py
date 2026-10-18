@@ -4,12 +4,10 @@ import polars as pl
 import pytest
 
 from flash_excel.io.loader import (
+    detect_separator,
     read_csv,
     read_excel,
-    read_headers,
     read_schema,
-    read_unique_values,
-    read_unique_values_many,
 )
 from flash_excel.io.writer import write_excel
 
@@ -35,20 +33,10 @@ def test_read_csv_parses_semicolon_separated_file(csv_file):
     assert df.shape == (3, 2)
 
 
-def test_read_headers_csv_returns_column_names_only(csv_file):
-    headers = read_headers(csv_file, separator=";")
-    assert headers == ["nom", "age"]
-
-
 def test_read_schema_csv_returns_dtype_mapping(csv_file):
     schema = read_schema(csv_file, separator=";")
     assert "nom" in schema
     assert "age" in schema
-
-
-def test_read_unique_values_returns_sorted_distinct_values(csv_file):
-    values = read_unique_values(csv_file, column="nom", separator=";")
-    assert values == ["Alice", "Bob"]
 
 
 def test_read_csv_missing_file_raises():
@@ -62,48 +50,45 @@ def test_read_excel_returns_dataframe(xlsx_file):
     assert df.shape == (3, 2)
 
 
-def test_read_headers_excel_returns_column_names_only(xlsx_file):
-    headers = read_headers(xlsx_file)
-    assert headers == ["nom", "age"]
-
-
 def test_read_schema_excel_returns_dtype_mapping(xlsx_file):
     schema = read_schema(xlsx_file)
     assert "nom" in schema
     assert "age" in schema
 
 
-def test_read_unique_values_excel_returns_sorted_distinct_values(xlsx_file):
-    values = read_unique_values(xlsx_file, column="nom")
-    assert values == ["Alice", "Bob"]
+def test_read_csv_infers_schema_over_every_row(tmp_path: Path):
+    path = tmp_path / "late_text.csv"
+    rows = ["code", *["12345"] * 120, "2A 123"]
+    path.write_text("\n".join(rows) + "\n", encoding="utf-8")
+    df = read_csv(path, separator=";")
+    assert df.shape == (121, 1)
+    assert df["code"].to_list()[-1] == "2A 123"
 
 
-def test_read_unique_values_many_csv_returns_mapping_per_column(csv_file):
-    result = read_unique_values_many(csv_file, columns=["nom", "age"])
-    assert result["nom"] == ["Alice", "Bob"]
-    assert result["age"] == ["25", "30"]
+@pytest.mark.parametrize(
+    "content, expected",
+    [
+        ("nom;age\nAlice;30\n", ";"),
+        ("name,age\nAlice,30\n", ","),
+        ("name\tage\nAlice\t30\n", "\t"),
+        ('name,note\nAlice,"a;b"\n', ","),
+    ],
+)
+def test_detect_separator_reads_the_real_delimiter(tmp_path: Path, content, expected):
+    path = tmp_path / "s.csv"
+    path.write_text(content, encoding="utf-8")
+    assert detect_separator(path) == expected
 
 
-def test_read_unique_values_many_excel_returns_mapping_per_column(xlsx_file):
-    result = read_unique_values_many(xlsx_file, columns=["nom", "age"])
-    assert result["nom"] == ["Alice", "Bob"]
+def test_detect_separator_falls_back_on_a_single_column_file(tmp_path: Path):
+    path = tmp_path / "one.csv"
+    path.write_text("name\nAlice\nBob\n", encoding="utf-8")
+    assert detect_separator(path) == ";"
 
 
-def test_read_unique_values_many_empty_columns_returns_empty_dict(csv_file):
-    result = read_unique_values_many(csv_file, columns=[])
-    assert result == {}
-
-
-def test_read_unique_values_many_deduplicates_requested_columns(csv_file):
-    result = read_unique_values_many(csv_file, columns=["nom", "nom"])
-    assert list(result.keys()) == ["nom"]
-
-
-def test_read_unique_values_many_missing_column_in_csv_raises(csv_file):
-    with pytest.raises(pl.exceptions.ColumnNotFoundError):
-        read_unique_values_many(csv_file, columns=["nom", "missing"])
-
-
-def test_read_unique_values_many_missing_column_in_excel_returns_empty_list(xlsx_file):
-    result = read_unique_values_many(xlsx_file, columns=["nom", "missing"])
-    assert result["missing"] == []
+def test_read_csv_with_a_detected_comma_separator(tmp_path: Path):
+    path = tmp_path / "comma.csv"
+    path.write_text("name,age\nAlice,30\nBob,41\n", encoding="utf-8")
+    df = read_csv(path, detect_separator(path))
+    assert df.columns == ["name", "age"]
+    assert df.shape == (2, 2)

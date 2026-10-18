@@ -23,22 +23,32 @@ export const api = {
 
   // File
   openFileDialog:   ()               => call('open_file_dialog'),
+  openFilesDialog:  ()               => call('open_files_dialog'),
   openFolderDialog: ()               => call('open_folder_dialog'),
   clearFile:        ()               => call('clear_file'),
   getSourceColumns: ()               => call('get_source_columns'),
+  getDefaultOutputFolder: ()         => call('get_default_output_folder'),
 
   // Steps
   getStepPayload: (action)           => call('get_step_payload', action),
   setStepPayload: (action, payload)  => call('set_step_payload', action, payload),
 
   // Processing
-  runPreset: (presetPath, filePath, outputConfig) =>
-    call('run_preset', presetPath, filePath, outputConfig),
+  getScheduleCommand: (presetPath, filePaths, outputConfig, name = null, time = '08:00') =>
+    call('get_schedule_command', presetPath, filePaths, outputConfig, name, time),
+  createScheduledTask: (presetPath, filePaths, outputConfig, name, time, confirmed) =>
+    call('create_scheduled_task', presetPath, filePaths, outputConfig, name, time, confirmed),
+  createExecutionLauncher: (presetPath, filePaths, outputConfig, name) =>
+    call('create_execution_launcher', presetPath, filePaths, outputConfig, name),
+  previewPreset: (presetPath, filePath) => call('preview_preset', presetPath, filePath),
+  runPreset: (presetPath, filePaths, outputConfig) =>
+    call('run_preset', presetPath, filePaths, outputConfig),
   stopRun: () => call('stop_run'),
 
   // Settings & themes
   getAppConfig:   ()                 => call('get_app_config'),
-  saveAppConfig:  (palette, mode, locale = 'en') => call('save_app_config', palette, mode, locale),
+  saveAppConfig:  (palette, mode, locale = 'en', csvSeparator = 'auto', csvDecimal = 'auto', presetSources = null) =>
+                                     call('save_app_config', palette, mode, locale, csvSeparator, csvDecimal, presetSources),
   getThemes:      ()                 => call('get_themes'),
 
   // Version & auto-update

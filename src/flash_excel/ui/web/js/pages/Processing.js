@@ -1,10 +1,12 @@
 import { api } from '../api.js';
 import { stepLabel } from '../steps-registry.js';
+import ExecutionModal from '../components/ExecutionModal.js';
 
 const LEVEL_LABEL = { info: 'INFO', ok: 'OK', step: 'STEP', warn: 'WARN', err: 'ERROR' };
 
 export default {
   name: 'ProcessingPage',
+  components: { ExecutionModal },
   inject: ['showToast', 'i18n'],
 
   data() {
@@ -13,21 +15,28 @@ export default {
       presets: [],
       selectedPresetPath: '',
       selectedPreset: null,   // full preset dict from api.loadPreset
-      fileInfo: null,   // { path, file_name, size_bytes, columns, ... }
+      files: [],        // [{ path, file_name, size_bytes, columns, ... }]
+      // Per-file run state, parallel to files[] and indexed by the
+      // file_index every backend event carries.
+      fileStates: [],   // [{ status, progress }]
       outputConfig: {
         format: 'keep',
-        folder: './output/',
+        folder: '',
         pattern: '{name}_clean',
         error_mode: 'skip',
       },
       runState: 'idle',    // 'idle' | 'running' | 'done' | 'error' | 'stopped'
-      fileStatus: 'pending', // 'pending' | 'running' | 'done' | 'error' | 'skipped'
-      fileProgress: 0,
       stats: { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null },
       logs: [],
       consoleCollapsed: false,
       consoleFilter: 'all',
       autoScroll: true,
+      previewOpen: false,
+      previewLoading: false,
+      previewData: null,
+      previewError: '',
+      previewFileName: '',
+      executionDraft: null,
     };
   },
 
@@ -52,7 +61,13 @@ export default {
     },
     totalSteps() { return this.selectedPreset?.steps?.length ?? 0; },
     stepNames() { return this.selectedPreset?.steps?.map(s => s.action) ?? []; },
-    canRun() { return !!this.fileInfo && !!this.selectedPresetPath && this.runState !== 'running'; },
+    canRun() { return this.files.length > 0 && !!this.selectedPresetPath && this.runState !== 'running' && !this.previewLoading; },
+    // The footer bar covers the whole batch, not the file in flight.
+    overallProgress() {
+      if (!this.fileStates.length) return 0;
+      const sum = this.fileStates.reduce((acc, f) => acc + f.progress, 0);
+      return Math.round(sum / this.fileStates.length);
+    },
     filteredLogs() {
       const f = this.consoleFilter;
       if (f === 'all') return this.logs;
@@ -66,6 +81,7 @@ export default {
   mounted() {
     window.flashEvent = (type, data) => this.onFlashEvent(type, data);
     this.loadPresets();
+    this.loadDefaultOutputFolder();
   },
 
   beforeUnmount() {
@@ -73,6 +89,33 @@ export default {
   },
 
   methods: {
+    openExecutionSettings() {
+      if (!this.canRun) return;
+      this.executionDraft = {
+        presetPath: this.selectedPresetPath,
+        files: this.files.map(file => ({ path: file.path, file_name: file.file_name })),
+        outputConfig: { ...this.outputConfig },
+      };
+    },
+
+    async previewPreset() {
+      if (!this.canRun) return;
+      const file = this.files[0];
+      this.previewFileName = file.file_name;
+      this.previewData = null;
+      this.previewError = '';
+      this.previewOpen = true;
+      this.previewLoading = true;
+      this.$nextTick(() => this.$refs.previewClose?.focus());
+      try {
+        this.previewData = await api.previewPreset(this.selectedPresetPath, file.path);
+      } catch (e) {
+        this.previewError = e.message;
+      } finally {
+        this.previewLoading = false;
+      }
+    },
+
     async browseFolder() {
       try {
         const res = await api.openFolderDialog();
@@ -80,6 +123,15 @@ export default {
       } catch (e) {
         this.showToast(e.message, 'error');
       }
+    },
+
+    async loadDefaultOutputFolder() {
+      // Shown rather than assumed: an empty or relative folder would be
+      // written next to the executable, which auto-updates replace.
+      try {
+        const res = await api.getDefaultOutputFolder();
+        if (!this.outputConfig.folder) this.outputConfig.folder = res.folder;
+      } catch { /* the Python side resolves it anyway on run */ }
     },
 
     async loadPresets() {
@@ -106,27 +158,34 @@ export default {
 
     async openFile() {
       try {
-        const data = await api.openFileDialog();
+        const data = await api.openFilesDialog();
         if (data?.cancelled) return;
-        this.fileInfo = data;
+        this.files = data.files;
         this.resetRun();
       } catch (e) {
         this.showToast(e.message, 'error');
       }
     },
 
+    clearFiles() {
+      this.files = [];
+      this.resetRun();
+    },
+
     async runPreset() {
       if (!this.canRun) return;
+      this.resetRun();
       this.runState = 'running';
-      this.fileStatus = 'running';
-      this.fileProgress = 0;
-      this.stats = { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null };
-      this.logs = [];
+      this.fileStates[0].status = 'running';
       try {
-        await api.runPreset(this.selectedPresetPath, this.fileInfo.path, this.outputConfig);
+        await api.runPreset(
+          this.selectedPresetPath,
+          this.files.map(f => f.path),
+          this.outputConfig,
+        );
       } catch (e) {
         this.runState = 'error';
-        this.fileStatus = 'error';
+        this.fileStates[0].status = 'error';
         this.pushLog('err', e.message);
       }
     },
@@ -141,30 +200,64 @@ export default {
     },
 
     onFlashEvent(type, data) {
-      if (type === 'step') {
-        const idx = data.step_index + 1;
-        this.fileProgress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
-        this.pushLog('step', `${stepLabel(data.step_name, this.i18n.t)} ✓ (${data.rows_in} → ${data.rows_out} rows)`);
-      } else if (type === 'done') {
-        this.runState = 'done';
-        this.fileStatus = 'done';
-        this.fileProgress = 100;
-        this.stats.rows_out = data.rows_out;
-        this.stats.elapsed_s = data.elapsed_s;
-        this.pushLog('ok', this.i18n.t('log.done', { elapsed: data.elapsed_s, path: data.output_path }));
-      } else if (type === 'error') {
-        const em = this.outputConfig.error_mode;
-        this.stats.errors++;
-        this.pushLog('err', data.message);
-        if (em === 'stop') {
-          this.runState = 'error'; this.fileStatus = 'error';
-        } else if (em === 'skip') {
-          this.runState = 'done'; this.fileStatus = 'skipped';
-        }
-      } else if (type === 'log') {
-        if (data.level === 'warn') this.stats.warnings++;
-        this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
+      // Every backend event carries the file it belongs to, so a batch
+      // updates its own queue row and never the one before it.
+      const file = this.fileStates[data.file_index];
+      if (file?.status === 'pending') file.status = 'running';
+
+      switch (type) {
+        case 'step': this.handleStepEvent(data, file); break;
+        case 'done': this.handleDoneEvent(data, file); break;
+        case 'batch_done': this.handleBatchDoneEvent(data); break;
+        case 'error': this.handleErrorEvent(data, file); break;
+        case 'files_dropped': this.handleDroppedFilesEvent(data); break;
+        case 'log': this.handleLogEvent(data); break;
       }
+    },
+
+    handleStepEvent(data, file) {
+      const idx = data.step_index + 1;
+      if (file) file.progress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
+      this.pushLog('step', `${stepLabel(data.step_name, this.i18n.t)} ✓ (${data.rows_in} → ${data.rows_out} rows)`);
+    },
+
+    handleDoneEvent(data, file) {
+      if (file) { file.status = 'done'; file.progress = 100; }
+      this.stats.rows_out += data.rows_out;
+      this.pushLog('ok', this.i18n.t('log.done', { elapsed: data.elapsed_s, path: data.output_path }));
+    },
+
+    handleBatchDoneEvent(data) {
+      this.stats.elapsed_s = data.elapsed_s;
+      // Files left pending were never reached: the run stopped before them.
+      for (const file of this.fileStates) {
+        if (file.status === 'pending' || file.status === 'running') file.status = 'skipped';
+      }
+      if (this.runState === 'running') {
+        this.runState = data.succeeded === data.total ? 'done' : 'error';
+      }
+    },
+
+    handleErrorEvent(data, file) {
+      const em = this.outputConfig.error_mode;
+      this.stats.errors++;
+      this.pushLog('err', data.message);
+      // data.fatal: the worker gave up before the step loop, so no 'done'
+      // will follow for this file whatever the error mode says.
+      if (file) file.status = (data.fatal || em === 'stop') ? 'error' : 'skipped';
+    },
+
+    handleDroppedFilesEvent(data) {
+      // Python resolved the real paths: the browser's File objects have none.
+      if (this.runState !== 'running') {
+        this.files = data.files;
+        this.resetRun();
+      }
+    },
+
+    handleLogEvent(data) {
+      if (data.level === 'warn') this.stats.warnings++;
+      this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
     },
 
     pushLog(level, message) {
@@ -182,8 +275,7 @@ export default {
 
     resetRun() {
       this.runState = 'idle';
-      this.fileStatus = 'pending';
-      this.fileProgress = 0;
+      this.fileStates = this.files.map(() => ({ status: 'pending', progress: 0 }));
       this.stats = { rows_out: 0, warnings: 0, errors: 0, elapsed_s: null };
       this.logs = [];
     },
@@ -209,21 +301,21 @@ export default {
     <div class="files-area">
       <div class="area-head">
         <h2>{{ i18n.t('proc.input_file') }}</h2>
-        <span class="ah-meta">{{ fileInfo ? i18n.t('proc.one_file') : i18n.t('proc.no_files') }}</span>
+        <span class="ah-meta">{{ files.length ? i18n.t('proc.n_files', { count: files.length }) : i18n.t('proc.no_files') }}</span>
         <span style="flex:1 1 auto"></span>
-        <button class="link-btn" @click="openFile" :disabled="runState === 'running'">
+        <button v-if="files.length" class="link-btn" @click="openFile" :disabled="runState === 'running'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           {{ i18n.t('proc.load_file') }}
         </button>
-        <button v-if="fileInfo" class="link-btn danger"
-          @click="fileInfo = null; resetRun()" :disabled="runState === 'running'">
+        <button v-if="files.length" class="link-btn danger"
+          @click="clearFiles" :disabled="runState === 'running'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
           {{ i18n.t('file.clear') }}
         </button>
       </div>
 
       <!-- Drop zone -->
-      <div v-if="!fileInfo" class="dropzone" @click="openFile">
+      <div v-if="!files.length" class="dropzone" @click="openFile">
         <span class="dz-ico">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 16V8M9 11l3-3 3 3"/>
@@ -236,30 +328,30 @@ export default {
       </div>
 
       <!-- File row -->
-      <div v-if="fileInfo" class="file-queue">
-        <div class="file-row"
-          :class="{ running: fileStatus === 'running', error: fileStatus === 'error' }">
-          <span class="file-ico" :class="{ csv: fileExt(fileInfo.file_name) === 'csv' }">
-            {{ fileExt(fileInfo.file_name).slice(0,4).toUpperCase() }}
+      <div v-if="files.length" class="file-queue">
+        <div v-for="(file, i) in files" :key="file.path" class="file-row"
+          :class="{ running: fileStates[i]?.status === 'running', error: fileStates[i]?.status === 'error' }">
+          <span class="file-ico" :class="{ csv: fileExt(file.file_name) === 'csv' }">
+            {{ fileExt(file.file_name).slice(0,4).toUpperCase() }}
           </span>
           <div class="file-main">
             <div class="file-top">
-              <span class="file-name">{{ fileInfo.file_name }}</span>
-              <span class="file-size">{{ fileSizeLabel(fileInfo.size_bytes) }}</span>
+              <span class="file-name">{{ file.file_name }}</span>
+              <span class="file-size">{{ fileSizeLabel(file.size_bytes) }}</span>
             </div>
-            <div class="file-sub">{{ fileInfo.columns?.length ?? 0 }} {{ i18n.t('proc.columns') }}</div>
-            <div class="file-prog"><i :style="{ width: fileProgress + '%' }"></i></div>
+            <div v-if="i === 0" class="file-sub">{{ file.columns?.length ?? 0 }} {{ i18n.t('proc.columns') }}</div>
+            <div class="file-prog"><i :style="{ width: (fileStates[i]?.progress ?? 0) + '%' }"></i></div>
           </div>
           <div class="file-right">
-            <span class="status-badge" :class="fileStatus">
-              <span class="dot"></span>{{ STATUS_LABEL[fileStatus] }}
+            <span class="status-badge" :class="fileStates[i]?.status ?? 'pending'">
+              <span class="dot"></span>{{ STATUS_LABEL[fileStates[i]?.status ?? 'pending'] }}
             </span>
           </div>
         </div>
       </div>
 
       <!-- Empty state (shown below drop zone when no file) -->
-      <div v-if="!fileInfo" class="empty-state" style="margin-top:14px">
+      <div v-if="!files.length" class="empty-state" style="margin-top:14px">
         <span class="es-title">{{ i18n.t('proc.no_file') }}</span>
         <span class="es-sub">{{ i18n.t('proc.no_file_sub') }}</span>
       </div>
@@ -318,7 +410,7 @@ export default {
             v-model="selectedPresetPath" @change="onPresetChange">
             <option value="" disabled>{{ i18n.t('proc.preset_ph') }}</option>
             <option v-for="p in presets" :key="p.path" :value="p.path">
-              {{ p.name }} — {{ p.step_count }} actions
+              {{ p.name }} — {{ p.label }} — {{ p.step_count }} {{ i18n.t('proc.actions') }}
             </option>
           </select>
           <span style="position:absolute;right:11px;top:50%;width:7px;height:7px;border-right:2px solid var(--text_secondary);border-bottom:2px solid var(--text_secondary);transform:translateY(-70%) rotate(45deg);pointer-events:none"></span>
@@ -380,6 +472,14 @@ export default {
         </div>
       </div>
 
+      <div class="rp-block schedule-block">
+        <span class="rp-label">{{ i18n.t('execution.section') }}</span>
+        <p class="schedule-hint">{{ i18n.t('execution.intro') }}</p>
+        <button class="btn schedule-copy" @click="openExecutionSettings" :disabled="!canRun">
+          {{ i18n.t('execution.open') }}
+        </button>
+      </div>
+
     </div>
 
     <!-- Footer: progress + stats + run/stop buttons -->
@@ -387,9 +487,9 @@ export default {
       <div class="ov-prog">
         <div class="ov-top">
           <span class="ov-label">{{ i18n.t('proc.progress') }}</span>
-          <span class="ov-pct">{{ fileProgress }}%</span>
+          <span class="ov-pct">{{ overallProgress }}%</span>
         </div>
-        <div class="ov-bar"><i :style="{ width: fileProgress + '%' }"></i></div>
+        <div class="ov-bar"><i :style="{ width: overallProgress + '%' }"></i></div>
       </div>
       <div class="stat-grid">
         <div class="stat ok">
@@ -410,6 +510,9 @@ export default {
         </div>
       </div>
       <div class="run-actions">
+        <button class="btn preview-button run-main" @click="previewPreset" :disabled="!canRun">
+          {{ i18n.t('proc.preview') }}
+        </button>
         <button class="btn primary run-main" @click="runPreset" :disabled="!canRun">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
           {{ i18n.t('proc.run') }}
@@ -422,6 +525,41 @@ export default {
     </div>
   </aside>
 
+<ExecutionModal v-if="executionDraft" :execution="executionDraft" @close="executionDraft = null" />
+
+<teleport to="body">
+  <div v-if="previewOpen" class="modal-overlay" @click.self="previewOpen = false" @keydown.esc.stop="previewOpen = false">
+    <div class="modal preview-dialog" role="dialog" aria-modal="true" aria-labelledby="preview-title">
+      <div class="modal-head">
+        <h3 id="preview-title">{{ i18n.t('proc.preview_title') }}</h3>
+        <button class="icon-btn" ref="previewClose" @click="previewOpen = false" :aria-label="i18n.t('proc.preview_close')">×</button>
+      </div>
+      <div class="preview-body" :aria-busy="previewLoading">
+        <p class="preview-hint">{{ i18n.t('proc.preview_hint', { file: previewFileName }) }}</p>
+        <p v-if="previewLoading" role="status">{{ i18n.t('proc.preview_loading') }}</p>
+        <p v-else-if="previewError" class="preview-error" role="alert">{{ i18n.t('proc.preview_error', { error: previewError }) }}</p>
+        <template v-else-if="previewData">
+          <p v-if="!previewData.rows.length" class="preview-empty" role="status">{{ i18n.t('proc.preview_empty') }}</p>
+          <template v-else>
+            <p class="preview-hint">{{ i18n.t('proc.preview_count', { count: previewData.rows.length }) }}</p>
+            <div class="preview-table-scroll" tabindex="0" :aria-label="i18n.t('proc.preview_title')">
+              <table class="preview-table">
+                <thead><tr><th v-for="column in previewData.columns" :key="column" scope="col">{{ column }}</th></tr></thead>
+                <tbody>
+                  <tr v-for="(row, index) in previewData.rows" :key="index">
+                    <td v-for="column in previewData.columns" :key="column" :class="{ 'preview-null': row[column] === null }">
+                      {{ row[column] === null ? i18n.t('proc.preview_null') : row[column] }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </template>
+      </div>
+    </div>
+  </div>
+</teleport>
 </div>
   `,
 };

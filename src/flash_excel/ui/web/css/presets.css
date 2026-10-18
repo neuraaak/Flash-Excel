@@ -89,6 +89,12 @@
   background: var(--surface_overlay);
 }
 
+/* A preset whose file cannot be parsed: listed, but visibly not usable. */
+.preset-card.broken .pc-name,
+.preset-card.broken .pc-meta {
+  color: var(--semantic_error);
+}
+
 .preset-card.active::before {
   content: "";
   position: absolute;
@@ -1132,8 +1138,11 @@
   background: var(--surface_raised);
   border: 1px solid var(--border_subtle);
   border-radius: var(--r-xl);
-  width: 400px;
+  width: 440px;
   max-width: calc(100vw - 40px);
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 16px 48px rgba(0, 0, 0, .45);
   animation: modal-in .18s ease-out;
 }
@@ -1172,6 +1181,8 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .settings-section {
@@ -1197,6 +1208,124 @@
 .settings-field-label {
   font-size: var(--fs-sm);
   color: var(--text_secondary);
+}
+
+/* Explanatory line under a settings group */
+.settings-hint {
+  font-size: var(--fs-xs);
+  color: var(--text_secondary);
+  line-height: 1.45;
+}
+
+.preset-sources-empty {
+  padding: 12px;
+  border: 1px dashed var(--border_subtle);
+  border-radius: var(--r-md);
+  color: var(--text_secondary);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.preset-source-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 10px;
+  background: var(--surface_base);
+  border: 1px solid var(--border_subtle);
+  border-radius: var(--r-md);
+}
+
+.preset-source-details {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.preset-source-name {
+  color: var(--text_primary);
+  font-size: var(--fs-md);
+  font-weight: 600;
+}
+
+.preset-source-path {
+  overflow: hidden;
+  margin-top: 4px;
+  color: var(--text_secondary);
+  font-family: var(--mono);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preset-source-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+}
+
+.preset-source-edit,
+.preset-source-remove {
+  height: 30px;
+  font-size: var(--fs-sm);
+}
+
+.preset-source-edit {
+  padding: 0 9px;
+}
+
+.preset-source-remove {
+  width: 30px;
+}
+
+.preset-source-remove:hover {
+  color: var(--semantic_error);
+  border-color: var(--semantic_error);
+}
+
+.preset-source-add {
+  justify-content: center;
+  border-style: dashed;
+  border-color: var(--border_subtle);
+  background: transparent;
+}
+
+.source-dialog,
+.source-delete-dialog {
+  width: 420px;
+}
+
+.source-dialog-form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.source-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  color: var(--text_secondary);
+  font-size: var(--fs-sm);
+}
+
+.source-form-field > .input {
+  width: 100%;
+}
+
+.source-form-path {
+  display: flex;
+  gap: 8px;
+}
+
+.source-form-path .input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.source-dialog-error {
+  color: var(--semantic_error);
+  font-size: var(--fs-sm);
 }
 
 /* Grille de cartes palette */

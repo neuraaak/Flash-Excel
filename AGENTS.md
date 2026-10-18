@@ -21,7 +21,7 @@ file, selects or creates a preset, and executes a sequence of typed steps
 | Front-end   | Vue 3 (ESM browser build) + Tailwind, both vendored |
 | Data engine | Polars + fastexcel (read) / xlsxwriter (write)      |
 | Validation  | Pydantic v2 (discriminated unions)                  |
-| Presets     | TOML                                                |
+| Presets     | TOML (`tomllib` read / `tomli-w` write)             |
 | Config      | YAML (`app.config.yaml`, `theme.config.yaml`)       |
 | Logging     | ezplog                                              |
 | Build       | ezcompiler (PyInstaller + Inno Setup + tufup/TUF)   |
@@ -61,12 +61,13 @@ src/flash_excel/
 ├── core/
 │   ├── models.py        # Pydantic discriminated-union models (Preset, steps)
 │   ├── registry.py      # @action("name") decorator → REGISTRY dict
-│   ├── pipeline.py      # run_pipeline() + compute_schema_at_step()
+│   ├── pipeline.py      # run_pipeline()
 │   └── steps/           # One file per step: rename, select, drop, cast,
 │                        #   replace, clean, fill, computed, filter,
 │                        #   deduplicate, sort, reorder
 ├── io/
-│   ├── loader.py        # File → Polars DataFrame (+ read_schema)
+│   ├── loader.py        # File → Polars DataFrame (+ read_schema,
+│   │                    #   detect_separator)
 │   ├── writer.py        # DataFrame → output file
 │   └── models.py        # I/O config models
 ├── presets/
@@ -87,6 +88,7 @@ src/flash_excel/
 │           ├── pages/             # Processing.js, Presets.js
 │           └── vendor/            # vue.esm-browser.prod.js, tailwind.js, icons.js
 ├── assets/config/       # Packaged config templates (app + theme)
+├── cli.py               # Headless runner: --preset/--input, no window (see below)
 ├── config.py            # Load/save user config, theme resolution, installer locale
 ├── logs.py              # setup_logging() / log() — ezplog, rotating file
 ├── migration.py         # Moves legacy bin/ data to the user-data locations
@@ -152,9 +154,12 @@ an editor + the i18n keys in both locale files.**
 
 ### Schema tracking without data loading
 
-`compute_schema_at_step(preset, step_index)` simulates structural transformations
-(drop, select, rename, reorder) against a schema snapshot — no file I/O.
-Used by the front-end to show the columns available at each step.
+Column availability per step is simulated **client-side**, in
+`web/js/components/ActionSteps.js` (`applyStepToColumns` / `applyStepToSchema`,
+chained through `columnsByStep` / `schemaByStep`): it tracks names *and* types,
+and recomputes on every keystroke without a bridge round-trip. There is
+deliberately no Python equivalent — one existed, was never called, and was
+deleted.
 
 ---
 
@@ -173,6 +178,31 @@ webview.start(debug=…, icon=…)
 
 Run with `--debug` to enable the pywebview devtools and verbose logging.
 
+### Headless mode
+
+`main.py` dispatches on the command line: with `--preset`, it calls
+`flash_excel.cli.main` instead of opening the window, and `webview` is never
+imported. One executable serves both modes — the installer ships a single
+`.exe` and a scheduled task calls it directly.
+
+```bash
+python main.py --preset clean.toml --input a.xlsx b.xlsx --output out/
+```
+
+`--input` takes several files: each is processed independently, and one
+failure does not cancel the rest of the batch. Exit code `0` when every file
+succeeded, `1` when at least one failed, `2` on bad arguments.
+
+**Scheduling is deliberately not in the app.** The Windows Task Scheduler
+survives a reboot, runs without an open session and reports failures; a
+desktop application does none of that well. The UI's job is at most to hand
+the user a ready-made `schtasks` command.
+
+The packaged build is windowed (`console = false`), so `cli.py` attaches to
+the parent console when there is one. Output is therefore visible from a
+prompt and absent on a double-click, while the exit code and the log file
+work in both cases.
+
 ### The Python↔JS bridge
 
 `ui/api.py` is the **entire** surface between the two worlds. Every public method
@@ -185,6 +215,12 @@ of `FlashExcelAPI` becomes `await window.pywebview.api.<method>()` in JS.
   `{"ok": False, "error": "<message>"}` on failure. Never raise across the bridge.
 - The local web page is loaded through `Path.as_uri()` — never a hand-built
   `file://` string, which breaks on Windows drive letters.
+
+**Run events.** `run_preset` takes a *list* of files and processes them in
+order on one thread. Every event pushed to `window.flashEvent` is stamped by
+`_push` with the `file_index` it belongs to, so the front-end routes it to its
+queue row; a final `batch_done` carries `succeeded`/`total`. Error mode
+`stop` ends the whole batch, not just the current file.
 
 ### Styling — design tokens, no hardcoded colors
 
@@ -249,7 +285,12 @@ uv run poe format          # Format      (poe format-check to verify only)
 uv run poe typecheck       # Type check (ty — the single gate; pyright is IDE-only)
 uv run poe imports         # Layer dependency contracts
 uv run poe security        # Bandit security scan
+uv run poe lint-js         # ESLint on the web UI JS (lint-js-fix to auto-fix)
 ```
+
+Front-end linting needs `pnpm install` once per clone (ESLint only — no
+formatter, so nothing rewrites the hand-aligned source). It is deliberately
+**not** part of `poe check`: a clone without Node still passes the Python gate.
 
 `poe check` chains `format-check → lint → typecheck → security → imports →
 test-ci`, in that order. The coverage floor is carried by `test-ci` and not by
@@ -286,8 +327,11 @@ permanently.
 - **No literal UI strings** — every visible string is an i18n key in `en.js` + `fr.js`.
 - **Nothing written to the install folder** — use the `paths.py` constants.
 - **Bridge methods return `{ok, data|error}`** and never raise across the boundary.
-- **Schema-aware UI**: when building step editors, use `compute_schema_at_step()`
-  to populate column dropdowns, not the raw source file schema.
+- **Schema-aware UI**: when building step editors, populate column dropdowns
+  from `ActionSteps.js`'s per-step schema chain, not the raw source file schema.
+- **Presets are serialized by `tomli_w`**, never by hand: the writer dumps
+  `model_dump(exclude_none=True)`, so every model field round-trips and a value
+  TOML cannot express fails loudly instead of producing an unreadable file.
 - **Layer contracts** (enforced by import-linter, see `pyproject.toml`):
-  `ui` → `presets`/`io` → `core` → `migration` → `config` → `logs` → `paths`.
+  `ui`/`cli` → `presets`/`io` → `core` → `migration` → `config` → `logs` → `paths`.
   `presets` and `io` are independent siblings; `core` must never import `ui`.

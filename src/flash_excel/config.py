@@ -9,6 +9,7 @@ import configparser
 import contextlib
 import hashlib
 import shutil
+import sys
 
 import yaml
 
@@ -28,7 +29,28 @@ _DEFAULTS: dict = {
         "mode": "dark",
     },
     "locale": "en",
+    "csv": {
+        "separator": "auto",
+        "decimal": "auto",
+    },
+    "presets": {"sources": []},
 }
+
+# Regional settings Excel itself reads to decide how a CSV is parsed and
+# written. Aligning on them is what makes a produced file open in columns on a
+# double-click instead of as one text blob.
+_INTERNATIONAL_KEY = r"Control Panel\International"
+_LIST_SEPARATOR_VALUE = "sList"
+_DECIMAL_SEPARATOR_VALUE = "sDecimal"
+
+# Stored as tokens rather than the characters themselves: a raw tab or a comma
+# in YAML needs quoting, and the template is filled with str.format().
+_SEPARATOR_TOKENS: dict[str, str] = {
+    "semicolon": ";",
+    "comma": ",",
+    "tab": "	",
+}
+_DECIMAL_TOKENS = frozenset({"auto", "comma", "dot"})
 
 # Languages offered by the Inno Setup wizard ([tool.ezcompiler.installer]
 # languages) mapped to the application locales. Any other value falls back to
@@ -103,12 +125,66 @@ def consume_installer_locale() -> str | None:
                 current["appearance"]["palette"],
                 current["appearance"]["mode"],
                 locale,
+                current["csv"]["separator"],
+                current["csv"]["decimal"],
             )
             log("INFO", f"locale taken from the installer: {locale}")
 
     with contextlib.suppress(OSError):
         INSTALLER_MARKER.unlink()
     return locale
+
+
+def _regional(value_name: str, fallback: str) -> str:
+    """Read one value from the Windows regional settings, or return a fallback."""
+    if sys.platform != "win32":
+        return fallback
+    try:
+        import winreg
+
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, _INTERNATIONAL_KEY) as key:
+            raw, _ = winreg.QueryValueEx(key, value_name)
+    except OSError:
+        log("WARNING", f"regional setting {value_name} unreadable, using {fallback!r}")
+        return fallback
+    return str(raw) or fallback
+
+
+def resolve_csv_output(csv_config: dict | None = None) -> tuple[str, bool]:
+    """Return the ``(separator, decimal_comma)`` pair a CSV write should use.
+
+    Both settings default to ``"auto"``, which means: take what the machine's
+    regional settings say, because that is exactly what Excel will assume when
+    it opens the file. An explicit token overrides it, for a downstream
+    consumer that wants a fixed format whatever the machine.
+
+    Args:
+        csv_config: The ``csv`` section of the app config. ``None`` or a
+            missing key falls back to ``"auto"``.
+
+    Returns:
+        tuple[str, bool]: Delimiter character, and whether decimal numbers are
+            written with a comma.
+    """
+    config = csv_config or {}
+
+    separator = config.get("separator", "auto")
+    resolved_sep = _SEPARATOR_TOKENS.get(
+        separator, _regional(_LIST_SEPARATOR_VALUE, ";")
+    )
+
+    decimal = config.get("decimal", "auto")
+    if decimal in {"comma", "dot"}:
+        decimal_comma = decimal == "comma"
+    else:
+        decimal_comma = _regional(_DECIMAL_SEPARATOR_VALUE, ",") == ","
+
+    # A comma delimiter and a comma decimal mark cannot coexist: every float
+    # would split its own cell. The delimiter wins; the user asked for it.
+    if resolved_sep == "," and decimal_comma:
+        decimal_comma = False
+
+    return resolved_sep, decimal_comma
 
 
 def _resolve_palette(name: str) -> str:
@@ -126,21 +202,57 @@ def _resolve_palette(name: str) -> str:
     return _DEFAULTS["appearance"]["palette"]
 
 
+def _defaults() -> dict:
+    """Return a fresh, mutable copy of the default config."""
+    return {
+        "appearance": dict(_DEFAULTS["appearance"]),
+        "locale": _DEFAULTS["locale"],
+        "csv": dict(_DEFAULTS["csv"]),
+        "presets": {"sources": []},
+    }
+
+
+def _valid(value: object, allowed: set[str] | frozenset[str]) -> str:
+    """Return ``value`` when it is an allowed token, else ``"auto"``.
+
+    The config is hand-editable, so an unknown token must degrade to the
+    automatic behaviour rather than reach the writer as a delimiter.
+    """
+    return value if isinstance(value, str) and value in allowed else "auto"
+
+
+def _preset_sources(value: object) -> list[dict[str, str]]:
+    """Return valid labelled, read-only preset source directories."""
+    if not isinstance(value, list):
+        return []
+    return [
+        {"label": item["label"].strip(), "path": item["path"].strip()}
+        for item in value
+        if isinstance(item, dict)
+        and isinstance(item.get("label"), str)
+        and item["label"].strip()
+        and isinstance(item.get("path"), str)
+        and item["path"].strip()
+    ]
+
+
 def load_app_config() -> dict:
     """Load the config, creating the file with the defaults if it is absent."""
     if not APP_CONFIG.exists():
+        defaults = _defaults()
         _write(
-            _DEFAULTS["appearance"]["palette"],
-            _DEFAULTS["appearance"]["mode"],
-            _DEFAULTS["locale"],
+            defaults["appearance"]["palette"],
+            defaults["appearance"]["mode"],
+            defaults["locale"],
+            defaults["csv"]["separator"],
+            defaults["csv"]["decimal"],
         )
-        return {
-            "appearance": dict(_DEFAULTS["appearance"]),
-            "locale": _DEFAULTS["locale"],
-        }
+        return defaults
     try:
         raw = yaml.safe_load(APP_CONFIG.read_text(encoding="utf-8")) or {}
         app = raw.get("appearance", {})
+        csv_section = raw.get("csv", {}) or {}
+        presets_section = raw.get("presets", {}) or {}
         return {
             "appearance": {
                 "palette": _resolve_palette(
@@ -149,17 +261,44 @@ def load_app_config() -> dict:
                 "mode": app.get("mode", _DEFAULTS["appearance"]["mode"]),
             },
             "locale": raw.get("locale", _DEFAULTS["locale"]),
+            "csv": {
+                "separator": _valid(
+                    csv_section.get("separator"), set(_SEPARATOR_TOKENS) | {"auto"}
+                ),
+                "decimal": _valid(csv_section.get("decimal"), _DECIMAL_TOKENS),
+            },
+            "presets": {
+                "sources": _preset_sources(
+                    presets_section.get("sources", raw.get("sources"))
+                )
+            },
         }
     except Exception:
-        return {
-            "appearance": dict(_DEFAULTS["appearance"]),
-            "locale": _DEFAULTS["locale"],
-        }
+        return _defaults()
 
 
-def save_app_config(palette: str, mode: str, locale: str = "en") -> None:
-    """Persist the appearance settings and locale, keeping the comments."""
-    _write(palette, mode, locale)
+def save_app_config(
+    palette: str,
+    mode: str,
+    locale: str = "en",
+    csv_separator: str = "auto",
+    csv_decimal: str = "auto",
+    preset_sources: list[dict[str, str]] | None = None,
+) -> None:
+    """Persist the appearance, locale and CSV settings, keeping the comments."""
+    sources = (
+        _preset_sources(preset_sources)
+        if preset_sources is not None
+        else load_app_config()["presets"]["sources"]
+    )
+    _write(
+        palette,
+        mode,
+        locale,
+        _valid(csv_separator, set(_SEPARATOR_TOKENS) | {"auto"}),
+        _valid(csv_decimal, _DECIMAL_TOKENS),
+        sources,
+    )
 
 
 def ensure_theme_config() -> None:
@@ -211,9 +350,25 @@ def load_themes() -> dict:
         return {}
 
 
-def _write(palette: str, mode: str, locale: str) -> None:
+def _write(
+    palette: str,
+    mode: str,
+    locale: str,
+    csv_separator: str,
+    csv_decimal: str,
+    preset_sources: list[dict[str, str]] | None = None,
+) -> None:
     APP_CONFIG.parent.mkdir(parents=True, exist_ok=True)
-    APP_CONFIG.write_text(
-        _template().format(palette=palette, mode=mode, locale=locale),
-        encoding="utf-8",
+    content = _template().format(
+        palette=palette,
+        mode=mode,
+        locale=locale,
+        csv_separator=csv_separator,
+        csv_decimal=csv_decimal,
     )
+    if preset_sources:
+        content += "\n\n# //////\n# Read-only preset sources\n"
+        content += yaml.safe_dump(
+            {"presets": {"sources": preset_sources}}, sort_keys=False
+        )
+    APP_CONFIG.write_text(content, encoding="utf-8")

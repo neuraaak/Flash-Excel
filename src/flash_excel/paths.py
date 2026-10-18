@@ -38,6 +38,7 @@ from pathlib import Path
 # ///////////////////////////////////////////////////////////////
 
 _APP_FOLDER_NAME = "flash-excel"
+_APP_CONFIG_FILENAME = "app.config.yaml"
 
 # Registry key holding the real path of "Documents". Required: OneDrive
 # commonly redirects the folder to %USERPROFILE%\OneDrive\Documents, in which
@@ -110,11 +111,11 @@ CONFIG_TEMPLATES_DIR: Path = PACKAGE_DIR / "assets" / "config"
 
 # Templates shipped with the release: the seed for the user configs, and the
 # freshness reference for the palette catalogue.
-APP_CONFIG_TEMPLATE: Path = CONFIG_TEMPLATES_DIR / "app.config.yaml"
+APP_CONFIG_TEMPLATE: Path = CONFIG_TEMPLATES_DIR / _APP_CONFIG_FILENAME
 BUNDLED_THEMES_CONFIG: Path = CONFIG_TEMPLATES_DIR / "theme.config.yaml"
 
 USER_CONFIG_DIR: Path = _get_roaming_dir()
-APP_CONFIG: Path = USER_CONFIG_DIR / "app.config.yaml"
+APP_CONFIG: Path = USER_CONFIG_DIR / _APP_CONFIG_FILENAME
 THEMES_CONFIG: Path = USER_CONFIG_DIR / "theme.config.yaml"
 # Fingerprint of the catalogue shipped at seeding time, used to detect that a
 # new release brings a more recent one.
@@ -129,10 +130,14 @@ LOG_FILE: Path = LOG_DIR / "flash-excel.log"
 
 USER_DOCUMENTS_DIR: Path = _get_documents_dir() / _APP_FOLDER_NAME
 PRESETS_DIR: Path = USER_DOCUMENTS_DIR / "presets"
+# Where a run writes when the user has not picked a folder. It must be absolute:
+# a relative default resolves against the working directory, which for the
+# installed application is the installation folder — wiped by every update.
+DEFAULT_OUTPUT_DIR: Path = USER_DOCUMENTS_DIR / "output"
 
 # Locations used before user data moved out of the installation directory,
 # read once by the startup migration (see flash_excel.migration).
-LEGACY_APP_CONFIG: Path = BIN_DIR / "config" / "app.config.yaml"
+LEGACY_APP_CONFIG: Path = BIN_DIR / "config" / _APP_CONFIG_FILENAME
 LEGACY_PRESETS_DIR: Path = BIN_DIR / "presets"
 
 __all__ = [
@@ -141,6 +146,7 @@ __all__ = [
     "BIN_DIR",
     "BUNDLED_THEMES_CONFIG",
     "CONFIG_TEMPLATES_DIR",
+    "DEFAULT_OUTPUT_DIR",
     "INSTALLER_MARKER",
     "LEGACY_APP_CONFIG",
     "LEGACY_PRESETS_DIR",

@@ -6,6 +6,7 @@ order. The number sorts them in the file tree and documents the cascade.
 ```text
 00-install-deps  ← primes the uv cache (keyed on uv.lock)
 01-ci            ← quality + type-check + security in parallel → test
+                   (quality covers both toolchains: ruff and ESLint)
 02-tag-sync      ← orchestrator: CI gate → tag_action (create|skip|preview)
 ```
 
@@ -53,6 +54,7 @@ Every CI step is a Poe task, so the local gate and CI cannot drift:
 
 ```bash
 uv run poe check        # format-check → lint → typecheck → security → imports → test-ci
+uv run poe lint-js      # front-end lint, kept out of `check` (needs pnpm install)
 
 # Local release (never in CI)
 uv run build.py

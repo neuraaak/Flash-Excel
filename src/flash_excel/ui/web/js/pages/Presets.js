@@ -1,11 +1,60 @@
 import { api } from '../api.js';
 import FileLoader from '../components/FileLoader.js';
 import ActionSteps from '../components/ActionSteps.js';
-import { STEP_ACTIONS } from '../steps-registry.js';
+import { STEP_ACTIONS, stepLabel } from '../steps-registry.js';
 
 // Single source of truth: this list used to be duplicated here, so a step added
 // to the registry silently kept its old position (or went missing) on save.
 const ACTION_ORDER = STEP_ACTIONS;
+
+// How each step payload references column names. One description drives both
+// the purge below and the rename propagation: a new step only needs an entry
+// here instead of a branch in each.
+const COLUMN_REFS = {
+  rename_columns: { map: 'mapping' },
+  select_columns: { list: 'columns' },
+  drop_columns: { list: 'columns' },
+  cast_types: { map: 'casts' },
+  replace_values: { list: 'items', key: 'column' },
+  clean_text: { list: 'items', inner: 'columns' },
+  fill_nulls: { list: 'columns' },
+  add_computed_column: { expression: true },
+  filter_rows: { list: 'conditions', key: 'column' },
+  deduplicate_rows: { list: 'subset' },
+  sort_rows: { list: 'by', key: 'column' },
+  reorder_columns: { list: 'columns' },
+};
+
+/**
+ * Applies `fn` to every column name a payload references: it returns the new
+ * name, or null to drop that reference. Returns the new payload, the payload
+ * untouched when it holds no such collection, or null once every reference
+ * was dropped.
+ */
+function rewriteRefs(payload, spec, fn) {
+  if (spec.map) {
+    if (!payload[spec.map]) return payload;
+    const out = {};
+    for (const [k, v] of Object.entries(payload[spec.map])) {
+      const name = fn(k);
+      if (name !== null) out[name] = v;
+    }
+    return Object.keys(out).length ? { ...payload, [spec.map]: out } : null;
+  }
+  const items = payload[spec.list];
+  if (!items) return payload;
+  let out;
+  if (spec.inner) {
+    out = items
+      .map(it => ({ ...it, [spec.inner]: it[spec.inner].map(fn).filter(c => c !== null) }))
+      .filter(it => it[spec.inner].length);
+  } else if (spec.key) {
+    out = items.map(it => ({ ...it, [spec.key]: fn(it[spec.key]) })).filter(it => it[spec.key] !== null);
+  } else {
+    out = items.map(fn).filter(c => c !== null);
+  }
+  return out.length ? { ...payload, [spec.list]: out } : null;
+}
 
 /**
  * Strips every reference to vanished columns from the payloads.
@@ -13,53 +62,12 @@ const ACTION_ORDER = STEP_ACTIONS;
  */
 function purgePayloads(payloads, missingCols) {
   const missing = new Set(missingCols);
+  const keep = c => (missing.has(c) ? null : c);
   const p = { ...payloads };
-
-  if (p.rename_columns?.mapping) {
-    const m = Object.fromEntries(Object.entries(p.rename_columns.mapping).filter(([k]) => !missing.has(k)));
-    p.rename_columns = Object.keys(m).length ? { ...p.rename_columns, mapping: m } : {};
-  }
-  if (p.select_columns?.columns) {
-    const cols = p.select_columns.columns.filter(c => !missing.has(c));
-    p.select_columns = cols.length ? { ...p.select_columns, columns: cols } : {};
-  }
-  if (p.drop_columns?.columns) {
-    const cols = p.drop_columns.columns.filter(c => !missing.has(c));
-    p.drop_columns = cols.length ? { ...p.drop_columns, columns: cols } : {};
-  }
-  if (p.fill_nulls?.columns) {
-    const cols = p.fill_nulls.columns.filter(c => !missing.has(c));
-    p.fill_nulls = cols.length ? { ...p.fill_nulls, columns: cols } : {};
-  }
-  if (p.cast_types?.casts) {
-    const casts = Object.fromEntries(Object.entries(p.cast_types.casts).filter(([k]) => !missing.has(k)));
-    p.cast_types = Object.keys(casts).length ? { ...p.cast_types, casts } : {};
-  }
-  if (p.replace_values?.items) {
-    const items = p.replace_values.items.filter(it => !missing.has(it.column));
-    p.replace_values = items.length ? { ...p.replace_values, items } : {};
-  }
-  if (p.clean_text?.items) {
-    const items = p.clean_text.items
-      .map(it => ({ ...it, columns: it.columns.filter(c => !missing.has(c)) }))
-      .filter(it => it.columns.length);
-    p.clean_text = items.length ? { ...p.clean_text, items } : {};
-  }
-  if (p.filter_rows?.conditions) {
-    const conditions = p.filter_rows.conditions.filter(c => !missing.has(c.column));
-    p.filter_rows = conditions.length ? { ...p.filter_rows, conditions } : {};
-  }
-  if (p.deduplicate_rows?.subset) {
-    const subset = p.deduplicate_rows.subset.filter(c => !missing.has(c));
-    p.deduplicate_rows = subset.length ? { ...p.deduplicate_rows, subset } : {};
-  }
-  if (p.sort_rows?.by) {
-    const by = p.sort_rows.by.filter(s => !missing.has(s.column));
-    p.sort_rows = by.length ? { ...p.sort_rows, by } : {};
-  }
-  if (p.reorder_columns?.columns) {
-    const columns = p.reorder_columns.columns.filter(c => !missing.has(c));
-    p.reorder_columns = columns.length ? { ...p.reorder_columns, columns } : {};
+  for (const [action, spec] of Object.entries(COLUMN_REFS)) {
+    // Computed expressions are text, not a column list: left untouched.
+    if (spec.expression || !p[action]) continue;
+    p[action] = rewriteRefs(p[action], spec, keep) ?? {};
   }
   return p;
 }
@@ -89,51 +97,21 @@ function renameInExpression(expr, oldName, newName) {
 function renameColumnDownstream(payloads, fromAction, oldName, newName) {
   if (oldName === newName) return payloads;
   const fromIdx = ACTION_ORDER.indexOf(fromAction);
+  const sub = c => (c === oldName ? newName : c);
   const p = { ...payloads };
   ACTION_ORDER.forEach((action, idx) => {
-    if (idx <= fromIdx) return;
     const payload = p[action];
-    if (!payload) return;
-    switch (action) {
-      case 'select_columns':
-        if (payload.columns) p.select_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
-        break;
-      case 'drop_columns':
-        if (payload.columns) p.drop_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
-        break;
-      case 'fill_nulls':
-        if (payload.columns) p.fill_nulls = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
-        break;
-      case 'cast_types':
-        if (payload.casts && oldName in payload.casts) {
-          const casts = { ...payload.casts };
-          casts[newName] = casts[oldName];
-          delete casts[oldName];
-          p.cast_types = { ...payload, casts };
-        }
-        break;
-      case 'replace_values':
-        if (payload.items) p.replace_values = { ...payload, items: payload.items.map(it => it.column === oldName ? { ...it, column: newName } : it) };
-        break;
-      case 'clean_text':
-        if (payload.items) p.clean_text = { ...payload, items: payload.items.map(it => ({ ...it, columns: it.columns.map(c => c === oldName ? newName : c) })) };
-        break;
-      case 'add_computed_column':
-        if (payload.items) p.add_computed_column = { ...payload, items: payload.items.map(it => ({ ...it, expression: renameInExpression(it.expression, oldName, newName) })) };
-        break;
-      case 'filter_rows':
-        if (payload.conditions) p.filter_rows = { ...payload, conditions: payload.conditions.map(c => c.column === oldName ? { ...c, column: newName } : c) };
-        break;
-      case 'deduplicate_rows':
-        if (payload.subset) p.deduplicate_rows = { ...payload, subset: payload.subset.map(c => c === oldName ? newName : c) };
-        break;
-      case 'sort_rows':
-        if (payload.by) p.sort_rows = { ...payload, by: payload.by.map(s => s.column === oldName ? { ...s, column: newName } : s) };
-        break;
-      case 'reorder_columns':
-        if (payload.columns) p.reorder_columns = { ...payload, columns: payload.columns.map(c => c === oldName ? newName : c) };
-        break;
+    if (idx <= fromIdx || !payload) return;
+    const spec = COLUMN_REFS[action];
+    if (!spec) return;
+    if (spec.expression) {
+      if (payload.items) {
+        p[action] = { ...payload, items: payload.items.map(it => ({ ...it, expression: renameInExpression(it.expression, oldName, newName) })) };
+      }
+      return;
     }
+    // A rename never drops a reference, so rewriteRefs cannot empty the step.
+    p[action] = rewriteRefs(payload, spec, sub);
   });
   return p;
 }
@@ -166,6 +144,18 @@ export default {
     sourceSchema() { return this.fileSchema; },
   },
   async created() { await this.loadList(); },
+
+  mounted() {
+    // The drop handler lives on the window body, so this page gets the event
+    // too. Without a listener here the Python side would still have swapped
+    // the loaded file, with nothing on screen saying so.
+    window.flashEvent = (type, data) => {
+      if (type === 'files_dropped' && data.files?.length) this.acceptFile(data.files[0]);
+    };
+  },
+
+  beforeUnmount() { delete window.flashEvent; },
+
   methods: {
     async loadList() {
       try { this.presets = await api.getPresets(); }
@@ -209,7 +199,14 @@ export default {
         const res = await api.savePreset(this.presetName, steps);
         this.selectedPath = res.path; this.isNew = false;
         await this.loadList();
-        this.showToast(this.t('toast.preset_saved'));
+        // Steps the model refused are absent from the saved file — say so
+        // rather than let them vanish.
+        if (res.rejected?.length) {
+          const names = res.rejected.map(r => stepLabel(r.action, this.i18n.t)).join(', ');
+          this.showToast(this.t('toast.preset_saved_with_rejected', { steps: names }), 'error');
+        } else {
+          this.showToast(this.t('toast.preset_saved'));
+        }
       } catch (e) { this.showToast(this.t('toast.preset_save_failed', { error: e.message }), 'error'); }
     },
 
@@ -242,19 +239,24 @@ export default {
       try {
         const res = await api.openFileDialog();
         if (res?.cancelled) return;
-        // Compare against the columns recorded in the preset
-        const savedCols = this.presetColumns;
-        if (savedCols.length > 0) {
-          const missing = savedCols.filter(c => !res.columns.includes(c));
-          const added = res.columns.filter(c => !savedCols.includes(c));
-          if (missing.length > 0 || added.length > 0) {
-            // Stocker en attente et afficher le modal
-            this.mismatch = { pending: res, missing, added };
-            return;
-          }
-        }
-        this._applyFile(res);
+        this.acceptFile(res);
       } catch (e) { this.showToast(this.t('toast.file_error', { error: e.message }), 'error'); }
+    },
+
+    // Shared by the picker and by a file dropped onto the window.
+    acceptFile(res) {
+      // Compare against the columns recorded in the preset
+      const savedCols = this.presetColumns;
+      if (savedCols.length > 0) {
+        const missing = savedCols.filter(c => !res.columns.includes(c));
+        const added = res.columns.filter(c => !savedCols.includes(c));
+        if (missing.length > 0 || added.length > 0) {
+          // Stocker en attente et afficher le modal
+          this.mismatch = { pending: res, missing, added };
+          return;
+        }
+      }
+      this._applyFile(res);
     },
 
     async clearFile() {
@@ -327,12 +329,12 @@ export default {
         <div class="tb-actions-cell">
           <template v-if="hasSelection">
             <input class="input name-input" v-model="presetName" :placeholder="t('presets.name')" :aria-label="t('presets.name')" />
-            <button class="btn primary" @click="savePreset">
+            <button class="btn primary" @click="savePreset" :disabled="presets.find(p => p.path === selectedPath)?.read_only">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
               {{ t('toolbar.save') }}
             </button>
             <span class="tb-spacer"></span>
-            <button class="btn danger-hover" @click="deletePreset" :disabled="!selectedPath">
+            <button class="btn danger-hover" @click="deletePreset" :disabled="!selectedPath || presets.find(p => p.path === selectedPath)?.read_only">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></svg>
               {{ t('toolbar.delete') }}
             </button>
@@ -353,10 +355,12 @@ export default {
             {{ t('presets.empty') }}
           </div>
           <div v-for="p in presets" :key="p.path"
-            class="preset-card" :class="{ active: selectedPath === p.path }"
+            class="preset-card" :class="{ active: selectedPath === p.path, broken: p.error }"
             @click="selectPreset(p.path)">
             <span class="pc-name">{{ p.name }}</span>
-            <span class="pc-meta">{{ p.step_count }}</span>
+            <span class="pc-meta">{{ p.label }}</span>
+            <span class="pc-meta" v-if="p.error" :title="p.error">{{ t('presets.unreadable') }}</span>
+            <span class="pc-meta" v-else>{{ p.step_count }}</span>
           </div>
         </aside>
 

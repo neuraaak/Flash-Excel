@@ -29,53 +29,70 @@ def _make_namespace(df: pl.DataFrame) -> dict:
     """Build the restricted eval namespace with Excel-style functions + column refs."""
 
     # Uppercase names are intentional: they match Excel function conventions  # noqa: N802
-    def CONCATENER(*parts: pl.Expr | str, sep: str = "") -> pl.Expr:  # noqa: N802
+    def CONCATENER(  # NOSONAR - public French Excel DSL syntax
+        *parts: pl.Expr | str, sep: str = ""
+    ) -> pl.Expr:  # noqa: N802  # NOSONAR - public French Excel DSL syntax
         coerced = [pl.lit(p) if isinstance(p, str) else p for p in parts]
         return pl.concat_str(coerced, separator=sep)
 
-    def MAJUSCULE(col: pl.Expr) -> pl.Expr:
+    def MAJUSCULE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.to_uppercase()  # noqa: N802
 
-    def MINUSCULE(col: pl.Expr) -> pl.Expr:
+    def MINUSCULE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.to_lowercase()  # noqa: N802
 
-    def GAUCHE(col: pl.Expr, n: int) -> pl.Expr:
+    def GAUCHE(  # NOSONAR - public French Excel DSL syntax
+        col: pl.Expr, n: int
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.slice(0, n)  # noqa: N802
 
-    def DROITE(col: pl.Expr, n: int) -> pl.Expr:
+    def DROITE(  # NOSONAR - public French Excel DSL syntax
+        col: pl.Expr, n: int
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
+        # slice(-0) is slice(0), i.e. the whole string — Excel's RIGHT(x, 0) is "".
+        if n == 0:
+            return pl.lit("")  # noqa: N802
         return col.str.slice(-n)  # noqa: N802
 
-    def NBCAR(col: pl.Expr) -> pl.Expr:
+    def NBCAR(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.len_chars()  # noqa: N802
 
-    def SUPPRESPACE(col: pl.Expr) -> pl.Expr:
+    def SUPPRESPACE(  # NOSONAR - public French Excel DSL syntax
+        col: pl.Expr,
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.str.strip_chars()  # noqa: N802
 
-    def ARRONDI(col: pl.Expr, n: int = 0) -> pl.Expr:
+    def ARRONDI(  # NOSONAR - public French Excel DSL syntax
+        col: pl.Expr, n: int = 0
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.round(n)  # noqa: N802
 
-    def ABS(col: pl.Expr) -> pl.Expr:
+    def ABS(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.abs()  # noqa: N802
 
-    def MULTIPLIER(col: pl.Expr, n: float) -> pl.Expr:
+    def MULTIPLIER(  # NOSONAR - public French Excel DSL syntax
+        col: pl.Expr, n: float
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col * n  # noqa: N802
 
-    def AJOUTER(col1: pl.Expr, col2: pl.Expr) -> pl.Expr:
+    def AJOUTER(  # NOSONAR - public French Excel DSL syntax
+        col1: pl.Expr, col2: pl.Expr
+    ) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col1 + col2  # noqa: N802
 
-    def ANNEE(col: pl.Expr) -> pl.Expr:
+    def ANNEE(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.year()  # noqa: N802
 
-    def MOIS(col: pl.Expr) -> pl.Expr:
+    def MOIS(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.month()  # noqa: N802
 
-    def JOUR(col: pl.Expr) -> pl.Expr:
+    def JOUR(col: pl.Expr) -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return col.dt.day()  # noqa: N802
 
-    def AUJOURD_HUI() -> pl.Expr:
+    def AUJOURD_HUI() -> pl.Expr:  # NOSONAR - public French Excel DSL syntax
         return pl.lit(datetime.date.today())  # noqa: N802
 
-    def SI(
+    def SI(  # NOSONAR - public French Excel DSL syntax
         cond: pl.Expr,
         alors: pl.Expr | str | int | float,  # noqa: N802
         sinon: pl.Expr | str | int | float,
@@ -133,62 +150,6 @@ _STATIC_ALLOWED = {
     "SI",
     "col",
 }
-
-# Public catalog for the JS layer (same order as UI display)
-FUNCTION_CATALOG: list[dict] = [
-    {
-        "name": "CONCATENER",
-        "label": "CONCATENER",
-        "cat": "Texte",
-        "hint": "CONCATENER(col1, col2, …)",
-    },
-    {
-        "name": "MAJUSCULE",
-        "label": "MAJUSCULE",
-        "cat": "Texte",
-        "hint": "MAJUSCULE(col)",
-    },
-    {
-        "name": "MINUSCULE",
-        "label": "MINUSCULE",
-        "cat": "Texte",
-        "hint": "MINUSCULE(col)",
-    },
-    {"name": "GAUCHE", "label": "GAUCHE", "cat": "Texte", "hint": "GAUCHE(col, n)"},
-    {"name": "DROITE", "label": "DROITE", "cat": "Texte", "hint": "DROITE(col, n)"},
-    {"name": "NBCAR", "label": "NBCAR", "cat": "Texte", "hint": "NBCAR(col)"},
-    {
-        "name": "SUPPRESPACE",
-        "label": "SUPPRESPACE",
-        "cat": "Texte",
-        "hint": "SUPPRESPACE(col)",
-    },
-    {"name": "ARRONDI", "label": "ARRONDI", "cat": "Math", "hint": "ARRONDI(col, n)"},
-    {"name": "ABS", "label": "ABS", "cat": "Math", "hint": "ABS(col)"},
-    {
-        "name": "MULTIPLIER",
-        "label": "MULTIPLIER",
-        "cat": "Math",
-        "hint": "MULTIPLIER(col, n)",
-    },
-    {
-        "name": "AJOUTER",
-        "label": "AJOUTER",
-        "cat": "Math",
-        "hint": "AJOUTER(col1, col2)",
-    },
-    {"name": "ANNEE", "label": "ANNEE", "cat": "Date", "hint": "ANNEE(col)"},
-    {"name": "MOIS", "label": "MOIS", "cat": "Date", "hint": "MOIS(col)"},
-    {"name": "JOUR", "label": "JOUR", "cat": "Date", "hint": "JOUR(col)"},
-    {
-        "name": "AUJOURD_HUI",
-        "label": "AUJOURD'HUI",
-        "cat": "Date",
-        "hint": "AUJOURD_HUI()",
-    },
-    {"name": "SI", "label": "SI", "cat": "Logique", "hint": "SI(cond, alors, sinon)"},
-]
-
 
 # ///////////////////////////////////////////////////////////////
 # AST VALIDATOR
@@ -350,7 +311,8 @@ def add_computed_column(
         # eval() is safe here: the AST is fully validated by _SafeVisitor before
         # reaching this point (whitelist of node types + allowed names), builtins
         # are stripped, and the namespace contains only Polars wrappers + column refs.
-        expr = eval(code_obj, {"__builtins__": {}}, namespace)  # noqa: S307  # nosec B307
+        no_builtins: dict = {"__builtins__": {}}
+        expr = eval(code_obj, no_builtins, namespace)  # noqa: S307  # nosec B307
     except Exception as exc:
         raise ValueError(f"Evaluation error: {exc}") from exc
 
@@ -362,4 +324,4 @@ def add_computed_column(
     return df.with_columns(expr.alias(target))
 
 
-__all__ = ["add_computed_column", "FUNCTION_CATALOG"]
+__all__ = ["add_computed_column"]
