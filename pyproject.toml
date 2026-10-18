@@ -13,8 +13,8 @@ build-backend = "hatchling.build"
 # /////////////////////////////////////////////////////////////////////
 
 [project]
-name = "flash-excel"
-version = "1.4.0"
+name = "Flash-Excel"
+version = "1.5.0"
 description = "Desktop utility that transforms Excel/CSV files through declarative presets."
 readme = "README.md"
 license = { text = "MIT" }
@@ -191,7 +191,7 @@ default_item_type = "ref"
 [tool.ezcompiler]
 main_file = "main.py"
 output_folder = "dist/Flash-Excel"
-icon = "bin/assets/images/logo.ico"
+icon = "bin/assets/images/flash-blue-dark.ico"
 # bin/config dropped: the config templates live in the package
 # (src/flash_excel/assets/config), are picked up by collect-data, and are
 # materialised into %APPDATA% on first start.

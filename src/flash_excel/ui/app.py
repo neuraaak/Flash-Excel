@@ -17,11 +17,11 @@ from webview.dom import DOMEventHandler  # type: ignore[import-untyped]  # noqa:
 from flash_excel.config import consume_installer_locale
 from flash_excel.logs import log, setup_logging
 from flash_excel.migration import migrate_legacy_presets
-from flash_excel.paths import BIN_DIR
+from flash_excel.paths import BIN_DIR, USER_CONFIG_DIR
 from flash_excel.ui.api import FlashExcelAPI
 
 _WEB_DIR = Path(__file__).parent / "web"
-_ICON = BIN_DIR / "assets" / "images" / "logo.ico"
+_ICON = BIN_DIR / "assets" / "images" / "flash-blue-dark.ico"
 
 
 def run() -> None:
@@ -60,4 +60,9 @@ def run() -> None:
 
     window.events.loaded += _bind_drop  # ty: ignore[unresolved-attribute]
 
-    webview.start(debug=debug, icon=str(_ICON))
+    webview.start(
+        debug=debug,
+        icon=str(_ICON),
+        private_mode=False,
+        storage_path=str(USER_CONFIG_DIR / "webview"),
+    )

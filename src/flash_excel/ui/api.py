@@ -36,7 +36,7 @@ from flash_excel.core.models import Preset, PresetMeta, Step
 from flash_excel.io.loader import detect_separator, read_schema
 from flash_excel.io.models import FileLoaderResult
 from flash_excel.logs import log
-from flash_excel.paths import DEFAULT_OUTPUT_DIR, PRESETS_DIR
+from flash_excel.paths import BIN_DIR, DEFAULT_OUTPUT_DIR, PRESETS_DIR
 from flash_excel.presets import delete_preset, list_presets, load_preset, save_preset
 
 _step_adapter: TypeAdapter[Step] = TypeAdapter(Step)
@@ -583,6 +583,18 @@ class FlashExcelAPI:
     def get_default_output_folder(self) -> dict:
         """Return the absolute folder a run writes to by default."""
         return _ok({"folder": str(DEFAULT_OUTPUT_DIR)})
+
+    def get_file_type_icon_uri(self, file_type: str) -> dict:
+        """Return the bundled icon URI for a supported source file type."""
+        filenames = {"csv": "csv.png", "excel": "xlsx.png"}
+        filename = filenames.get(file_type)
+        if filename is None:
+            return _err(f"Unsupported file type: {file_type}")
+
+        icon = BIN_DIR / "assets" / "images" / "file-types" / filename
+        if not icon.is_file():
+            return _err(f"File type icon is missing: {filename}")
+        return _ok(icon.as_uri())
 
     # ------------------------------------------------------------------
     # Internal helpers

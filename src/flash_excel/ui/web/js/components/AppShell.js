@@ -138,7 +138,13 @@ export default {
 
       <!-- Footer -->
       <footer class="footer">
-        <div class="footer-left">{{ t('footer.made_with') }} <span class="heart">&#10084;</span> Flash-Excel</div>
+        <div class="footer-left">
+          <span>{{ t('footer.made_with') }} <span class="heart">&#10084;</span> {{ t('footer.by') }} Neuraaak</span>
+          <span class="footer-dot">&#8226;</span>
+          <a class="footer-link" href="https://github.com/neuraaak/Flash-Excel" target="_blank" rel="noopener">{{ t('footer.repository') }}</a>
+          <span class="footer-dot">&#8226;</span>
+          <span class="footer-link footer-link--disabled" aria-disabled="true">{{ t('footer.documentation') }}</span>
+        </div>
         <div class="footer-version">
           <a v-if="update.available" class="update-link" href="#" @click.prevent="applyUpdate"
              :title="t('update.to') + ' v' + update.version">

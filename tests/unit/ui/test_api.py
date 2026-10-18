@@ -20,6 +20,21 @@ def test_get_version_returns_ok_with_version(api):
     assert "version" in result["data"]
 
 
+@pytest.mark.parametrize(
+    ("file_type", "file_name"),
+    [("csv", "csv.png"), ("excel", "xlsx.png")],
+)
+def test_get_file_type_icon_uri_uses_bundled_icon(
+    api, monkeypatch, tmp_path, file_type, file_name
+):
+    icon = tmp_path / "assets" / "images" / "file-types" / file_name
+    icon.parent.mkdir(parents=True)
+    icon.write_bytes(b"png")
+    monkeypatch.setattr("flash_excel.ui.api.BIN_DIR", tmp_path)
+
+    assert api.get_file_type_icon_uri(file_type) == {"ok": True, "data": icon.as_uri()}
+
+
 def test_check_update_not_frozen_reports_no_update(api):
     result = api.check_update()
     assert result == {
