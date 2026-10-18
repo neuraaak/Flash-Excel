@@ -129,6 +129,10 @@ typecheck = "ty check"
 run = "python main.py"
 run-debug = "python main.py --debug"
 version = "python .scripts/dev/update_version.py"
+# Maintainer-only: full release pipeline (version -> compile -> installer
+# -> signed TUF release -> upload). Needs signing keys and credentials that
+# are not in the repository, so it is deliberately out of `check` and CI.
+build = "python build.py"
 # Machine-readable version for CI: the single source the workflows read,
 # instead of each one re-implementing a grep/sed on pyproject.toml.
 read-version = '''python -c "import tomllib, pathlib; print(tomllib.loads(pathlib.Path('pyproject.toml').read_text(encoding='utf-8'))['project']['version'])"'''
