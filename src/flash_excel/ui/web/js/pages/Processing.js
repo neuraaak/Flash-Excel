@@ -203,42 +203,61 @@ export default {
       // Every backend event carries the file it belongs to, so a batch
       // updates its own queue row and never the one before it.
       const file = this.fileStates[data.file_index];
-      if (file && file.status === 'pending') file.status = 'running';
+      if (file?.status === 'pending') file.status = 'running';
 
-      if (type === 'step') {
-        const idx = data.step_index + 1;
-        if (file) file.progress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
-        this.pushLog('step', `${stepLabel(data.step_name, this.i18n.t)} ✓ (${data.rows_in} → ${data.rows_out} rows)`);
-      } else if (type === 'done') {
-        if (file) { file.status = 'done'; file.progress = 100; }
-        this.stats.rows_out += data.rows_out;
-        this.pushLog('ok', this.i18n.t('log.done', { elapsed: data.elapsed_s, path: data.output_path }));
-      } else if (type === 'batch_done') {
-        this.stats.elapsed_s = data.elapsed_s;
-        // Files left pending were never reached: the run stopped before them.
-        for (const f of this.fileStates) {
-          if (f.status === 'pending' || f.status === 'running') f.status = 'skipped';
-        }
-        if (this.runState === 'running') {
-          this.runState = data.succeeded === data.total ? 'done' : 'error';
-        }
-      } else if (type === 'error') {
-        const em = this.outputConfig.error_mode;
-        this.stats.errors++;
-        this.pushLog('err', data.message);
-        // data.fatal: the worker gave up before the step loop, so no 'done'
-        // will follow for this file whatever the error mode says.
-        if (file) file.status = (data.fatal || em === 'stop') ? 'error' : 'skipped';
-      } else if (type === 'files_dropped') {
-        // Python resolved the real paths: the browser's File objects have none.
-        if (this.runState !== 'running') {
-          this.files = data.files;
-          this.resetRun();
-        }
-      } else if (type === 'log') {
-        if (data.level === 'warn') this.stats.warnings++;
-        this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
+      switch (type) {
+        case 'step': this.handleStepEvent(data, file); break;
+        case 'done': this.handleDoneEvent(data, file); break;
+        case 'batch_done': this.handleBatchDoneEvent(data); break;
+        case 'error': this.handleErrorEvent(data, file); break;
+        case 'files_dropped': this.handleDroppedFilesEvent(data); break;
+        case 'log': this.handleLogEvent(data); break;
       }
+    },
+
+    handleStepEvent(data, file) {
+      const idx = data.step_index + 1;
+      if (file) file.progress = this.totalSteps > 0 ? Math.round(idx / this.totalSteps * 100) : 0;
+      this.pushLog('step', `${stepLabel(data.step_name, this.i18n.t)} ✓ (${data.rows_in} → ${data.rows_out} rows)`);
+    },
+
+    handleDoneEvent(data, file) {
+      if (file) { file.status = 'done'; file.progress = 100; }
+      this.stats.rows_out += data.rows_out;
+      this.pushLog('ok', this.i18n.t('log.done', { elapsed: data.elapsed_s, path: data.output_path }));
+    },
+
+    handleBatchDoneEvent(data) {
+      this.stats.elapsed_s = data.elapsed_s;
+      // Files left pending were never reached: the run stopped before them.
+      for (const file of this.fileStates) {
+        if (file.status === 'pending' || file.status === 'running') file.status = 'skipped';
+      }
+      if (this.runState === 'running') {
+        this.runState = data.succeeded === data.total ? 'done' : 'error';
+      }
+    },
+
+    handleErrorEvent(data, file) {
+      const em = this.outputConfig.error_mode;
+      this.stats.errors++;
+      this.pushLog('err', data.message);
+      // data.fatal: the worker gave up before the step loop, so no 'done'
+      // will follow for this file whatever the error mode says.
+      if (file) file.status = (data.fatal || em === 'stop') ? 'error' : 'skipped';
+    },
+
+    handleDroppedFilesEvent(data) {
+      // Python resolved the real paths: the browser's File objects have none.
+      if (this.runState !== 'running') {
+        this.files = data.files;
+        this.resetRun();
+      }
+    },
+
+    handleLogEvent(data) {
+      if (data.level === 'warn') this.stats.warnings++;
+      this.pushLog(data.level, data.key ? this.i18n.t(data.key, data.params) : data.message);
     },
 
     pushLog(level, message) {

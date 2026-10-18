@@ -40,7 +40,8 @@ def test_recent_ui_preserves_interpolation_parameters_in_both_locales():
     english = _translations("en")
     french = _translations("fr")
     for key in english.keys() & french.keys():
-        assert english[key].strip() and french[key].strip(), key
+        assert english[key].strip(), key
+        assert french[key].strip(), key
         assert set(re.findall(r"\{(\w+)\}", english[key])) == set(
             re.findall(r"\{(\w+)\}", french[key])
         ), key
