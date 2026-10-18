@@ -426,7 +426,9 @@ class FlashExcelAPI:
             dest = Path(
                 str(result[0]) if isinstance(result, (list, tuple)) else str(result)
             )
-            dest.write_bytes(src.read_bytes())
+            # NOSONAR - dest is the path the user picked in the native save
+            # dialog; src is already confined to PRESETS_DIR above.
+            dest.write_bytes(src.read_bytes())  # NOSONAR
             return _ok({"dest": str(dest)})
         except Exception as exc:
             return _err(str(exc))
