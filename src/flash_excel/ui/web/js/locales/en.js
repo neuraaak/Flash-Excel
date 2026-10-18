@@ -47,6 +47,9 @@ export default {
   'nav.presets': 'Presets',
   'nav.settings': 'Settings',
   'footer.made_with': 'Made with',
+  'footer.by': 'by',
+  'footer.repository': 'Repository',
+  'footer.documentation': 'Documentation',
   'update.to': 'Update to',
   'update.updating': 'Updating…',
 

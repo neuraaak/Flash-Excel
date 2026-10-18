@@ -439,6 +439,14 @@
   min-width: 0;
 }
 
+.run-panel-resizer {
+  flex: 0 0 5px;
+  cursor: col-resize;
+  background: var(--border_subtle);
+}
+
+.run-panel-resizer:hover { background: var(--accent_brand); }
+
 .rp-scroll {
   flex: 1 1 auto;
   overflow-y: auto;

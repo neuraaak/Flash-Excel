@@ -38,6 +38,7 @@ export default {
       previewFileName: '',
       executionDraft: null,
       fileTypeIcons: {},
+      panelWidth: Number(localStorage.getItem('flash-excel.run-panel-width')) || 300,
     };
   },
 
@@ -91,6 +92,21 @@ export default {
   },
 
   methods: {
+    startPanelResize(event) {
+      const startX = event.clientX;
+      const startWidth = this.panelWidth;
+      const resize = (moveEvent) => {
+        this.panelWidth = Math.min(520, Math.max(240, startWidth + startX - moveEvent.clientX));
+      };
+      const stop = () => {
+        localStorage.setItem('flash-excel.run-panel-width', String(this.panelWidth));
+        window.removeEventListener('pointermove', resize);
+        window.removeEventListener('pointerup', stop);
+      };
+      window.addEventListener('pointermove', resize);
+      window.addEventListener('pointerup', stop, { once: true });
+    },
+
     async loadFileTypeIcons() {
       const [csv, excel] = await Promise.all([
         api.getFileTypeIconUri('csv'),
@@ -410,7 +426,8 @@ export default {
   </section>
 
   <!-- Run panel -->
-  <aside class="run-panel">
+  <div class="run-panel-resizer" @pointerdown="startPanelResize"></div>
+  <aside class="run-panel" :style="{ flexBasis: panelWidth + 'px' }">
     <div class="rp-scroll">
 
       <!-- Preset selector -->
