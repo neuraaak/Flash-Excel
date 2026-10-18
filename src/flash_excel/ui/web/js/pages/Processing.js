@@ -37,6 +37,7 @@ export default {
       previewError: '',
       previewFileName: '',
       executionDraft: null,
+      fileTypeIcons: {},
     };
   },
 
@@ -82,6 +83,7 @@ export default {
     window.flashEvent = (type, data) => this.onFlashEvent(type, data);
     this.loadPresets();
     this.loadDefaultOutputFolder();
+    this.loadFileTypeIcons();
   },
 
   beforeUnmount() {
@@ -89,6 +91,18 @@ export default {
   },
 
   methods: {
+    async loadFileTypeIcons() {
+      const [csv, excel] = await Promise.all([
+        api.getFileTypeIconUri('csv'),
+        api.getFileTypeIconUri('excel'),
+      ]);
+      this.fileTypeIcons = { csv, excel };
+    },
+
+    fileIconUrl(file) {
+      return this.fileTypeIcons[this.fileExt(file.file_name) === 'csv' ? 'csv' : 'excel'];
+    },
+
     openExecutionSettings() {
       if (!this.canRun) return;
       this.executionDraft = {
@@ -331,9 +345,7 @@ export default {
       <div v-if="files.length" class="file-queue">
         <div v-for="(file, i) in files" :key="file.path" class="file-row"
           :class="{ running: fileStates[i]?.status === 'running', error: fileStates[i]?.status === 'error' }">
-          <span class="file-ico" :class="{ csv: fileExt(file.file_name) === 'csv' }">
-            {{ fileExt(file.file_name).slice(0,4).toUpperCase() }}
-          </span>
+          <img v-if="fileIconUrl(file)" class="file-ico" :src="fileIconUrl(file)" alt="">
           <div class="file-main">
             <div class="file-top">
               <span class="file-name">{{ file.file_name }}</span>

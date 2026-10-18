@@ -255,6 +255,12 @@
   flex: 0 0 auto;
 }
 
+.file-type-icon {
+  width: 32px;
+  height: 36px;
+  object-fit: contain;
+}
+
 .file-loaded__meta {
   flex: 1 1 auto;
   min-width: 0;

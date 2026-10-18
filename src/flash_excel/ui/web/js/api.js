@@ -26,6 +26,7 @@ export const api = {
   openFilesDialog:  ()               => call('open_files_dialog'),
   openFolderDialog: ()               => call('open_folder_dialog'),
   clearFile:        ()               => call('clear_file'),
+  getFileTypeIconUri: (fileType)     => call('get_file_type_icon_uri', fileType),
   getSourceColumns: ()               => call('get_source_columns'),
   getDefaultOutputFolder: ()         => call('get_default_output_folder'),
 

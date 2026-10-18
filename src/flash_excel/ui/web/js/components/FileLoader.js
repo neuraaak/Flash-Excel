@@ -1,3 +1,5 @@
+import { api } from '../api.js';
+
 export default {
   name: 'FileLoader',
   props: {
@@ -6,6 +8,18 @@ export default {
   },
   emits: ['load', 'clear'],
   inject: ['i18n'],
+  data() {
+    return { fileIconUrl: '' };
+  },
+  watch: {
+    fileInfo: {
+      immediate: true,
+      async handler(fileInfo) {
+        this.fileIconUrl = '';
+        if (fileInfo) this.fileIconUrl = await api.getFileTypeIconUri(fileInfo.file_type);
+      },
+    },
+  },
   computed: {
     t() { return this.i18n.t; },
   },
@@ -20,13 +34,7 @@ export default {
   template: `
     <div v-if="fileInfo" class="file-loaded">
       <div class="file-loaded__icon">
-        <svg width="32" height="36" viewBox="0 0 32 36" fill="none">
-          <rect x="1" y="1" width="22" height="30" rx="3"
-            :fill="fileInfo.file_type !== 'csv' ? '#217346' : '#4a5568'" stroke="none"/>
-          <text x="12" y="22" text-anchor="middle" font-size="9" font-weight="700" fill="white" font-family="sans-serif">
-            {{ fileInfo.file_type === 'csv' ? 'CSV' : 'XLS' }}
-          </text>
-        </svg>
+        <img v-if="fileIconUrl" class="file-type-icon" :src="fileIconUrl" alt="">
       </div>
       <div class="file-loaded__meta">
         <div class="file-loaded__name">{{ fileInfo.file_name }}</div>

@@ -21,7 +21,7 @@ from flash_excel.paths import BIN_DIR
 from flash_excel.ui.api import FlashExcelAPI
 
 _WEB_DIR = Path(__file__).parent / "web"
-_ICON = BIN_DIR / "assets" / "images" / "logo.ico"
+_ICON = BIN_DIR / "assets" / "images" / "flash-blue-dark.ico"
 
 
 def run() -> None:

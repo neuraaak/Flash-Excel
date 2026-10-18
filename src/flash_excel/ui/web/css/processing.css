@@ -116,23 +116,7 @@
 .file-ico {
   width: 34px;
   height: 34px;
-  border-radius: 5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: .04em;
-  background: var(--accent_weak);
-  border: 1px solid var(--accent_line);
-  color: var(--accent_brand);
-}
-
-.file-ico.csv {
-  background: color-mix(in srgb, var(--semantic_info) 16%, transparent);
-  border-color: color-mix(in srgb, var(--semantic_info) 50%, transparent);
-  color: var(--semantic_info);
+  object-fit: contain;
 }
 
 .file-main {
