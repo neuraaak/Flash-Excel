@@ -287,3 +287,6 @@ bin/presets
 .remember
 docs/superpowers
 .superpowers/
+
+# Docs audit working artifacts
+.docs-audit/
