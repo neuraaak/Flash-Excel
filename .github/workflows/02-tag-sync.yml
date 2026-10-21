@@ -2,11 +2,14 @@ name: 02 · Tag Sync
 
 # Release orchestrator. On push to main it runs CI as the release gate, decides
 # a three-state `tag_action` (create | skip | preview) and creates the immutable
-# release tag on `create`.
+# release tag on `create`, then cascades to 04-docs via `uses:`.
 #
-# The cascade stops here: flash-excel is a Windows desktop app, not a published
-# package. Build, TUF signing and upload run locally via `build.py`, because the
-# signing keys are deliberately never uploaded as CI secrets.
+# A single orchestrator is required because a tag pushed by GITHUB_TOKEN does not
+# trigger another workflow (loop protection): we call 04 directly.
+#
+# There is no publish stage: Flash-Excel is a Windows desktop app, not a
+# published package. Build, TUF signing and upload run locally via `build.py`,
+# because the signing keys are deliberately never uploaded as CI secrets.
 
 on:
   push:
@@ -100,3 +103,15 @@ jobs:
           echo "- **Action**: ${{ steps.gate.outputs.tag_action }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Version**: ${{ steps.version.outputs.version }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- **Tag**: ${{ steps.gate.outputs.tag_name }}" >> "$GITHUB_STEP_SUMMARY"
+
+  # No publish job to wait for: docs follow the tag directly. `create` deploys
+  # the new version, `skip` refreshes the `dev` alias, `preview` builds only.
+  docs:
+    name: Docs
+    needs: tag-sync
+    permissions:
+      contents: write # mike pushes the built docs to the gh-pages branch
+    uses: ./.github/workflows/04-docs.yml
+    with:
+      version: ${{ needs.tag-sync.outputs.version }}
+      tag_action: ${{ needs.tag-sync.outputs.tag_action }}

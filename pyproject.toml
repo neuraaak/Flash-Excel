@@ -28,9 +28,12 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: Microsoft :: Windows",
     "Development Status :: 4 - Beta",
-    "Intended Audience :: Developers",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: Software Development :: Build Tools",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Natural Language :: English",
+    "Natural Language :: French",
+    "Topic :: Office/Business",
+    "Topic :: Office/Business :: Financial :: Spreadsheet",
     "Typing :: Typed",
 ]
 
@@ -56,8 +59,9 @@ dependencies = [
 # [project.optional-dependencies] because none of them is a product extra:
 # flash-excel ships as an installer, so nothing here belongs in the wheel
 # metadata and `pip install flash-excel[dev]` is not a valid command.
-# Install with `uv sync` (the dev group is synced by default) or
-# `uv sync --group test` for the test tooling alone.
+# Install with `uv sync` (the dev group is synced by default),
+# `uv sync --group test` for the test tooling alone, or
+# `uv sync --group docs` for the documentation site alone.
 # /////////////////////////////////////////////////////////////////////
 
 [dependency-groups]
@@ -73,9 +77,23 @@ test = [
     "import-linter>=2.0.0",
     "grimp>=2.3.0",
 ]
+docs = [
+    "mkdocs>=1.6.0,<2.0.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocs-section-index>=0.3.0",
+    "mike>=2.0.0",
+    "pymdown-extensions>=10.7",
+
+    # Task runner: 04-docs runs `poe docs-build` and syncs only `docs`, so
+    # poethepoet must be reachable from this group.
+    "poethepoet>=0.29.0",
+]
 dev = [
     # Tests (single source of truth, no duplication)
     { include-group = "test" },
+
+    # Documentation (single source of truth, no duplication)
+    { include-group = "docs" },
 
     # Development tools
     "ruff>=0.1.0",
@@ -98,18 +116,11 @@ dev = [
 # /////////////////////////////////////////////////////////////////////
 
 [project.urls]
-Homepage = "https://github.com/neuraaak/flash-excel"
-Repository = "https://github.com/neuraaak/flash-excel"
-Issues = "https://github.com/neuraaak/flash-excel/issues"
-Releases = "https://github.com/neuraaak/flash-excel/releases"
-
-# /////////////////////////////////////////////////////////////////////
-# 🖥️ SCRIPTS
-# Entry points for command-line tools
-# ///////////////////////////////////////////////////////////////
-
-# [project.scripts]
-# "{{my_project}}" = "{{my_project}}.module:main"
+Homepage = "https://github.com/neuraaak/Flash-Excel"
+Repository = "https://github.com/neuraaak/Flash-Excel"
+Documentation = "https://neuraaak.github.io/Flash-Excel/"
+Issues = "https://github.com/neuraaak/Flash-Excel/issues"
+Releases = "https://github.com/neuraaak/Flash-Excel/releases"
 
 # /////////////////////////////////////////////////////////////////////
 # 🛠️ TASK RUNNER (POE THE POET)
@@ -144,8 +155,16 @@ test-ci = "pytest --cov-fail-under=70"
 test-unit = "pytest -m unit"
 test-fast = "pytest -n auto -m 'not slow'"
 
-# No `docs` tasks yet: the documentation pass is deferred and will pick its
-# own generator and layout. Nothing doc-related is wired from here meanwhile.
+# Documentation site (MkDocs Material, sources in docs/, config in
+# mkdocs.yml). `docs-build` is what the 04-docs workflow runs on a pull
+# request: --strict turns a dead nav entry or a broken link into a failure.
+[tool.poe.tasks.docs]
+help = "Serve the documentation site locally with live reload"
+cmd = "mkdocs serve"
+
+[tool.poe.tasks.docs-build]
+help = "Build the documentation site, failing on any warning"
+cmd = "mkdocs build --strict"
 
 # Front-end linting. Requires `pnpm install` once per clone (node_modules is
 # gitignored); deliberately out of the `check` sequence, so a clone without

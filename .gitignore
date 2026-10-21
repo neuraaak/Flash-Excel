@@ -290,3 +290,6 @@ docs/superpowers
 
 # Docs audit working artifacts
 .docs-audit/
+
+# MkDocs build output
+site/

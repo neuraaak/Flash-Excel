@@ -218,7 +218,7 @@ class AddComputedColumnStep(BaseModel):
         >>> step = AddComputedColumnStep(
         ...     action="add_computed_column",
         ...     target="full_name",
-        ...     expression="concat(first_name, ' ', last_name)",
+        ...     expression="CONCATENER(first_name, ' ', [Last Name])",
         ... )
     """
 

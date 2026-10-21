@@ -1,0 +1,190 @@
+# ///////////////////////////////////////////////////////////////
+# MKDOCS CONFIGURATION
+# ///////////////////////////////////////////////////////////////
+
+site_name: Flash-Excel
+site_description: "Windows desktop app that transforms Excel and CSV files with reusable presets"
+site_author: Neuraaak
+site_url: https://neuraaak.github.io/Flash-Excel/
+repo_url: https://github.com/neuraaak/Flash-Excel
+repo_name: neuraaak/Flash-Excel
+edit_uri: edit/main/docs/
+
+strict: true
+
+validation:
+  omitted_files: warn
+  absolute_links: warn
+  unrecognized_links: warn
+
+# ///////////////////////////////////////////////////////////////
+# THEME
+# ///////////////////////////////////////////////////////////////
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.path
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+
+# ///////////////////////////////////////////////////////////////
+# NAVIGATION
+# ///////////////////////////////////////////////////////////////
+
+nav:
+  - Home: index.md
+  - Get started: get-started.md
+  - Guides:
+      - tasks/index.md
+      - Files:
+          - Load source files: tasks/files/load-source-files.md
+      - Presets:
+          - Create a preset: tasks/presets/create-a-preset.md
+          - Add and reorder steps: tasks/presets/add-and-reorder-steps.md
+          - Add a computed column: tasks/presets/add-a-computed-column.md
+          - Filter rows: tasks/presets/filter-rows.md
+          - Export a preset: tasks/presets/export-a-preset.md
+          - Delete a preset: tasks/presets/delete-a-preset.md
+          - Use shared preset folders: tasks/presets/use-shared-preset-folders.md
+      - Run:
+          - Preview a transformation: tasks/run/preview-a-transformation.md
+          - Run a preset: tasks/run/run-a-preset.md
+          - Stop a run: tasks/run/stop-a-run.md
+      - Automate:
+          - Schedule a preset: tasks/automate/schedule-a-preset.md
+          - Create a launcher: tasks/automate/create-a-launcher.md
+          - Run from the command line: tasks/automate/run-from-the-command-line.md
+      - Settings:
+          - Change the theme: tasks/settings/change-the-theme.md
+          - Change the language: tasks/settings/change-the-language.md
+          - Set the CSV output format: tasks/settings/set-the-csv-output-format.md
+      - Update:
+          - Update Flash-Excel: tasks/update/update-flash-excel.md
+  - Concepts:
+      - concepts/index.md
+      - Presets: concepts/presets.md
+      - Steps and order: concepts/steps-and-order.md
+      - Error handling: concepts/error-handling.md
+      - Automatic updates: concepts/automatic-updates.md
+  - Reference:
+      - reference/index.md
+      - Steps: reference/steps.md
+      - Computed-column functions: reference/computed-functions.md
+      - Preset file: reference/preset-file.md
+      - Command line: reference/command-line.md
+      - Settings: reference/settings.md
+      - File formats: reference/file-formats.md
+      - Data locations: reference/data-locations.md
+      - Glossary: reference/glossary.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
+  - Release notes: release-notes.md
+
+# ///////////////////////////////////////////////////////////////
+# PLUGINS
+# ///////////////////////////////////////////////////////////////
+
+plugins:
+  - search
+  - section-index
+
+# ///////////////////////////////////////////////////////////////
+# MARKDOWN EXTENSIONS
+# ///////////////////////////////////////////////////////////////
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.caret
+  - pymdownx.tilde
+  - pymdownx.critic
+  - pymdownx.betterem
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: ['.', 'docs']
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: neuraaak
+      repo: Flash-Excel
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - abbr
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+      permalink_title: Anchor link to this section
+      toc_depth: 3
+
+# ///////////////////////////////////////////////////////////////
+# EXTRA
+# ///////////////////////////////////////////////////////////////
+
+extra:
+  version:
+    provider: mike
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/neuraaak/Flash-Excel
+      name: GitHub Repository
+
+extra_css:
+  - stylesheets/extra.css
+
+copyright: >
+  Copyright &copy; 2026 Neuraaak -
+  <a href="https://github.com/neuraaak/Flash-Excel/blob/main/LICENSE">MIT License</a>

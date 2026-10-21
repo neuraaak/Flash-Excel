@@ -1,0 +1,137 @@
+name: 04 · Docs
+
+# Two jobs, because the mode decides the command (mike is a branch-push tool —
+# it builds and pushes in one go):
+#
+#   build → pull requests only: `mkdocs build --strict`, no write permission.
+#   docs  → the cascade from 02-tag-sync, keyed on the `tag_action` INPUT:
+#             create  → mike deploy <version> + move `latest` alias
+#             skip    → mike deploy `dev` alias (state of main between releases)
+#             preview → mike deploy WITHOUT --push (validate the config only)
+#
+# The deploy job is gated on the input alone, so a pull request — which supplies
+# no input — never reaches it, and `contents: write` is never granted to a run
+# executing pull-request code.
+#
+# The site is served from the gh-pages branch that mike maintains. GitHub Pages
+# itself is enabled once by hand in the repository settings (source: gh-pages).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".github/workflows/04-docs.yml"
+  workflow_dispatch:
+    inputs:
+      tag_action:
+        description: "create = deploy + move `latest` (pushes) | skip = deploy `dev` | preview = build only"
+        required: true
+        type: choice
+        default: preview
+        options:
+          - preview
+          - skip
+          - create
+  workflow_call:
+    inputs:
+      version:
+        required: false
+        type: string
+      tag_action:
+        description: "create | skip | preview"
+        required: false
+        type: string
+        default: preview
+
+permissions: {} # each job grants its own
+
+jobs:
+  build:
+    name: Build docs
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    concurrency:
+      group: docs-build-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+      - run: uv sync --frozen --group docs
+      # --strict: a dead nav entry or a broken link fails the PR instead of
+      # reaching the published site.
+      - run: uv run --frozen poe docs-build
+
+  docs:
+    name: Build & deploy docs
+    # Gate on the INPUT, never on github.event_name: a reusable workflow
+    # inherits the caller's event (`push`), and a pull request supplies no
+    # input at all.
+    if: inputs.tag_action == 'create' || inputs.tag_action == 'skip' || inputs.tag_action == 'preview'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write # mike pushes the built site to the gh-pages branch
+    concurrency:
+      group: pages
+      cancel-in-progress: false # never interrupt a live docs deploy
+
+    steps:
+      - uses: actions/checkout@9f698171ed81b15d1823a05fc7211befd50c8ae0 # v6.0.3
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          python-version: "3.13"
+          enable-cache: true
+
+      - run: uv sync --frozen --group docs
+
+      - name: Resolve docs version
+        id: docs_version
+        env:
+          INPUT_VERSION: ${{ inputs.version || '' }}
+        run: |
+          VERSION="${INPUT_VERSION:-$(uv run --frozen poe -q read-version)}"
+          if [ -z "$VERSION" ]; then
+            echo "::error::No version found in pyproject.toml"
+            exit 1
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Version: $VERSION"
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # create → publish the versioned release + move `latest`.
+      - name: Deploy release docs (create)
+        if: inputs.tag_action == 'create'
+        env:
+          DOCS_VERSION: ${{ steps.docs_version.outputs.version }}
+        run: |
+          uv run --frozen mike deploy --push --update-aliases "$DOCS_VERSION" latest
+          uv run --frozen mike set-default --push latest
+
+      # skip → refresh the `dev` alias so main stays visible between releases.
+      - name: Deploy dev docs (skip)
+        if: inputs.tag_action == 'skip'
+        run: uv run --frozen mike deploy --push --update-aliases dev
+
+      # preview → build the versioned site WITHOUT pushing, to validate config.
+      - name: Validate docs build (preview)
+        if: inputs.tag_action == 'preview'
+        env:
+          DOCS_VERSION: ${{ steps.docs_version.outputs.version }}
+        run: uv run --frozen mike deploy --update-aliases "$DOCS_VERSION" latest

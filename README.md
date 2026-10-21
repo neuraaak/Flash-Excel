@@ -1,128 +1,110 @@
-# flash-excel
+# Flash-Excel
 
-[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/flash-excel/01-ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/flash-excel/actions/workflows/01-ci.yml)
-[![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/flash-excel/blob/main/LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/neuraaak/Flash-Excel/01-ci.yml?style=flat&label=ci&logo=githubactions&logoColor=white)](https://github.com/neuraaak/Flash-Excel/actions/workflows/01-ci.yml)
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue?style=flat&logo=materialformkdocs&logoColor=white)](https://neuraaak.github.io/Flash-Excel/)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat&logo=github&logoColor=white)](https://github.com/neuraaak/Flash-Excel/blob/main/LICENSE)
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
-[![linter](https://img.shields.io/badge/linter-ruff-orange?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
-[![type checker](https://img.shields.io/badge/type%20checker-ty-orange?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
+[![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
+[![type checker](https://img.shields.io/badge/type%20checker-ty-261230?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
 [![test runner](https://img.shields.io/badge/test%20runner-pytest-0A9EDC?style=flat&logo=pytest&logoColor=white)](https://pytest.org)
 
-**flash-excel** — a Windows desktop utility to transform Excel/CSV files through declarative presets.
+![Logo](docs/assets/logo-min.png)
+
+**Flash-Excel** is a Windows desktop app that cleans and reshapes Excel and CSV files with reusable presets, so a repeated spreadsheet chore becomes one click.
 
 ## 📦 Installation
 
-Download the latest installer from the [Releases page](https://github.com/neuraaak/flash-excel/releases/latest) (`flash-excel-<version>-setup.exe`) and run it. The app auto-updates itself afterwards.
+1. Download `Flash-Excel-<version>-setup.exe` from the
+   [latest release](https://github.com/neuraaak/Flash-Excel/releases/latest).
+2. Run it. The installer works per user and does not ask for administrator
+   rights.
 
-To run from source instead:
-
-```bash
-git clone https://github.com/neuraaak/flash-excel.git
-cd flash-excel
-uv sync
-uv run python main.py
-```
+Flash-Excel then keeps itself up to date: new versions are downloaded and
+applied from inside the app.
 
 ## 🚀 Quick Start
 
-1. Launch the app and pick a source Excel/CSV file.
-2. Choose an existing preset, or create a new one and add steps (rename, filter, cast types, add computed columns, …).
-3. Run the preset — the transformed file is written next to the source (or to a folder you configure).
+1. Launch Flash-Excel and load one or more source files (`.xlsx`, `.xls`,
+   `.xlsm` or `.csv`) — browse for them or drop them on the window.
+2. Pick an existing preset, or create one and add steps: rename columns,
+   filter rows, cast types, add a computed column, deduplicate, sort…
+3. Preview the result, then run the preset.
 
-Presets are plain TOML files under `Documents\flash-excel\presets\`, so they can also be authored or version-controlled by hand.
+Each result is written to `Documents\flash-excel\output\` as `<name>_clean`,
+unless you choose another folder, name pattern or output format in the run
+settings. Presets are plain TOML files in `Documents\flash-excel\presets\`.
+
+The [Get started](https://neuraaak.github.io/Flash-Excel/get-started/) guide
+walks through a first preset end to end.
 
 ## 🎯 Key Features
 
-- **✅ Declarative presets**: chain rename, filter, cast, dedupe, sort and more steps in a reusable TOML file.
-- **✅ Computed columns**: 16 Excel-style functions (`MAJUSCULE`, `CONCATENER`, `SI`, `ARRONDI`, …) evaluated in a sandboxed expression engine.
-- **✅ Excel & CSV I/O**: reads/writes `.xlsx`, `.xls`, `.csv` via Polars + fastexcel/xlsxwriter.
-- **✅ Auto-update**: signed updates (TUF) delivered from a private repository, no manual reinstall.
-- **✅ Localized UI**: English and French.
+- ✅ **Reusable presets**: chain 12 step types (rename, select, drop, cast,
+  replace, clean text, fill nulls, computed column, filter, deduplicate, sort,
+  reorder) in a TOML file you can save, export and share.
+- ✅ **Computed columns**: 16 Excel-style functions (`CONCATENER`,
+  `MAJUSCULE`, `SI`, `ARRONDI`…) evaluated in a restricted expression engine.
+- ✅ **Preview before running**: see the effect of a preset on the first 100
+  rows before writing anything.
+- ✅ **Batch processing**: run one preset on several files in a row; a failing
+  file does not stop the others unless you ask it to.
+- ✅ **Formats**: reads `.xlsx`, `.xls`, `.xlsm` and `.csv`; writes `.xlsx`,
+  `.csv` or `.parquet`, with a configurable CSV separator and decimal mark.
+- ✅ **Scheduling and launchers**: register a daily Windows Task Scheduler
+  task, or save a `.cmd` launcher that runs the preset on demand.
+- ✅ **Command line**: run presets headless from a script, with an exit code.
+- ✅ **Shared preset folders**: list presets from team folders, read-only,
+  alongside your own.
+- ✅ **Signed automatic updates**: updates are verified with TUF signatures
+  before they are applied.
+- ✅ **Themes and languages**: several colour palettes with dark and light
+  variants; English and French interface.
 
-## 🧪 Testing
+## 📚 Documentation
 
-```bash
-# Install dev dependencies
-uv sync
+Complete documentation is available at **[neuraaak.github.io/Flash-Excel](https://neuraaak.github.io/Flash-Excel/)**
 
-# Run all tests
-uv run pytest
+| Section                                                                        | Description                                         |
+| ------------------------------------------------------------------------------ | --------------------------------------------------- |
+| **[Get started](https://neuraaak.github.io/Flash-Excel/get-started/)**         | Install Flash-Excel and run a first preset          |
+| **[Guides](https://neuraaak.github.io/Flash-Excel/tasks/)**                    | Files, presets, runs, automation, settings, updates |
+| **[Concepts](https://neuraaak.github.io/Flash-Excel/concepts/)**               | Presets, step order, error handling, updates        |
+| **[Reference](https://neuraaak.github.io/Flash-Excel/reference/)**             | Steps, functions, preset file, command line, paths  |
+| **[Troubleshooting](https://neuraaak.github.io/Flash-Excel/troubleshooting/)** | Fixes for common problems                           |
+| **[FAQ](https://neuraaak.github.io/Flash-Excel/faq/)**                         | Short answers to frequent questions                 |
+| **[Release notes](https://neuraaak.github.io/Flash-Excel/release-notes/)**     | What changed in each version                        |
 
-# With coverage
-uv run pytest --cov=src/flash_excel --cov-report=term-missing
-```
+## 💻 CLI Usage
 
-## 🛠️ Development Setup
-
-```bash
-# Install in development mode with all dependencies
-uv sync
-
-# Install Git hooks
-uv run pre-commit install
-```
-
-Source code uses a `src/` layout (`src/flash_excel`).
-
-## 🚢 Build & Release
-
-Building and releasing is **maintainer-only and local — not CI**. A fresh clone
-builds and tests the app fine, but it cannot publish: the TUF signing keys and
-the Cloudflare R2 credentials are deliberately kept out of the repository.
-
-`build.py` builds, and only builds — nothing it does leaves the machine:
-
-```bash
-uv run build.py                 # version → compile → zip → installer → signed TUF release
-uv run build.py --skip-release  # rebuild an already published version
-uv run build.py --skip-installer  # no Inno Setup stage
-uv run build.py --skip-build    # reuse dist/ as-is, to iterate on the installer
-```
-
-Publishing is a separate, explicit step, run once the build has been checked.
-Two helpers wrap it, so the project root and the credentials in the gitignored
-`.env` do not have to be handled by hand -- copy [example.env](example.env) to
-`.env` and fill it in:
+The same executable runs a preset without opening a window when it gets
+`--preset`:
 
 ```bat
-.scripts\build\publish-update.cmd     :: public TUF tree -> R2
-.scripts\build\publish-release.cmd    :: installer + zip -> GitHub Release
+flash-excel.exe --preset "%USERPROFILE%\Documents\flash-excel\presets\clean.toml" --input january.xlsx february.xlsx --output D:\reports --format csv
 ```
 
-Both forward any extra flag to the command they wrap (`--yes`, `--draft`,
-`--notes-file`, …) and both ask for confirmation first, the publication being
-irreversible on the remote side. `publish-update` transfers only the
-**public** part of the signed TUF tree (`metadata/`, `targets/`,
-`withdrawn.json`); the private keystore in `.tufup/keys` never leaves.
-
-The underlying [ezcompiler](https://github.com/neuraaak/ezcompiler) commands,
-when a stage has to be run by hand:
-
-| Command                        | What it does                                                 |
-| ------------------------------ | ------------------------------------------------------------ |
-| `ezcompiler tuf init`          | Create the signing keys and the repository skeleton (once)   |
-| `ezcompiler tuf status`        | Show the state of the local TUF tree (read-only)             |
-| `ezcompiler tuf refresh`       | Re-sign the metadata to push the expiry back, no new release |
-| `ezcompiler tuf remove-latest` | Withdraw the latest version from the local tree              |
-| `ezcompiler publish update`    | Publish the TUF tree to the update backend                   |
-| `ezcompiler publish release`   | Publish the installer and the zip as a release               |
-
-> ⚠️ **Never regenerate the signing keys.** New keys invalidate the trust
-> anchor shipped with every installed client and break its auto-update
-> permanently. A version already published must be withdrawn
-> (`tuf remove-latest`) before it can be replaced — the tree refuses to
-> re-release a withdrawn version under the same number.
+Each input file is processed independently. The exit code is `0` when every
+file succeeded, `1` when at least one failed and `2` on invalid arguments. See
+the [command-line reference](https://neuraaak.github.io/Flash-Excel/reference/command-line/)
+for every option.
 
 ## 📦 Dependencies
 
-| Package      | Purpose                            |
-| ------------ | ---------------------------------- |
-| `pywebview`  | Desktop window (HTML/JS front-end) |
-| `polars`     | DataFrame engine                   |
-| `fastexcel`  | Fast Excel reading (Rust/calamine) |
-| `xlsxwriter` | Excel writing                      |
-| `pydantic`   | Preset & step validation           |
-| `pyyaml`     | App config / theme files           |
-| `ezplog`     | Logging                            |
+| Package      | Purpose                                  |
+| ------------ | ---------------------------------------- |
+| `pywebview`  | Desktop window hosting the web interface |
+| `polars`     | DataFrame engine                         |
+| `fastexcel`  | Fast Excel reading (Rust/calamine)       |
+| `xlsxwriter` | Excel writing                            |
+| `pydantic`   | Preset and step validation               |
+| `tomli-w`    | Preset writing (TOML)                    |
+| `pyyaml`     | App configuration and theme files        |
+| `ezplog`     | Logging                                  |
+
+## 🤝 Contributing
+
+Development setup, tests, quality checks and the release process are described
+in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📝 License
 
@@ -130,10 +112,11 @@ MIT License – See [LICENSE](LICENSE) file for details.
 
 ## 🔗 Links
 
-- **Repository**: [https://github.com/neuraaak/flash-excel](https://github.com/neuraaak/flash-excel)
-- **Releases**: [https://github.com/neuraaak/flash-excel/releases](https://github.com/neuraaak/flash-excel/releases)
-- **Issues**: [GitHub Issues](https://github.com/neuraaak/flash-excel/issues)
+- **Documentation**: [https://neuraaak.github.io/Flash-Excel/](https://neuraaak.github.io/Flash-Excel/)
+- **Repository**: [https://github.com/neuraaak/Flash-Excel](https://github.com/neuraaak/Flash-Excel)
+- **Releases**: [https://github.com/neuraaak/Flash-Excel/releases](https://github.com/neuraaak/Flash-Excel/releases)
+- **Issues**: [GitHub Issues](https://github.com/neuraaak/Flash-Excel/issues)
 
 ---
 
-**flash-excel** – Declarative Excel/CSV transformations, one preset at a time.
+**Flash-Excel** – Declarative Excel and CSV transformations, one preset at a time.

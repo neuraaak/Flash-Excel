@@ -76,6 +76,7 @@ src/flash_excel/
 ├── ui/
 │   ├── app.py           # pywebview bootstrap: create_window(js_api=…) + start()
 │   ├── api.py           # FlashExcelAPI — the only Python↔JS bridge
+│   ├── scheduling.py    # Task Scheduler XML + .cmd launcher from run settings
 │   └── web/             # Front-end served from disk via file:// URI
 │       ├── index.html
 │       ├── css/         # tokens.css (design tokens) + per-page sheets
@@ -193,10 +194,22 @@ python main.py --preset clean.toml --input a.xlsx b.xlsx --output out/
 failure does not cancel the rest of the batch. Exit code `0` when every file
 succeeded, `1` when at least one failed, `2` on bad arguments.
 
-**Scheduling is deliberately not in the app.** The Windows Task Scheduler
-survives a reboot, runs without an open session and reports failures; a
-desktop application does none of that well. The UI's job is at most to hand
-the user a ready-made `schtasks` command.
+**Scheduling is delegated to Windows, never run by the app.** The Windows Task
+Scheduler survives a reboot and reports failures; a desktop application does
+none of that well. So the app holds no timer: `ui/scheduling.py` turns the
+current run settings (preset, inputs, output folder, format, pattern) into a
+headless command line, and the UI offers two ways to use it:
+
+- `create_scheduled_task` registers a **daily** task under `\Flash-Excel\`
+  through `schtasks /create /xml` (the XML form avoids `/tr`'s 261-character
+  limit). It requires an explicit `confirmed=True` from the UI, runs as the
+  current user with least privilege, and works on Windows only;
+- `create_execution_launcher` saves the same command as a `.cmd` file the user
+  double-clicks, which pauses so the console output stays readable.
+
+`get_schedule_command` returns the equivalent `schtasks` command for display.
+Arguments containing `%`, `!`, quotes or newlines are refused, since `cmd.exe`
+would expand them even inside quotes.
 
 The packaged build is windowed (`console = false`), so `cli.py` attaches to
 the parent console when there is one. Output is therefore visible from a
@@ -275,7 +288,7 @@ workflow also calls, so local and CI cannot drift apart. `uv run poe` lists
 them all.
 
 ```bash
-uv sync                    # Install everything (dev group, which includes test)
+uv sync                    # Install everything (dev group: includes test + docs)
 uv run poe run             # Run the app  (poe run-debug for devtools + verbose logs)
 uv run poe check           # Full local gate — what CI runs
 uv run poe test            # Run tests (no coverage floor: partial runs stay usable)
@@ -286,7 +299,14 @@ uv run poe typecheck       # Type check (ty — the single gate; pyright is IDE-
 uv run poe imports         # Layer dependency contracts
 uv run poe security        # Bandit security scan
 uv run poe lint-js         # ESLint on the web UI JS (lint-js-fix to auto-fix)
+uv run poe docs            # Serve the user docs locally (MkDocs Material)
+uv run poe docs-build      # Strict docs build — what the 04-docs workflow runs on PRs
 ```
+
+The user documentation lives in `docs/` (MkDocs Material, configured by
+`mkdocs.yml`, product-style pages for end users — no API or architecture pages)
+and is deployed to GitHub Pages by `.github/workflows/04-docs.yml`, called from
+`02-tag-sync`. A behaviour change visible to users updates the matching page.
 
 Front-end linting needs `pnpm install` once per clone (ESLint only — no
 formatter, so nothing rewrites the hand-aligned source). It is deliberately
