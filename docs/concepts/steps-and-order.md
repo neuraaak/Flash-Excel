@@ -48,6 +48,6 @@ In a preset file you write yourself, steps run in the order they appear in the f
 
 ## ➡️ Next steps
 
-- [Add and reorder steps](../tasks/presets/add-and-reorder-steps.md)
+- [Add steps to a preset](../tasks/presets/add-steps-to-a-preset.md)
 - [Preview a transformation](../tasks/run/preview-a-transformation.md)
 - [Preset file format](../reference/preset-file.md)

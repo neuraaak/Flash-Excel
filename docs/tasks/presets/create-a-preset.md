@@ -12,7 +12,7 @@ Create a preset when you have a new kind of file to transform. A preset holds th
 2. Next to **Presets**, select the **+** button (**New preset**). A new preset named `Preset 1` (or the next free number) opens in the editor.
 3. In the name field of the toolbar, replace the default name with a name of your own.
 4. Under **Load the Excel template**, select **Load a file** and pick your template file.
-5. Under **Action configuration**, add at least one step. See [Add steps to a preset](add-and-reorder-steps.md).
+5. Under **Action configuration**, add at least one step. See [Add steps to a preset](add-steps-to-a-preset.md).
 6. Select **Save**.
 
 ## ✅ Result
@@ -29,7 +29,7 @@ The preset is saved as a `.toml` file in `Documents\flash-excel\presets`. The fi
 
 ## ➡️ Next steps
 
-- [Add steps to a preset](add-and-reorder-steps.md)
+- [Add steps to a preset](add-steps-to-a-preset.md)
 - [Preview a transformation](../run/preview-a-transformation.md)
 - [Presets](../../concepts/presets.md) — what a preset contains.
 - [Preset file](../../reference/preset-file.md) — the format of the `.toml` file.

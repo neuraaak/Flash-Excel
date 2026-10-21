@@ -24,9 +24,9 @@ Close the window with **×**, ++esc++, or by clicking outside it.
     - Only the first 100 rows of that file are read. **Filter rows**, **Deduplicate rows** and **Sort rows** therefore act on this sample only: a row beyond the first 100 can still match your filters in a real run.
     - If no row of the sample is left, the window says **No rows remain in this sample after transformation.**
 
-If the preview fails, the window shows **Preview failed:** followed by the reason. See [Troubleshooting](../../troubleshooting.md).
+If the preview fails, the window shows **Preview failed:** followed by the reason. Look the reason up in [Troubleshooting](../../troubleshooting.md). If the preview ignores your last edits, see [Changes to a preset are not used by the run](../../troubleshooting.md#changes-not-used).
 
 ## ➡️ Next steps
 
 - [Run a preset](run-a-preset.md)
-- [Add steps to a preset](../presets/add-and-reorder-steps.md) to adjust the preset.
+- [Add steps to a preset](../presets/add-steps-to-a-preset.md) to adjust the preset.

@@ -324,7 +324,7 @@ compression = "lzma2/ultra64"
 # Laisse l'utilisateur basculer en install machine-wide depuis l'assistant.
 PrivilegesRequiredOverridesAllowed = "dialog"
 # Icon shown in "Programs and Features".
-UninstallDisplayIcon = "{app}\\flash-excel.exe"
+UninstallDisplayIcon = "{app}\\Flash-Excel.exe"
 # No system component is touched: never ask for a reboot.
 RestartIfNeededByRun = "no"
 

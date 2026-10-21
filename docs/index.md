@@ -6,7 +6,7 @@
 [![uv](https://img.shields.io/badge/package%20manager-uv-DE5FE9?style=flat&logo=uv&logoColor=white)](https://github.com/astral-sh/uv)
 [![linter](https://img.shields.io/badge/linter-ruff-D7FF64?style=flat&logo=ruff&logoColor=white)](https://github.com/astral-sh/ruff)
 [![type checker](https://img.shields.io/badge/type%20checker-ty-261230?style=flat&logo=astral&logoColor=white)](https://github.com/astral-sh/ty)
-[![tests](https://img.shields.io/badge/tests-pytest-0A9EDC?style=flat&logo=pytest&logoColor=white)](https://github.com/pytest-dev/pytest)
+[![test runner](https://img.shields.io/badge/test%20runner-pytest-0A9EDC?style=flat&logo=pytest&logoColor=white)](https://pytest.org)
 
 ![Flash-Excel logo](assets/logo-min.png)
 
@@ -27,6 +27,19 @@ New to Flash-Excel? [Get started](get-started.md) takes you from the installer t
 | [Troubleshooting](troubleshooting.md)   | Error messages and problems, with their cause and fix.                              |
 | [FAQ](faq.md)                           | Short answers to recurring questions.                                               |
 | [Release notes](release-notes.md)       | What changed in each version.                                                       |
+
+## ⭐ Popular tasks
+
+- [Create a preset](tasks/presets/create-a-preset.md)
+- [Add a computed column](tasks/presets/add-a-computed-column.md)
+- [Run a preset](tasks/run/run-a-preset.md) on one file or a whole batch
+- [Schedule a preset](tasks/automate/schedule-a-preset.md) to run every day
+
+## 🆘 Where to get help
+
+- Something fails? Look up the message in [Troubleshooting](troubleshooting.md).
+- A quick question? Check the [FAQ](faq.md).
+- Found a bug or need a feature? Open an issue on [GitHub](https://github.com/neuraaak/Flash-Excel/issues).
 
 ## ⚖️ License
 

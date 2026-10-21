@@ -1,6 +1,6 @@
 # Settings
 
-Open the settings with **Settings** in the sidebar. Every change applies and is saved as soon as you select it; close the window with **×** or **Esc**.
+Open the settings with **Settings** in the sidebar. Theme, language and CSV changes apply and are saved as soon as you select them. A read-only preset source is saved only when you select **Save** in its dialog. Close the window with **×** or **Esc**.
 
 The settings are stored in `app.config.yaml`, in `%APPDATA%\flash-excel`. You can also edit that file by hand: changes are read on the next start. See [Data locations](data-locations.md).
 
@@ -49,7 +49,7 @@ Shared folders whose presets appear next to your local ones. Flash-Excel only re
 | **Label**          | Name shown with the presets from this folder, e.g. `Finance`. | `presets.sources[].label`   |
 | **Folder path**    | The folder that contains the `.toml` presets.                | `presets.sources[].path`    |
 
-Both fields are required. Only the `.toml` files directly in the folder are listed, not those in sub-folders. Selecting **Remove source** removes the folder from the list; *the folder and its presets will not be deleted*.
+Both fields are required. Only the `.toml` files directly in the folder are listed, not those in sub-folders. Selecting **Remove source**, then **Delete**, removes the folder from the list; *the folder and its presets will not be deleted*.
 
 ## Example `app.config.yaml`
 

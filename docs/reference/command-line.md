@@ -5,10 +5,10 @@ Flash-Excel can apply a preset without opening its window. This is what launcher
 ## Syntax
 
 ```bat
-flash-excel.exe --preset <preset.toml> --input <file> [<file> …] [--output <folder>] [--format keep|xlsx|csv|parquet] [--pattern <pattern>] [--debug]
+Flash-Excel.exe --preset <preset.toml> --input <file> [<file> …] [--output <folder>] [--format keep|xlsx|csv|parquet] [--pattern <pattern>] [--debug]
 ```
 
-`flash-excel.exe` is the program in the Flash-Excel installation folder. The exact path on your PC is shown in the **Schedule or create a launcher** window, after *Uses the installed application:*. Use the full path, in quotes, when you call it from another folder.
+`Flash-Excel.exe` is the program in the Flash-Excel installation folder. The exact path on your PC is shown in the **Schedule or create a launcher** window, after *Uses the installed application:*. Use the full path, in quotes, when you call it from another folder.
 
 There is only one program: given `--preset`, it runs without a window; without `--preset`, it opens the window as usual.
 
@@ -22,7 +22,7 @@ There is only one program: given `--preset`, it runs without a window; without `
 | `--format <format>` | No       | `keep`                           | Output format: `keep` (same as the source file), `xlsx`, `csv` or `parquet`.                                                         |
 | `--pattern <text>`  | No       | `{name}_clean`                   | Name of each output file, without extension. `{name}` is replaced by the source file name without its extension.                    |
 | `--debug`           | No       | off                              | Writes detailed messages to the log file.                                                                                           |
-| `-h`, `--help`      | No       | —                                | Shows the list of options. Must be combined with `--preset` to reach the command-line mode, for example `flash-excel.exe --preset x --help`. |
+| `-h`, `--help`      | No       | —                                | Shows the list of options. Must be combined with `--preset` to reach the command-line mode, for example `Flash-Excel.exe --preset x --help`. |
 
 Paths containing spaces must be in double quotes.
 
@@ -78,29 +78,30 @@ Flash-Excel is a windowed program. When you start it from a Command Prompt or Po
 Apply a preset to one file, with the default output folder and format:
 
 ```bat
-flash-excel.exe --preset "%USERPROFILE%\Documents\flash-excel\presets\monthly_hr_report.toml" --input "C:\Exports\hr.xlsx"
+Flash-Excel.exe --preset "%USERPROFILE%\Documents\flash-excel\presets\monthly_hr_report.toml" --input "C:\Exports\hr.xlsx"
 ```
 
 Process three files into a CSV in a chosen folder:
 
 ```bat
-flash-excel.exe --preset clean.toml --input jan.xlsx feb.xlsx mar.xlsx --output "D:\Reports\Q1" --format csv
+Flash-Excel.exe --preset clean.toml --input jan.xlsx feb.xlsx mar.xlsx --output "D:\Reports\Q1" --format csv
 ```
 
 Name the outputs after the month and convert `.xls` sources to `.xlsx`:
 
 ```bat
-flash-excel.exe --preset clean.toml --input "C:\Exports\report.xls" --format xlsx --pattern "{name}_2026-10"
+Flash-Excel.exe --preset clean.toml --input "C:\Exports\report.xls" --format xlsx --pattern "{name}_2026-10"
 ```
 
 Use the exit code in a batch file:
 
 ```bat
 @echo off
-"C:\path\to\flash-excel.exe" --preset clean.toml --input a.xlsx b.xlsx
+"C:\path\to\Flash-Excel.exe" --preset clean.toml --input a.xlsx b.xlsx
 if errorlevel 1 echo At least one file failed. See the log file.
 ```
 
-## Scheduling
+## Related
 
-Flash-Excel does not schedule runs itself. Windows Task Scheduler does it better: it survives a restart and reports failures. The **Configure execution** button on the **Processing** page creates a scheduled task or a `.cmd` launcher that calls this command line for you. See [Schedule a preset](../tasks/automate/schedule-a-preset.md) and [Create a launcher](../tasks/automate/create-a-launcher.md).
+- [Run from the command line](../tasks/automate/run-from-the-command-line.md)
+- [Schedule a preset](../tasks/automate/schedule-a-preset.md) and [Create a launcher](../tasks/automate/create-a-launcher.md) — both call this command line for you.

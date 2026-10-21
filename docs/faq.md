@@ -56,9 +56,13 @@ Yes. A preset is a plain-text `.toml` file, so it can be stored in Git or any ve
 
 Yes. **Configure execution** on the **Processing** page creates a Windows scheduled task, or a `.cmd` launcher you double-click. Flash-Excel does not need to be open, but your Windows session does. See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
+## Why doesn't Flash-Excel run the schedule itself?
+
+Windows Task Scheduler does it better: a task survives a restart, runs without Flash-Excel being open and records each run's result. **Configure execution** creates that task for you. See [Schedule a preset](tasks/automate/schedule-a-preset.md).
+
 ## Can I run a preset from a script?
 
-Yes, with `flash-excel.exe --preset … --input …`. See [Command line](reference/command-line.md).
+Yes, with `Flash-Excel.exe --preset … --input …`. See [Command line](reference/command-line.md).
 
 ## What happens to my presets when I update or uninstall?
 

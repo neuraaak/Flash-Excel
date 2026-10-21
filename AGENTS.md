@@ -328,9 +328,9 @@ time and bundled, so `check_update` / `apply_update` are no-ops outside the
 packaged app.
 
 Build and release are **maintainer-only and local, not CI**: `build.py` runs the
-whole pipeline (version → compile → installer → signed TUF release → upload).
-See its module docstring for the prerequisites — they include signing keys and
-upload credentials that are deliberately **not** in the repository, so a fresh
+whole build (version → compile → zip → installer → signed TUF release) and never
+publishes; publishing is a separate step (see CONTRIBUTING.md). The signing keys
+and upload credentials are deliberately **not** in the repository, so a fresh
 clone can build and test the app but cannot publish a release.
 
 If you do hold the signing keys: never regenerate them. New keys invalidate the

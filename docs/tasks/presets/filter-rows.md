@@ -35,4 +35,4 @@ The **Filter rows** action shows the number of conditions in the list of actions
 ## ➡️ Next steps
 
 - [Steps](../../reference/steps.md) — the **Filter rows** options in detail.
-- [Troubleshooting](../../troubleshooting.md) if a run fails on a filter.
+- [A step cannot find a column](../../troubleshooting.md#column-not-found) if a run fails on a filter.

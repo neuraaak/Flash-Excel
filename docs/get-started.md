@@ -46,7 +46,7 @@ If the run ends with **Error** instead, the **Console** shows the reason. See [T
 
 ## ➡️ Next steps
 
-- [Add steps to a preset](tasks/presets/add-and-reorder-steps.md) — filter, clean, sort and more.
+- [Add steps to a preset](tasks/presets/add-steps-to-a-preset.md) — filter, clean, sort and more.
 - [Run a preset](tasks/run/run-a-preset.md) on several files, with your own output folder, format and naming pattern.
 - [Schedule a preset](tasks/automate/schedule-a-preset.md) to run every day without opening Flash-Excel.
 - [Presets](concepts/presets.md) — what a preset holds and where it is stored.

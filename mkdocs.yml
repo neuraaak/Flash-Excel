@@ -73,7 +73,7 @@ nav:
           - Load source files: tasks/files/load-source-files.md
       - Presets:
           - Create a preset: tasks/presets/create-a-preset.md
-          - Add and reorder steps: tasks/presets/add-and-reorder-steps.md
+          - Add steps to a preset: tasks/presets/add-steps-to-a-preset.md
           - Add a computed column: tasks/presets/add-a-computed-column.md
           - Filter rows: tasks/presets/filter-rows.md
           - Export a preset: tasks/presets/export-a-preset.md
@@ -85,6 +85,7 @@ nav:
           - Stop a run: tasks/run/stop-a-run.md
       - Automate:
           - Schedule a preset: tasks/automate/schedule-a-preset.md
+          - Disable or delete a scheduled task: tasks/automate/remove-a-scheduled-task.md
           - Create a launcher: tasks/automate/create-a-launcher.md
           - Run from the command line: tasks/automate/run-from-the-command-line.md
       - Settings:

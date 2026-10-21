@@ -5,9 +5,7 @@ Each entry starts from what you see. Error messages appear in the **Console** of
 !!! tip "Where to find more detail"
     Every run, error and update check is recorded in the log file `%LOCALAPPDATA%\flash-excel\logs\flash-excel.log`. Paste that path into the address bar of File Explorer to open it. See [Data locations](reference/data-locations.md#logs).
 
-## Files and formats
-
-### Unsupported format: 'xls' {#unsupported-format-xls}
+## Unsupported format: 'xls' {#unsupported-format-xls}
 
 **Symptom** — A run on an `.xls` or `.xlsm` file fails with *Unsupported format: 'xls'. Expected 'xlsx', 'csv', or 'parquet'.* (or `'xlsm'`), after the steps have run.
 
@@ -20,7 +18,7 @@ Each entry starts from what you see. Error messages appear in the **Console** of
 
 On the command line, add `--format xlsx`. See [File formats](reference/file-formats.md).
 
-### Unsupported file format. Allowed: .xlsx, .xls, .xlsm, .csv {#unsupported-file-format}
+## Unsupported file format. Allowed: .xlsx, .xls, .xlsm, .csv {#unsupported-file-format}
 
 **Symptom** — Loading a file shows *File error:* followed by this message, or a dropped file is not added to the queue.
 
@@ -28,7 +26,7 @@ On the command line, add `--format xlsx`. See [File formats](reference/file-form
 
 **Fix** — Open the file in Excel and save it as `.xlsx` or `.csv`, then load that copy.
 
-### Excel file contains no readable sheets {#excel-file-contains-no-readable-sheets}
+## Excel file contains no readable sheets {#excel-file-contains-no-readable-sheets}
 
 **Symptom** — A run or a preview fails with *Excel file contains no readable sheets.*
 
@@ -36,7 +34,7 @@ On the command line, add `--format xlsx`. See [File formats](reference/file-form
 
 **Fix** — Open the workbook in Excel, check that its **first** sheet holds the data, and save it again as `.xlsx`. Flash-Excel reads the first sheet only.
 
-### A CSV source loads as a single column {#csv-source-single-column}
+## A CSV source loads as a single column {#csv-source-single-column}
 
 **Symptom** — The template shows one column whose name contains the whole header line, such as `name,age,city`. Runs then fail with *"…" not found* or *unable to find column*.
 
@@ -50,7 +48,7 @@ On the command line, add `--format xlsx`. See [File formats](reference/file-form
 
 See [Preset file format](reference/preset-file.md#the-meta-table).
 
-### Accented letters appear as � in a CSV source {#accented-letters-in-csv-source}
+## Accented letters appear as � in a CSV source {#accented-letters-in-csv-source}
 
 **Symptom** — After loading or processing a CSV file, letters such as `é` or `ç` show as `�`.
 
@@ -58,7 +56,7 @@ See [Preset file format](reference/preset-file.md#the-meta-table).
 
 **Fix** — In the preset file, add `csv_encoding = "cp1252"` to `[meta]`, then run again. Alternatively, save the file from Excel as *CSV UTF-8 (comma delimited)*. See [Preset file format](reference/preset-file.md#csv_encoding-values).
 
-### Decimal numbers stay text in a CSV source {#decimal-numbers-stay-text}
+## Decimal numbers stay text in a CSV source {#decimal-numbers-stay-text}
 
 **Symptom** — A column of numbers such as `1,5` is treated as text: sorting is alphabetical, and **Cast types** to **Decimal number** fails with *conversion from `str` to `f64` failed*.
 
@@ -66,7 +64,7 @@ See [Preset file format](reference/preset-file.md#the-meta-table).
 
 **Fix** — In the preset file, add `csv_decimal_comma = true` to `[meta]`. See [Preset file format](reference/preset-file.md#the-meta-table).
 
-### An output CSV opens in a single column in Excel {#output-csv-single-column}
+## An output CSV opens in a single column in Excel {#output-csv-single-column}
 
 **Symptom** — Double-clicking an output `.csv` file opens Excel with all values in column A.
 
@@ -80,7 +78,7 @@ See [Preset file format](reference/preset-file.md#the-meta-table).
 
 To open an existing file without re-running, use Excel's **Data** › **From Text/CSV** and choose the separator. See [Set the CSV output format](tasks/settings/set-the-csv-output-format.md).
 
-### Accented letters look wrong in an output CSV opened in Excel {#accented-letters-in-output-csv}
+## Accented letters look wrong in an output CSV opened in Excel {#accented-letters-in-output-csv}
 
 **Symptom** — An output `.csv` opened by double-click in Excel shows `Ã©` instead of `é`.
 
@@ -88,7 +86,7 @@ To open an existing file without re-running, use Excel's **Data** › **From Tex
 
 **Fix** — Choose **.xlsx (Excel)** as output **Format** when the file is meant for Excel. To open the CSV as it is, use **Data** › **From Text/CSV** in Excel and choose *65001: Unicode (UTF-8)* as file origin.
 
-### Permission denied, or the file is being used by another process {#file-in-use}
+## Permission denied, or the file is being used by another process {#file-in-use}
 
 **Symptom** — A file fails with a message such as *Permission denied* or *being used by another process*. Its status becomes **Error**.
 
@@ -96,9 +94,7 @@ To open an existing file without re-running, use Excel's **Data** › **From Tex
 
 **Fix** — Close the file in Excel, then run again. With **Skip file**, the other files of the run are processed anyway; only the locked one needs a new run.
 
-## Steps and expressions
-
-### A step cannot find a column {#column-not-found}
+## A step cannot find a column {#column-not-found}
 
 **Symptom** — A step fails with *"Amount" not found* or *unable to find column "Amount"; valid columns: [...]*.
 
@@ -112,7 +108,7 @@ To open an existing file without re-running, use Excel's **Data** › **From Tex
 
 See [Steps and their order](concepts/steps-and-order.md).
 
-### A computed column says a name is not available {#is-not-available-use-column-names-or-catalog-functions}
+## A computed column says a name is not available {#is-not-available-use-column-names-or-catalog-functions}
 
 **Symptom** — The **Add computed column** step fails with *Expression not allowed: '…' is not available. Use column names or catalog functions.*
 
@@ -120,7 +116,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Write function names in upper case, wrap column names that contain spaces or symbols in brackets (`[Unit price]`), and use the column's name as it is at this step. Selecting the column under **Columns** in the editor inserts the right form. See [Computed column functions](reference/computed-functions.md).
 
-### Invalid syntax in a computed column {#invalid-syntax}
+## Invalid syntax in a computed column {#invalid-syntax}
 
 **Symptom** — The **Add computed column** step fails with *Invalid syntax:* followed by details.
 
@@ -128,7 +124,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Check the punctuation of the expression and the exact spelling of bracketed column names. See [Computed column functions](reference/computed-functions.md#operators).
 
-### The truth value of an Expr is ambiguous {#truth-value-ambiguous}
+## The truth value of an Expr is ambiguous {#truth-value-ambiguous}
 
 **Symptom** — The **Add computed column** step fails with *Evaluation error: the truth value of an Expr is ambiguous*.
 
@@ -136,7 +132,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Use `&` for *and*, `|` for *or* and `~` for *not*, with each comparison in parentheses: `SI((age >= 18) & (age < 65), "working age", "other")`.
 
-### '…' is not a number, but the column holds numbers {#not-a-number}
+## '…' is not a number, but the column holds numbers {#not-a-number}
 
 **Symptom** — **Filter rows** fails with *'18 years' is not a number, but the column holds numbers (Int64). Enter a numeric value.*
 
@@ -144,7 +140,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — On the **Presets** page, open **Filter rows** and type only the number in **Value**, with a dot as decimal mark (`18`, `1.5`). Then select **Save**.
 
-### Conversion from str to … failed {#conversion-failed}
+## Conversion from str to … failed {#conversion-failed}
 
 **Symptom** — **Cast types** fails with *conversion from `str` to `i64` failed in column 'amount' for 3 out of 1250 values: [...]*. The type may also read `f64`, `date` or `datetime[μs]`.
 
@@ -152,7 +148,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Clean those values in the steps before **Cast types**, for example with **Replace values** or **Clean text**, or cast to another type. See [Steps › Cast types](reference/steps.md#cast-types).
 
-### Expected String in Clean text or a text function {#expected-string}
+## Expected String in Clean text or a text function {#expected-string}
 
 **Symptom** — **Clean text**, or a text function such as `MAJUSCULE`, fails with *invalid series dtype: expected `String`, got `i64`*.
 
@@ -160,7 +156,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Add the column to **Cast types** with type **Text**. Cast types runs before Clean text and computed columns.
 
-### The output has fewer rows than expected {#fewer-rows}
+## The output has fewer rows than expected {#fewer-rows}
 
 **Symptom** — The output, or the preview, has fewer rows than expected, or none at all.
 
@@ -168,9 +164,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 **Fix** — Check the filter values' case and spelling; clean the text first with **Clean text** if needed. Run the preset on the whole file to see the real result.
 
-## Presets
-
-### A preset is marked unreadable {#a-preset-is-marked-unreadable}
+## A preset is marked unreadable {#a-preset-is-marked-unreadable}
 
 **Symptom** — A preset appears in the list with the marker **unreadable**, and cannot be opened or run.
 
@@ -184,7 +178,7 @@ See [Steps and their order](concepts/steps-and-order.md).
 
 See [Preset file format](reference/preset-file.md#validation-errors).
 
-### Preset saved, but these steps were refused {#steps-refused}
+## Preset saved, but these steps were refused {#steps-refused}
 
 **Symptom** — **Save** shows *Preset saved, but these steps were refused and are not in the file:* followed by step names.
 
@@ -192,7 +186,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — Open each named step, complete it or clear it, then select **Save** again.
 
-### A preset already uses the file {#preset-file-name-taken}
+## A preset already uses the file {#preset-file-name-taken}
 
 **Symptom** — **Save** fails with *A preset already uses the file '…'. Choose another name.*
 
@@ -200,7 +194,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — Give the preset a name that differs by at least one letter or digit.
 
-### The preset holds a value that cannot be saved to TOML {#value-cannot-be-saved}
+## The preset holds a value that cannot be saved to TOML {#value-cannot-be-saved}
 
 **Symptom** — **Save** fails with *The preset '…' holds a value that cannot be saved to TOML (a null inside a step).*
 
@@ -208,7 +202,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — Give the rule a replacement value, or remove it, then select **Save** again.
 
-### Changes to a preset are not used by the run {#changes-not-used}
+## Changes to a preset are not used by the run {#changes-not-used}
 
 **Symptom** — **Preview** or **Run preset** behaves as if your latest changes to the steps were not there.
 
@@ -216,7 +210,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — On the **Presets** page, select **Save**, then go back to **Processing** and select the preset again.
 
-### Shared presets are missing, or cannot be saved or exported {#shared-presets}
+## Shared presets are missing, or cannot be saved or exported {#shared-presets}
 
 **Symptom** — Presets from a shared folder do not appear in the list; or, for a shared preset, **Save** and **Delete** are disabled and **Export** fails with *Preset file is outside the presets directory*.
 
@@ -224,9 +218,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — Check that the folder opens in File Explorer, and correct its **Folder path** under **Settings** › **Read-only preset sources** if needed. To get your own editable copy of a shared preset, copy its `.toml` file into `Documents\flash-excel\presets` with File Explorer. See [Use shared preset folders](tasks/presets/use-shared-preset-folders.md).
 
-## Runs and automation
-
-### A run is already in progress {#run-in-progress}
+## A run is already in progress {#run-in-progress}
 
 **Symptom** — Starting a run shows *A run is already in progress*.
 
@@ -234,7 +226,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 **Fix** — Wait for it to end, or stop it with the square button next to **Run preset**. See [Stop a run](tasks/run/stop-a-run.md).
 
-### The scheduled task did not run {#scheduled-task-did-not-run}
+## The scheduled task did not run {#scheduled-task-did-not-run}
 
 **Symptom** — No output file was written at the scheduled time.
 
@@ -252,7 +244,7 @@ See [Preset file format](reference/preset-file.md#validation-errors).
 
 See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
-### The scheduling command is too long {#command-too-long}
+## The scheduling command is too long {#command-too-long}
 
 **Symptom** — **Advanced: copy the scheduling command** warns that *Windows cannot create this task with a pasted /tr command because it exceeds 261 characters*.
 
@@ -260,7 +252,7 @@ See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
 **Fix** — Select **Add to Task Scheduler** instead: Flash-Excel then registers the full configuration itself, without that limit.
 
-### Scheduling commands cannot contain %, !, quotes or newlines {#scheduling-forbidden-characters}
+## Scheduling commands cannot contain %, !, quotes or newlines {#scheduling-forbidden-characters}
 
 **Symptom** — **Add to Task Scheduler** or **Create a .cmd launcher** fails with this message.
 
@@ -268,7 +260,7 @@ See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
 **Fix** — Rename the files or folders concerned, or choose another output folder or naming pattern, then try again.
 
-### Enter a name of 1–200 characters without reserved filename characters {#execution-name-invalid}
+## Enter a name of 1–200 characters without reserved filename characters {#execution-name-invalid}
 
 **Symptom** — Creating a scheduled task or a launcher fails with this message.
 
@@ -276,13 +268,13 @@ See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
 **Fix** — Enter a plain name, for example `Monthly HR report`.
 
-### Start time must use HH:mm {#start-time-invalid}
+## Start time must use HH:mm {#start-time-invalid}
 
 **Symptom** — **Add to Task Scheduler** fails with *Start time must use HH:mm (00:00–23:59)*.
 
 **Fix** — Enter the **Daily time (scheduled task)** as two-digit hours and minutes, for example `07:30`.
 
-### No output in the Command Prompt {#no-console-output}
+## No output in the Command Prompt {#no-console-output}
 
 **Symptom** — A command-line run prints nothing, or the prompt comes back before the run ends.
 
@@ -290,9 +282,7 @@ See [Schedule a preset](tasks/automate/schedule-a-preset.md).
 
 **Fix** — Run the command from a `.cmd` batch file, which waits for it and can read `%ERRORLEVEL%`, and check the log file for the result of each file. See [Command line](reference/command-line.md#console).
 
-## Updates
-
-### The update link never appears, or the update fails {#the-update-link-never-appears-or-the-update-fails}
+## The update link never appears, or the update fails {#the-update-link-never-appears-or-the-update-fails}
 
 **Symptom** — No **Update to v…** link appears although a newer version exists, or selecting it shows **Updating…** and then nothing changes.
 

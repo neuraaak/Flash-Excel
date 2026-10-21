@@ -28,7 +28,7 @@ What changed for you in each version of Flash-Excel, newest first. Installers fo
 - Drop files onto the window, on the **Processing** and **Presets** pages.
 - **Preview** shows the result of a preset on the first 100 rows without writing anything. See [Preview a transformation](tasks/run/preview-a-transformation.md).
 - **Configure execution** creates a daily Windows scheduled task or a `.cmd` launcher for a preset and its files. See [Schedule a preset](tasks/automate/schedule-a-preset.md).
-- Command-line mode: `flash-excel.exe --preset … --input …` runs a preset without opening the window. See [Command line](reference/command-line.md).
+- Command-line mode: `Flash-Excel.exe --preset … --input …` runs a preset without opening the window. See [Command line](reference/command-line.md).
 - **Read-only preset sources** in **Settings**: list presets from shared folders next to your own. See [Use shared preset folders](tasks/presets/use-shared-preset-folders.md).
 - **CSV output** in **Settings**: choose the separator and decimal mark of output CSV files. **Auto** follows your Windows regional settings, so output files open in columns in Excel.
 - New preset option `csv_decimal_comma` to read `1,5` as a number in CSV source files.

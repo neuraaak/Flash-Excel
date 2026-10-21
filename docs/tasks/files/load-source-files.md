@@ -35,4 +35,4 @@ Under **Input file**, each file appears as a row with its name, size and the sta
 
 - [Preview a transformation](../run/preview-a-transformation.md)
 - [Run a preset](../run/run-a-preset.md)
-- [Troubleshooting](../../troubleshooting.md) if a file does not load.
+- If a file is refused, see [Unsupported file format](../../troubleshooting.md#unsupported-file-format); if a CSV loads as one column, see [A CSV source loads as a single column](../../troubleshooting.md#csv-source-single-column).

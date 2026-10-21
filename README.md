@@ -80,7 +80,7 @@ The same executable runs a preset without opening a window when it gets
 `--preset`:
 
 ```bat
-flash-excel.exe --preset "%USERPROFILE%\Documents\flash-excel\presets\clean.toml" --input january.xlsx february.xlsx --output D:\reports --format csv
+Flash-Excel.exe --preset "%USERPROFILE%\Documents\flash-excel\presets\clean.toml" --input january.xlsx february.xlsx --output D:\reports --format csv
 ```
 
 Each input file is processed independently. The exit code is `0` when every

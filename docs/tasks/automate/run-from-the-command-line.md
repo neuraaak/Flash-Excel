@@ -16,13 +16,13 @@ Run a preset on one or more files from a command prompt or a script, without ope
     === "Command Prompt"
 
         ```bat
-        "<path to>\flash-excel.exe" --preset "%USERPROFILE%\Documents\flash-excel\presets\monthly_report.toml" --input "C:\Data\january.xlsx" "C:\Data\february.xlsx" --output "C:\Data\clean"
+        "<path to>\Flash-Excel.exe" --preset "%USERPROFILE%\Documents\flash-excel\presets\monthly_report.toml" --input "C:\Data\january.xlsx" "C:\Data\february.xlsx" --output "C:\Data\clean"
         ```
 
     === "PowerShell"
 
         ```powershell
-        & "<path to>\flash-excel.exe" --preset "$HOME\Documents\flash-excel\presets\monthly_report.toml" --input "C:\Data\january.xlsx" "C:\Data\february.xlsx" --output "C:\Data\clean"
+        & "<path to>\Flash-Excel.exe" --preset "$HOME\Documents\flash-excel\presets\monthly_report.toml" --input "C:\Data\january.xlsx" "C:\Data\february.xlsx" --output "C:\Data\clean"
         ```
 
 3. Add options if needed:

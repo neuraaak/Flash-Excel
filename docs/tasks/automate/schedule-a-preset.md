@@ -27,15 +27,7 @@ The message **Scheduled task “<name>” created.** appears. The task is in the
 - Each run replaces the output files of the previous run when the names are the same.
 
 !!! warning "You are responsible for the task"
-    The task repeats every day until you disable or delete it. Check the files, the preset and the destination before you confirm.
-
-## 🗑️ Disable or delete the task
-
-1. Open the Windows Start menu, search for **Task Scheduler** and open it.
-2. In the left pane, expand **Task Scheduler Library** and open the **Flash-Excel** folder.
-3. Right-click the task, then choose **Disable** to pause future runs, or **Delete** and confirm to remove it.
-
-Removing a task does not delete your files.
+    The task repeats every day until you [disable or delete it](remove-a-scheduled-task.md). Check the files, the preset and the destination before you confirm.
 
 !!! note "Names and paths that are refused"
     The **Execution name** must have 1 to 200 characters, without `\ / : * ? " < > | % !`. The paths of the preset, the files and the destination folder cannot contain `%`, `!` or quotes.
@@ -47,4 +39,5 @@ Removing a task does not delete your files.
 
 - [Create a launcher](create-a-launcher.md) to run the same configuration on demand.
 - [Run from the command line](run-from-the-command-line.md) — what the task actually runs.
-- [Troubleshooting](../../troubleshooting.md)
+- [Disable or delete a scheduled task](remove-a-scheduled-task.md)
+- [The scheduled task did not run](../../troubleshooting.md#scheduled-task-did-not-run)

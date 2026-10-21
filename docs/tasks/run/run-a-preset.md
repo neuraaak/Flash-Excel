@@ -37,12 +37,12 @@ With the default settings, `C:\Data\sales.xlsx` gives `Documents\flash-excel\out
     A file with the same name in the destination folder is overwritten. Change the **Naming pattern** or the **Destination folder** to keep earlier results.
 
 !!! note "Same as source with .xls and .xlsm files"
-    **Same as source** writes only `.xlsx` and `.csv` files. For an `.xls` or `.xlsm` source, choose **.xlsx (Excel)** as the **Format**, or the file fails.
+    **Same as source** writes only `.xlsx` and `.csv` files. For an `.xls` or `.xlsm` source, choose **.xlsx (Excel)** as the **Format**, or the file fails with [Unsupported format: 'xls'](../../troubleshooting.md#unsupported-format-xls).
 
 !!! tip "Relative folder"
     A relative **Destination folder**, such as `monthly`, is created inside `Documents\flash-excel\output`.
 
-If a file ends with **Error**, read its message in the **Console**, then see [Troubleshooting](../../troubleshooting.md).
+If a file ends with **Error**, read its message in the **Console** and look it up in [Troubleshooting](../../troubleshooting.md): a missing column is covered in [A step cannot find a column](../../troubleshooting.md#column-not-found), a locked file in [Permission denied](../../troubleshooting.md#file-in-use).
 
 ## ➡️ Next steps
 
