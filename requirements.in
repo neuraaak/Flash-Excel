@@ -1,5 +1,8 @@
 pywebview>=5.0.0
-ezplog>=1.5.0
+ezplog>=2.0.0,<3.0.0
 fastexcel>=0.11.0
 polars>=1.0.0
 pydantic>=2.0.0
+pyyaml>=6.0.0
+tomli-w>=1.0.0
+xlsxwriter>=3.2.9

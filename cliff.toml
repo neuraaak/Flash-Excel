@@ -10,18 +10,18 @@ This changelog is automatically generated from [Conventional Commits](https://ww
 """
 body = """
 {% if version -%}
-## [{{ version | trim_start_matches(pat="v") }}](https://github.com/neuraaak/flash-excel/releases/tag/{{ version }}) — {{ timestamp | date(format="%Y-%m-%d") }}
+## [{{ version | trim_start_matches(pat="v") }}](https://github.com/neuraaak/Flash-Excel/releases/tag/{{ version }}) — {{ timestamp | date(format="%Y-%m-%d") }}
 {% else -%}
-## [Unreleased](https://github.com/neuraaak/flash-excel/compare/{{ previous.version }}...HEAD)
+## [Unreleased](https://github.com/neuraaak/Flash-Excel/compare/{{ previous.version }}...HEAD)
 {% endif -%}
 
 {% for group, commits in commits | group_by(attribute="group") %}
 ### {{ group | striptags | trim | upper_first }}
 {% for commit in commits %}
 {%- if commit.scope %}
-- **{{ commit.scope }}**: {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/neuraaak/flash-excel/commit/{{ commit.id }}))
+- **{{ commit.scope }}**: {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/neuraaak/Flash-Excel/commit/{{ commit.id }}))
 {%- else %}
-- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/neuraaak/flash-excel/commit/{{ commit.id }}))
+- {{ commit.message | upper_first }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/neuraaak/Flash-Excel/commit/{{ commit.id }}))
 {%- endif %}
 {%- endfor %}
 {% endfor %}

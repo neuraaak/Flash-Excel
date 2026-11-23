@@ -42,12 +42,14 @@ messages, docstrings, comments, documentation, and the source UI strings in
 English is the convention everywhere, with no exception left over: comments,
 docstrings, config comments, build scripts, CLI output and log messages.
 
-Two things are deliberately **not** English and must stay as they are:
+Three things are deliberately **not** English and must stay as they are:
 
 - the computed-column function names (`CONCATENER`, `MAJUSCULE`, `SI`…), which
   are the preset expression DSL, modelled on French Excel. Renaming one would
   break every preset already written;
-- `locales/fr.js`, which is the French translation itself.
+- `locales/fr.js`, which is the French translation itself;
+- the `docs/**/*.fr.md` pages, which are the French translation of the
+  user documentation.
 
 Commits follow Conventional Commits (`type(scope): imperative description`),
 with a body explaining the *why* — see `git log` for the established tone.
@@ -76,6 +78,7 @@ src/flash_excel/
 ├── ui/
 │   ├── app.py           # pywebview bootstrap: create_window(js_api=…) + start()
 │   ├── api.py           # FlashExcelAPI — the only Python↔JS bridge
+│   ├── scheduling.py    # Task Scheduler XML + .cmd launcher from run settings
 │   └── web/             # Front-end served from disk via file:// URI
 │       ├── index.html
 │       ├── css/         # tokens.css (design tokens) + per-page sheets
@@ -193,10 +196,22 @@ python main.py --preset clean.toml --input a.xlsx b.xlsx --output out/
 failure does not cancel the rest of the batch. Exit code `0` when every file
 succeeded, `1` when at least one failed, `2` on bad arguments.
 
-**Scheduling is deliberately not in the app.** The Windows Task Scheduler
-survives a reboot, runs without an open session and reports failures; a
-desktop application does none of that well. The UI's job is at most to hand
-the user a ready-made `schtasks` command.
+**Scheduling is delegated to Windows, never run by the app.** The Windows Task
+Scheduler survives a reboot and reports failures; a desktop application does
+none of that well. So the app holds no timer: `ui/scheduling.py` turns the
+current run settings (preset, inputs, output folder, format, pattern) into a
+headless command line, and the UI offers two ways to use it:
+
+- `create_scheduled_task` registers a **daily** task under `\Flash-Excel\`
+  through `schtasks /create /xml` (the XML form avoids `/tr`'s 261-character
+  limit). It requires an explicit `confirmed=True` from the UI, runs as the
+  current user with least privilege, and works on Windows only;
+- `create_execution_launcher` saves the same command as a `.cmd` file the user
+  double-clicks, which pauses so the console output stays readable.
+
+`get_schedule_command` returns the equivalent `schtasks` command for display.
+Arguments containing `%`, `!`, quotes or newlines are refused, since `cmd.exe`
+would expand them even inside quotes.
 
 The packaged build is windowed (`console = false`), so `cli.py` attaches to
 the parent console when there is one. Output is therefore visible from a
@@ -275,7 +290,7 @@ workflow also calls, so local and CI cannot drift apart. `uv run poe` lists
 them all.
 
 ```bash
-uv sync                    # Install everything (dev group, which includes test)
+uv sync                    # Install everything (dev group: includes test + docs)
 uv run poe run             # Run the app  (poe run-debug for devtools + verbose logs)
 uv run poe check           # Full local gate — what CI runs
 uv run poe test            # Run tests (no coverage floor: partial runs stay usable)
@@ -286,7 +301,20 @@ uv run poe typecheck       # Type check (ty — the single gate; pyright is IDE-
 uv run poe imports         # Layer dependency contracts
 uv run poe security        # Bandit security scan
 uv run poe lint-js         # ESLint on the web UI JS (lint-js-fix to auto-fix)
+uv run poe docs            # Serve the user docs locally (MkDocs Material)
+uv run poe docs-build      # Strict docs build — what the 04-docs workflow runs on PRs
 ```
+
+The user documentation lives in `docs/` (MkDocs Material, configured by
+`mkdocs.yml`, product-style pages for end users — no API or architecture pages)
+and is deployed to GitHub Pages by `.github/workflows/04-docs.yml`, called from
+`02-tag-sync`. A behaviour change visible to users updates the matching page
+**in both languages**: each `x.md` (English, the source) has a French `x.fr.md`
+beside it, built under `/fr/` by `mkdocs-static-i18n`. The French pages quote
+the UI labels of `fr.js` exactly, and keep the English heading anchors
+(`{#anchor}`) so cross-page links resolve in both languages. A missing
+translation falls back to English silently, so the build does not catch a
+stale one.
 
 Front-end linting needs `pnpm install` once per clone (ESLint only — no
 formatter, so nothing rewrites the hand-aligned source). It is deliberately
@@ -308,9 +336,9 @@ time and bundled, so `check_update` / `apply_update` are no-ops outside the
 packaged app.
 
 Build and release are **maintainer-only and local, not CI**: `build.py` runs the
-whole pipeline (version → compile → installer → signed TUF release → upload).
-See its module docstring for the prerequisites — they include signing keys and
-upload credentials that are deliberately **not** in the repository, so a fresh
+whole build (version → compile → zip → installer → signed TUF release) and never
+publishes; publishing is a separate step (see CONTRIBUTING.md). The signing keys
+and upload credentials are deliberately **not** in the repository, so a fresh
 clone can build and test the app but cannot publish a release.
 
 If you do hold the signing keys: never regenerate them. New keys invalidate the
