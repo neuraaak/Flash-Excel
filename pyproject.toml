@@ -83,6 +83,7 @@ docs = [
     "mkdocs-section-index>=0.3.0",
     "mike>=2.0.0",
     "pymdown-extensions>=10.7",
+    "mkdocs-static-i18n>=1.2.0",
 
     # Task runner: 04-docs runs `poe docs-build` and syncs only `docs`, so
     # poethepoet must be reachable from this group.

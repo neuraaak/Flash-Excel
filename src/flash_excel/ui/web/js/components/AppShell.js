@@ -44,6 +44,12 @@ export default {
 
   computed: {
     t() { return this.i18n.t; },
+    // English sits at the site root (redirects to the latest version); the
+    // French translation is served under /fr/ of that version.
+    docsUrl() {
+      const base = 'https://neuraaak.github.io/Flash-Excel/';
+      return this.i18n.locale.value === 'fr' ? `${base}latest/fr/` : base;
+    },
   },
 
   methods: {
@@ -143,7 +149,7 @@ export default {
           <span class="footer-dot">&#8226;</span>
           <a class="footer-link" href="https://github.com/neuraaak/Flash-Excel" target="_blank" rel="noopener">{{ t('footer.repository') }}</a>
           <span class="footer-dot">&#8226;</span>
-          <a class="footer-link" href="https://neuraaak.github.io/Flash-Excel/" target="_blank" rel="noopener">{{ t('footer.documentation') }}</a>
+          <a class="footer-link" :href="docsUrl" target="_blank" rel="noopener">{{ t('footer.documentation') }}</a>
         </div>
         <div class="footer-version">
           <a v-if="update.available" class="update-link" href="#" @click.prevent="applyUpdate"

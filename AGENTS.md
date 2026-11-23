@@ -42,12 +42,14 @@ messages, docstrings, comments, documentation, and the source UI strings in
 English is the convention everywhere, with no exception left over: comments,
 docstrings, config comments, build scripts, CLI output and log messages.
 
-Two things are deliberately **not** English and must stay as they are:
+Three things are deliberately **not** English and must stay as they are:
 
 - the computed-column function names (`CONCATENER`, `MAJUSCULE`, `SI`…), which
   are the preset expression DSL, modelled on French Excel. Renaming one would
   break every preset already written;
-- `locales/fr.js`, which is the French translation itself.
+- `locales/fr.js`, which is the French translation itself;
+- the `docs/**/*.fr.md` pages, which are the French translation of the
+  user documentation.
 
 Commits follow Conventional Commits (`type(scope): imperative description`),
 with a body explaining the *why* — see `git log` for the established tone.
@@ -306,7 +308,13 @@ uv run poe docs-build      # Strict docs build — what the 04-docs workflow run
 The user documentation lives in `docs/` (MkDocs Material, configured by
 `mkdocs.yml`, product-style pages for end users — no API or architecture pages)
 and is deployed to GitHub Pages by `.github/workflows/04-docs.yml`, called from
-`02-tag-sync`. A behaviour change visible to users updates the matching page.
+`02-tag-sync`. A behaviour change visible to users updates the matching page
+**in both languages**: each `x.md` (English, the source) has a French `x.fr.md`
+beside it, built under `/fr/` by `mkdocs-static-i18n`. The French pages quote
+the UI labels of `fr.js` exactly, and keep the English heading anchors
+(`{#anchor}`) so cross-page links resolve in both languages. A missing
+translation falls back to English silently, so the build does not catch a
+stale one.
 
 Front-end linting needs `pnpm install` once per clone (ESLint only — no
 formatter, so nothing rewrites the hand-aligned source). It is deliberately

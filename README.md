@@ -62,7 +62,7 @@ walks through a first preset end to end.
 
 ## 📚 Documentation
 
-Complete documentation is available at **[neuraaak.github.io/Flash-Excel](https://neuraaak.github.io/Flash-Excel/)**
+Complete documentation is available at **[neuraaak.github.io/Flash-Excel](https://neuraaak.github.io/Flash-Excel/)**, in English and [in French](https://neuraaak.github.io/Flash-Excel/latest/fr/).
 
 | Section                                                                               | Description                                         |
 | ------------------------------------------------------------------------------------- | --------------------------------------------------- |
