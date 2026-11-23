@@ -1,0 +1,3220 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Windows desktop app that transforms Excel and CSV files with reusable presets">
+      
+      
+        <meta name="author" content="Neuraaak">
+      
+      
+        <link rel="canonical" href="https://neuraaak.github.io/Flash-Excel/1.5.1/troubleshooting/">
+      
+      
+        <link rel="prev" href="../reference/glossary/">
+      
+      
+        <link rel="next" href="../faq/">
+      
+      
+        
+          <link rel="alternate" href="./" hreflang="en">
+        
+          <link rel="alternate" href="../fr/troubleshooting/" hreflang="fr">
+        
+      
+      
+      <link rel="icon" href="../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-ProperDocs 1.6.7, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Troubleshooting - Flash-Excel</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#troubleshooting" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Flash-Excel" class="md-header__button md-logo" aria-label="Flash-Excel" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Flash-Excel
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Troubleshooting
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+      <div class="md-header__option">
+  <div class="md-select">
+    
+    <button class="md-header__button md-icon" aria-label="Select language">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m12.87 15.07-2.54-2.51.03-.03A17.5 17.5 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2zm-2.62 7 1.62-4.33L19.12 17z"/></svg>
+    </button>
+    <div class="md-select__inner">
+      <ul class="md-select__list">
+        
+          <li class="md-select__item">
+            <a href="./" hreflang="en" class="md-select__link">
+              English
+            </a>
+          </li>
+        
+          <li class="md-select__item">
+            <a href="../fr/troubleshooting/" hreflang="fr" class="md-select__link">
+              Français
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</div>
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/neuraaak/Flash-Excel" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    neuraaak/Flash-Excel
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../get-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Get started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../tasks/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Guides
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../concepts/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Concepts
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../reference/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Troubleshooting
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../faq/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  FAQ
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../release-notes/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Release notes
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Flash-Excel" class="md-nav__button md-logo" aria-label="Flash-Excel" data-md-component="logo">
+      
+  <img src="../assets/logo.png" alt="logo">
+
+    </a>
+    Flash-Excel
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/neuraaak/Flash-Excel" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    neuraaak/Flash-Excel
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../get-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Get started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../tasks/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Files
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Files
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/files/load-source-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Load source files
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Presets
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Presets
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/create-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Create a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/add-steps-to-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add steps to a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/add-a-computed-column/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add a computed column
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/filter-rows/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Filter rows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/export-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Export a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/delete-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Delete a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/presets/use-shared-preset-folders/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use shared preset folders
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Run
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/run/preview-a-transformation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preview a transformation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/run/run-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/run/stop-a-run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stop a run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automate
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Automate
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/automate/schedule-a-preset/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schedule a preset
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/automate/remove-a-scheduled-task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Disable or delete a scheduled task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/automate/create-a-launcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Create a launcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/automate/run-from-the-command-line/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run from the command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_5" id="__nav_3_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Settings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/settings/change-the-theme/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Change the theme
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/settings/change-the-language/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Change the language
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/settings/set-the-csv-output-format/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Set the CSV output format
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_6" id="__nav_3_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Update
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/update/update-flash-excel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Update Flash-Excel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../concepts/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/presets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Presets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/steps-and-order/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Steps and order
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/error-handling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Error handling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/automatic-updates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automatic updates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../reference/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/steps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Steps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/computed-functions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Computed-column functions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/preset-file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preset file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/command-line/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command line
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/file-formats/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File formats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/data-locations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data locations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/glossary/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Glossary
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Troubleshooting
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unsupported-format-xls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsupported format: 'xls'
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsupported-file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsupported file format. Allowed: .xlsx, .xls, .xlsm, .csv
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#excel-file-contains-no-readable-sheets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Excel file contains no readable sheets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#csv-source-single-column" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A CSV source loads as a single column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accented-letters-in-csv-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accented letters appear as � in a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decimal-numbers-stay-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decimal numbers stay text in a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-csv-single-column" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An output CSV opens in a single column in Excel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accented-letters-in-output-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accented letters look wrong in an output CSV opened in Excel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-in-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permission denied, or the file is being used by another process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#column-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A step cannot find a column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#is-not-available-use-column-names-or-catalog-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A computed column says a name is not available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invalid-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalid syntax in a computed column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#truth-value-ambiguous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The truth value of an Expr is ambiguous
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-a-number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        '…' is not a number, but the column holds numbers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion from str to … failed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected String in Clean text or a text function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fewer-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The output has fewer rows than expected
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-preset-is-marked-unreadable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A preset is marked unreadable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps-refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preset saved, but these steps were refused
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preset-file-name-taken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A preset already uses the file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-cannot-be-saved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The preset holds a value that cannot be saved to TOML
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-not-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changes to a preset are not used by the run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-presets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared presets are missing, or cannot be saved or exported
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-in-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A run is already in progress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduled-task-did-not-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scheduled task did not run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-too-long" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scheduling command is too long
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduling-forbidden-characters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduling commands cannot contain %, !, quotes or newlines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-name-invalid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enter a name of 1–200 characters without reserved filename characters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-time-invalid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start time must use HH:mm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-console-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No output in the Command Prompt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-update-link-never-appears-or-the-update-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The update link never appears, or the update fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#still-stuck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Still stuck?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#unsupported-format-xls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsupported format: 'xls'
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#unsupported-file-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Unsupported file format. Allowed: .xlsx, .xls, .xlsm, .csv
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#excel-file-contains-no-readable-sheets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Excel file contains no readable sheets
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#csv-source-single-column" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A CSV source loads as a single column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accented-letters-in-csv-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accented letters appear as � in a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decimal-numbers-stay-text" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decimal numbers stay text in a CSV source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-csv-single-column" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An output CSV opens in a single column in Excel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#accented-letters-in-output-csv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Accented letters look wrong in an output CSV opened in Excel
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-in-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Permission denied, or the file is being used by another process
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#column-not-found" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A step cannot find a column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#is-not-available-use-column-names-or-catalog-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A computed column says a name is not available
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#invalid-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalid syntax in a computed column
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#truth-value-ambiguous" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The truth value of an Expr is ambiguous
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#not-a-number" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        '…' is not a number, but the column holds numbers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversion-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conversion from str to … failed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expected-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Expected String in Clean text or a text function
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fewer-rows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The output has fewer rows than expected
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-preset-is-marked-unreadable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A preset is marked unreadable
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#steps-refused" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Preset saved, but these steps were refused
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#preset-file-name-taken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A preset already uses the file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#value-cannot-be-saved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The preset holds a value that cannot be saved to TOML
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#changes-not-used" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Changes to a preset are not used by the run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#shared-presets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared presets are missing, or cannot be saved or exported
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-in-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A run is already in progress
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduled-task-did-not-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scheduled task did not run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-too-long" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The scheduling command is too long
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#scheduling-forbidden-characters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scheduling commands cannot contain %, !, quotes or newlines
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-name-invalid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enter a name of 1–200 characters without reserved filename characters
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#start-time-invalid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Start time must use HH:mm
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#no-console-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No output in the Command Prompt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-update-link-never-appears-or-the-update-fails" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The update link never appears, or the update fails
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#still-stuck" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Still stuck?
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Anchor link to this section">&para;</a></h1>
+<p>Each entry starts from what you see. Error messages appear in the <strong>Console</strong> of the <strong>Processing</strong> page, in a message at the bottom of the window, or on the command line.</p>
+<div class="admonition tip">
+<p class="admonition-title">Where to find more detail</p>
+<p>Every run, error and update check is recorded in the log file <code>%LOCALAPPDATA%\flash-excel\logs\flash-excel.log</code>. Paste that path into the address bar of File Explorer to open it. See <a href="../reference/data-locations/#logs">Data locations</a>.</p>
+</div>
+<h2 id="unsupported-format-xls">Unsupported format: 'xls'<a class="headerlink" href="#unsupported-format-xls" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A run on an <code>.xls</code> or <code>.xlsm</code> file fails with <em>Unsupported format: 'xls'. Expected 'xlsx', 'csv', or 'parquet'.</em> (or <code>'xlsm'</code>), after the steps have run.</p>
+<p><strong>Cause</strong> — <strong>Format</strong> is set to <strong>Same as source</strong>. Flash-Excel reads <code>.xls</code> and <code>.xlsm</code> files but cannot write them.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>On the <strong>Processing</strong> page, under <strong>Output</strong>, set <strong>Format</strong> to <strong>.xlsx (Excel)</strong>.</li>
+<li>Select <strong>Run preset</strong> again.</li>
+</ol>
+<p>On the command line, add <code>--format xlsx</code>. See <a href="../reference/file-formats/">File formats</a>.</p>
+<h2 id="unsupported-file-format">Unsupported file format. Allowed: .xlsx, .xls, .xlsm, .csv<a class="headerlink" href="#unsupported-file-format" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — Loading a file shows <em>File error:</em> followed by this message, or a dropped file is not added to the queue.</p>
+<p><strong>Cause</strong> — The file has another extension, for example <code>.txt</code>, <code>.ods</code> or <code>.xlsb</code>.</p>
+<p><strong>Fix</strong> — Open the file in Excel and save it as <code>.xlsx</code> or <code>.csv</code>, then load that copy.</p>
+<h2 id="excel-file-contains-no-readable-sheets">Excel file contains no readable sheets<a class="headerlink" href="#excel-file-contains-no-readable-sheets" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A run or a preview fails with <em>Excel file contains no readable sheets.</em></p>
+<p><strong>Cause</strong> — The workbook has no sheet Flash-Excel can read, or the file is damaged.</p>
+<p><strong>Fix</strong> — Open the workbook in Excel, check that its <strong>first</strong> sheet holds the data, and save it again as <code>.xlsx</code>. Flash-Excel reads the first sheet only.</p>
+<h2 id="csv-source-single-column">A CSV source loads as a single column<a class="headerlink" href="#csv-source-single-column" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — The template shows one column whose name contains the whole header line, such as <code>name,age,city</code>. Runs then fail with <em>"…" not found</em> or <em>unable to find column</em>.</p>
+<p><strong>Cause</strong> — The CSV is read with the wrong separator. Either the preset forces one with <code>csv_separator</code> — presets saved before version 1.4.0 contain <code>csv_separator = ";"</code> — or the separator could not be detected and <code>;</code> was used.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Open the preset file (<code>Documents\flash-excel\presets\&lt;name&gt;.toml</code>) in a text editor such as Notepad.</li>
+<li>In <code>[meta]</code>, delete the <code>csv_separator</code> line to let Flash-Excel detect the separator, or set it to the file's separator, for example <code>csv_separator = ","</code>.</li>
+<li>Save the file and run again.</li>
+</ol>
+<p>See <a href="../reference/preset-file/#the-meta-table">Preset file format</a>.</p>
+<h2 id="accented-letters-in-csv-source">Accented letters appear as � in a CSV source<a class="headerlink" href="#accented-letters-in-csv-source" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — After loading or processing a CSV file, letters such as <code>é</code> or <code>ç</code> show as <code>�</code>.</p>
+<p><strong>Cause</strong> — The file is not encoded in UTF-8. Excel's <em>CSV (separator: semicolon)</em> and <em>CSV (comma delimited)</em> formats save in the Windows encoding (Windows-1252 on Western-European systems), while Flash-Excel reads UTF-8 by default.</p>
+<p><strong>Fix</strong> — In the preset file, add <code>csv_encoding = "cp1252"</code> to <code>[meta]</code>, then run again. Alternatively, save the file from Excel as <em>CSV UTF-8 (comma delimited)</em>. See <a href="../reference/preset-file/#csv_encoding-values">Preset file format</a>.</p>
+<h2 id="decimal-numbers-stay-text">Decimal numbers stay text in a CSV source<a class="headerlink" href="#decimal-numbers-stay-text" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A column of numbers such as <code>1,5</code> is treated as text: sorting is alphabetical, and <strong>Cast types</strong> to <strong>Decimal number</strong> fails with <em>conversion from <code>str</code> to <code>f64</code> failed</em>.</p>
+<p><strong>Cause</strong> — The file uses a comma as decimal mark. Flash-Excel reads a dot as decimal mark unless told otherwise.</p>
+<p><strong>Fix</strong> — In the preset file, add <code>csv_decimal_comma = true</code> to <code>[meta]</code>. See <a href="../reference/preset-file/#the-meta-table">Preset file format</a>.</p>
+<h2 id="output-csv-single-column">An output CSV opens in a single column in Excel<a class="headerlink" href="#output-csv-single-column" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — Double-clicking an output <code>.csv</code> file opens Excel with all values in column A.</p>
+<p><strong>Cause</strong> — The file's separator or decimal mark does not match the regional settings of the PC that opens it. This happens when <strong>CSV output</strong> is forced to a value, or when the file is opened on a PC with other regional settings than the one that wrote it.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Select <strong>Settings</strong> in the sidebar.</li>
+<li>Under <strong>CSV output</strong>, set <strong>Column separator</strong> and <strong>Decimal mark</strong> to <strong>Auto</strong> to match this PC, or to the values the receiving PC expects.</li>
+<li>Run the preset again.</li>
+</ol>
+<p>To open an existing file without re-running, use Excel's <strong>Data</strong> › <strong>From Text/CSV</strong> and choose the separator. See <a href="../tasks/settings/set-the-csv-output-format/">Set the CSV output format</a>.</p>
+<h2 id="accented-letters-in-output-csv">Accented letters look wrong in an output CSV opened in Excel<a class="headerlink" href="#accented-letters-in-output-csv" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — An output <code>.csv</code> opened by double-click in Excel shows <code>Ã©</code> instead of <code>é</code>.</p>
+<p><strong>Cause</strong> — Output CSV files are written in UTF-8. On a double-click, Excel may read them with the Windows encoding instead.</p>
+<p><strong>Fix</strong> — Choose <strong>.xlsx (Excel)</strong> as output <strong>Format</strong> when the file is meant for Excel. To open the CSV as it is, use <strong>Data</strong> › <strong>From Text/CSV</strong> in Excel and choose <em>65001: Unicode (UTF-8)</em> as file origin.</p>
+<h2 id="file-in-use">Permission denied, or the file is being used by another process<a class="headerlink" href="#file-in-use" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A file fails with a message such as <em>Permission denied</em> or <em>being used by another process</em>. Its status becomes <strong>Error</strong>.</p>
+<p><strong>Cause</strong> — The output file (or, less often, the source file) is open in Excel or another program, which locks it.</p>
+<p><strong>Fix</strong> — Close the file in Excel, then run again. With <strong>Skip file</strong>, the other files of the run are processed anyway; only the locked one needs a new run.</p>
+<h2 id="column-not-found">A step cannot find a column<a class="headerlink" href="#column-not-found" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A step fails with <em>"Amount" not found</em> or <em>unable to find column "Amount"; valid columns: [...]</em>.</p>
+<p><strong>Cause</strong> — The step names a column that does not exist at that point: the source file has different column names than the template, the name differs by case or spaces, or an earlier step renamed or removed the column.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Compare the column names of the source file with those in the message's list of valid columns.</li>
+<li>On the <strong>Presets</strong> page, load the current file under <strong>Load the Excel template</strong>. If the <strong>Column layout changed</strong> dialog opens, select <strong>Load &amp; clean up references</strong> to remove the missing columns from the steps, then fix the steps that need them.</li>
+<li>Select <strong>Save</strong>, then run again.</li>
+</ol>
+<p>See <a href="../concepts/steps-and-order/">Steps and their order</a>.</p>
+<h2 id="is-not-available-use-column-names-or-catalog-functions">A computed column says a name is not available<a class="headerlink" href="#is-not-available-use-column-names-or-catalog-functions" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — The <strong>Add computed column</strong> step fails with <em>Expression not allowed: '…' is not available. Use column names or catalog functions.</em></p>
+<p><strong>Cause</strong> — The expression contains a name that is neither a column at this step nor a function. Common reasons: a typo, a function written in lower case (<code>si</code> instead of <code>SI</code>), or a column renamed or removed by an earlier step.</p>
+<p><strong>Fix</strong> — Write function names in upper case, wrap column names that contain spaces or symbols in brackets (<code>[Unit price]</code>), and use the column's name as it is at this step. Selecting the column under <strong>Columns</strong> in the editor inserts the right form. See <a href="../reference/computed-functions/">Computed column functions</a>.</p>
+<h2 id="invalid-syntax">Invalid syntax in a computed column<a class="headerlink" href="#invalid-syntax" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — The <strong>Add computed column</strong> step fails with <em>Invalid syntax:</em> followed by details.</p>
+<p><strong>Cause</strong> — A parenthesis or a quote is not closed, a comma is missing between arguments, <code>=</code> is used instead of <code>==</code>, or a bracketed name such as <code>[Unit price]</code> matches no column.</p>
+<p><strong>Fix</strong> — Check the punctuation of the expression and the exact spelling of bracketed column names. See <a href="../reference/computed-functions/#operators">Computed column functions</a>.</p>
+<h2 id="truth-value-ambiguous">The truth value of an Expr is ambiguous<a class="headerlink" href="#truth-value-ambiguous" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — The <strong>Add computed column</strong> step fails with <em>Evaluation error: the truth value of an Expr is ambiguous</em>.</p>
+<p><strong>Cause</strong> — The expression combines conditions with <code>and</code>, <code>or</code>, <code>not</code> or <code>in</code>.</p>
+<p><strong>Fix</strong> — Use <code>&amp;</code> for <em>and</em>, <code>|</code> for <em>or</em> and <code>~</code> for <em>not</em>, with each comparison in parentheses: <code>SI((age &gt;= 18) &amp; (age &lt; 65), "working age", "other")</code>.</p>
+<h2 id="not-a-number">'…' is not a number, but the column holds numbers<a class="headerlink" href="#not-a-number" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Filter rows</strong> fails with <em>'18 years' is not a number, but the column holds numbers (Int64). Enter a numeric value.</em></p>
+<p><strong>Cause</strong> — A condition on a numeric column has a value that is not a number.</p>
+<p><strong>Fix</strong> — On the <strong>Presets</strong> page, open <strong>Filter rows</strong> and type only the number in <strong>Value</strong>, with a dot as decimal mark (<code>18</code>, <code>1.5</code>). Then select <strong>Save</strong>.</p>
+<h2 id="conversion-failed">Conversion from str to … failed<a class="headerlink" href="#conversion-failed" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Cast types</strong> fails with <em>conversion from <code>str</code> to <code>i64</code> failed in column 'amount' for 3 out of 1250 values: [...]</em>. The type may also read <code>f64</code>, <code>date</code> or <code>datetime[μs]</code>.</p>
+<p><strong>Cause</strong> — Some values cannot be converted: text in a number column, a comma as decimal mark, a decimal number cast to <strong>Whole number</strong>, or a date that is not in <code>YYYY-MM-DD</code> form. The message lists the values that failed.</p>
+<p><strong>Fix</strong> — Clean those values in the steps before <strong>Cast types</strong>, for example with <strong>Replace values</strong> or <strong>Clean text</strong>, or cast to another type. See <a href="../reference/steps/#cast-types">Steps › Cast types</a>.</p>
+<h2 id="expected-string">Expected String in Clean text or a text function<a class="headerlink" href="#expected-string" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Clean text</strong>, or a text function such as <code>MAJUSCULE</code>, fails with <em>invalid series dtype: expected <code>String</code>, got <code>i64</code></em>.</p>
+<p><strong>Cause</strong> — The column holds numbers or dates, not text.</p>
+<p><strong>Fix</strong> — Add the column to <strong>Cast types</strong> with type <strong>Text</strong>. Cast types runs before Clean text and computed columns.</p>
+<h2 id="fewer-rows">The output has fewer rows than expected<a class="headerlink" href="#fewer-rows" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — The output, or the preview, has fewer rows than expected, or none at all.</p>
+<p><strong>Cause</strong> — <strong>Filter rows</strong> removes rows whose cells are empty in a filtered column, and text comparisons are case-sensitive (<code>Active</code> does not match <code>active</code>). <strong>Deduplicate rows</strong> also removes rows. The preview works on the first 100 rows only, so it may show <em>No rows remain in this sample after transformation</em> while the full file still has matching rows.</p>
+<p><strong>Fix</strong> — Check the filter values' case and spelling; clean the text first with <strong>Clean text</strong> if needed. Run the preset on the whole file to see the real result.</p>
+<h2 id="a-preset-is-marked-unreadable">A preset is marked unreadable<a class="headerlink" href="#a-preset-is-marked-unreadable" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A preset appears in the list with the marker <strong>unreadable</strong>, and cannot be opened or run.</p>
+<p><strong>Cause</strong> — Its file is not a valid preset: invalid TOML syntax, or a missing or wrong value. This usually follows a hand edit. Hover over the marker to read the exact reason, such as <em>contains invalid TOML syntax</em> or <em>contains configuration errors</em>.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Open the file in <code>Documents\flash-excel\presets</code> with a text editor.</li>
+<li>Fix the line named in the reason. Steps are numbered from 0 in the message.</li>
+<li>Save the file. The preset becomes readable the next time the list is loaded.</li>
+</ol>
+<p>See <a href="../reference/preset-file/#validation-errors">Preset file format</a>.</p>
+<h2 id="steps-refused">Preset saved, but these steps were refused<a class="headerlink" href="#steps-refused" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Save</strong> shows <em>Preset saved, but these steps were refused and are not in the file:</em> followed by step names.</p>
+<p><strong>Cause</strong> — Those steps were incomplete or had values a preset does not accept, for example a step with no column selected. The preset was saved without them.</p>
+<p><strong>Fix</strong> — Open each named step, complete it or clear it, then select <strong>Save</strong> again.</p>
+<h2 id="preset-file-name-taken">A preset already uses the file<a class="headerlink" href="#preset-file-name-taken" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Save</strong> fails with <em>A preset already uses the file '…'. Choose another name.</em></p>
+<p><strong>Cause</strong> — Two preset names that differ only by punctuation or case give the same file name (<code>Sales report!</code> and <code>sales report</code> both give <code>sales_report.toml</code>).</p>
+<p><strong>Fix</strong> — Give the preset a name that differs by at least one letter or digit.</p>
+<h2 id="value-cannot-be-saved">The preset holds a value that cannot be saved to TOML<a class="headerlink" href="#value-cannot-be-saved" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Save</strong> fails with <em>The preset '…' holds a value that cannot be saved to TOML (a null inside a step).</em></p>
+<p><strong>Cause</strong> — A step contains an empty value that a preset file cannot store, typically a <strong>Replace values</strong> rule whose <strong>Replace with</strong> is empty.</p>
+<p><strong>Fix</strong> — Give the rule a replacement value, or remove it, then select <strong>Save</strong> again.</p>
+<h2 id="changes-not-used">Changes to a preset are not used by the run<a class="headerlink" href="#changes-not-used" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Preview</strong> or <strong>Run preset</strong> behaves as if your latest changes to the steps were not there.</p>
+<p><strong>Cause</strong> — Runs and previews use the preset as saved on disk.</p>
+<p><strong>Fix</strong> — On the <strong>Presets</strong> page, select <strong>Save</strong>, then go back to <strong>Processing</strong> and select the preset again.</p>
+<h2 id="shared-presets">Shared presets are missing, or cannot be saved or exported<a class="headerlink" href="#shared-presets" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — Presets from a shared folder do not appear in the list; or, for a shared preset, <strong>Save</strong> and <strong>Delete</strong> are disabled and <strong>Export</strong> fails with <em>Preset file is outside the presets directory</em>.</p>
+<p><strong>Cause</strong> — A shared folder that cannot be reached (network drive disconnected, folder moved) is skipped; the log records <em>preset source unavailable</em>. Shared presets are read-only by design and cannot be exported from Flash-Excel.</p>
+<p><strong>Fix</strong> — Check that the folder opens in File Explorer, and correct its <strong>Folder path</strong> under <strong>Settings</strong> › <strong>Read-only preset sources</strong> if needed. To get your own editable copy of a shared preset, copy its <code>.toml</code> file into <code>Documents\flash-excel\presets</code> with File Explorer. See <a href="../tasks/presets/use-shared-preset-folders/">Use shared preset folders</a>.</p>
+<h2 id="run-in-progress">A run is already in progress<a class="headerlink" href="#run-in-progress" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — Starting a run shows <em>A run is already in progress</em>.</p>
+<p><strong>Cause</strong> — A previous run has not finished yet.</p>
+<p><strong>Fix</strong> — Wait for it to end, or stop it with the square button next to <strong>Run preset</strong>. See <a href="../tasks/run/stop-a-run/">Stop a run</a>.</p>
+<h2 id="scheduled-task-did-not-run">The scheduled task did not run<a class="headerlink" href="#scheduled-task-did-not-run" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — No output file was written at the scheduled time.</p>
+<p><strong>Cause</strong> — Possible causes:</p>
+<ul>
+<li>Tasks created by Flash-Excel run only while your Windows session is open. They do not run when you are signed out or the PC is off, and a missed time is not caught up later.</li>
+<li>A preset or input file was moved, renamed or deleted after the task was created: the task uses the exact paths it was created with.</li>
+<li>A file failed: the run went on with the other files, and the task ended with result <code>0x1</code>.</li>
+</ul>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Open <strong>Task Scheduler</strong>, then <strong>Task Scheduler Library</strong> › <strong>Flash-Excel</strong>, and select the task. Check <strong>Last Run Time</strong> and <strong>Last Run Result</strong>.</li>
+<li>Open the log file and look for lines ending in <em>FAILED</em> at that time.</li>
+<li>If paths changed, create the task again from <strong>Configure execution</strong> on the <strong>Processing</strong> page.</li>
+</ol>
+<p>See <a href="../tasks/automate/schedule-a-preset/">Schedule a preset</a>.</p>
+<h2 id="command-too-long">The scheduling command is too long<a class="headerlink" href="#command-too-long" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Advanced: copy the scheduling command</strong> warns that <em>Windows cannot create this task with a pasted /tr command because it exceeds 261 characters</em>.</p>
+<p><strong>Cause</strong> — With many or long file paths, the command exceeds the length Windows accepts for a pasted <code>schtasks</code> command.</p>
+<p><strong>Fix</strong> — Select <strong>Add to Task Scheduler</strong> instead: Flash-Excel then registers the full configuration itself, without that limit.</p>
+<h2 id="scheduling-forbidden-characters">Scheduling commands cannot contain %, !, quotes or newlines<a class="headerlink" href="#scheduling-forbidden-characters" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Add to Task Scheduler</strong> or <strong>Create a .cmd launcher</strong> fails with this message.</p>
+<p><strong>Cause</strong> — A path, the output folder or the naming pattern contains <code>%</code>, <code>!</code> or <code>"</code>. These characters change meaning in Windows commands.</p>
+<p><strong>Fix</strong> — Rename the files or folders concerned, or choose another output folder or naming pattern, then try again.</p>
+<h2 id="execution-name-invalid">Enter a name of 1–200 characters without reserved filename characters<a class="headerlink" href="#execution-name-invalid" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — Creating a scheduled task or a launcher fails with this message.</p>
+<p><strong>Cause</strong> — <strong>Execution name</strong> is empty, too long, ends with a dot or a space, or contains one of <code>\ / : * ? " &lt; &gt; | % !</code>.</p>
+<p><strong>Fix</strong> — Enter a plain name, for example <code>Monthly HR report</code>.</p>
+<h2 id="start-time-invalid">Start time must use HH:mm<a class="headerlink" href="#start-time-invalid" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — <strong>Add to Task Scheduler</strong> fails with <em>Start time must use HH:mm (00:00–23:59)</em>.</p>
+<p><strong>Fix</strong> — Enter the <strong>Daily time (scheduled task)</strong> as two-digit hours and minutes, for example <code>07:30</code>.</p>
+<h2 id="no-console-output">No output in the Command Prompt<a class="headerlink" href="#no-console-output" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — A command-line run prints nothing, or the prompt comes back before the run ends.</p>
+<p><strong>Cause</strong> — Flash-Excel is a windowed program: it writes to a console only when started from one, and an interactive prompt may not wait for it.</p>
+<p><strong>Fix</strong> — Run the command from a <code>.cmd</code> batch file, which waits for it and can read <code>%ERRORLEVEL%</code>, and check the log file for the result of each file. See <a href="../reference/command-line/#console">Command line</a>.</p>
+<h2 id="the-update-link-never-appears-or-the-update-fails">The update link never appears, or the update fails<a class="headerlink" href="#the-update-link-never-appears-or-the-update-fails" title="Anchor link to this section">&para;</a></h2>
+<p><strong>Symptom</strong> — No <strong>Update to v…</strong> link appears although a newer version exists, or selecting it shows <strong>Updating…</strong> and then nothing changes.</p>
+<p><strong>Cause</strong> — The update server could not be reached (no internet connection, proxy or firewall), or the downloaded update did not pass the signature check. The log records <em>update check FAILED</em> or <em>update apply FAILED</em> with the reason.</p>
+<p><strong>Fix</strong></p>
+<ol>
+<li>Check your internet connection and restart Flash-Excel: the check runs at each start.</li>
+<li>If it still fails, download the latest <code>Flash-Excel-&lt;version&gt;-setup.exe</code> from the <a href="https://github.com/neuraaak/Flash-Excel/releases">GitHub releases page</a> and run it. Your presets and settings are kept.</li>
+</ol>
+<p>See <a href="../concepts/automatic-updates/">Automatic updates</a> and <a href="../tasks/update/update-flash-excel/">Update Flash-Excel</a>.</p>
+<h2 id="still-stuck">Still stuck?<a class="headerlink" href="#still-stuck" title="Anchor link to this section">&para;</a></h2>
+<p>Open an issue on <a href="https://github.com/neuraaak/Flash-Excel/issues">GitHub</a> with the error message, what you were doing, and the matching lines of the log file. Remove any confidential data from them first.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../reference/glossary/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Glossary">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Glossary
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../faq/" class="md-footer__link md-footer__link--next" aria-label="Next: FAQ">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                FAQ
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 Neuraaak - <a href="https://github.com/neuraaak/Flash-Excel/blob/main/LICENSE">MIT License</a>
+
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/neuraaak/Flash-Excel" target="_blank" rel="noopener" title="GitHub Repository" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.path", "navigation.top", "navigation.footer", "navigation.indexes", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.annotate", "content.tabs.link", "content.tooltips", "toc.follow"], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
