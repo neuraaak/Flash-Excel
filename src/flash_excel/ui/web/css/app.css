@@ -87,7 +87,6 @@ svg { display: block; }
 .footer-version { display: flex; align-items: center; gap: 10px; }
 .footer-link { color: var(--text_secondary); text-decoration: none; }
 .footer-link:hover { color: var(--text_primary); text-decoration: underline; }
-.footer-link--disabled { cursor: not-allowed; opacity: .5; pointer-events: none; }
 .update-link {
   color: var(--accent_brand); font-weight: 600; text-decoration: none;
   cursor: pointer; transition: opacity .12s;

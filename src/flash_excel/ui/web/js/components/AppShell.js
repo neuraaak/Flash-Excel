@@ -143,7 +143,7 @@ export default {
           <span class="footer-dot">&#8226;</span>
           <a class="footer-link" href="https://github.com/neuraaak/Flash-Excel" target="_blank" rel="noopener">{{ t('footer.repository') }}</a>
           <span class="footer-dot">&#8226;</span>
-          <span class="footer-link footer-link--disabled" aria-disabled="true">{{ t('footer.documentation') }}</span>
+          <a class="footer-link" href="https://neuraaak.github.io/Flash-Excel/" target="_blank" rel="noopener">{{ t('footer.documentation') }}</a>
         </div>
         <div class="footer-version">
           <a v-if="update.available" class="update-link" href="#" @click.prevent="applyUpdate"
