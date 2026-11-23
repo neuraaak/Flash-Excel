@@ -1,20 +1,20 @@
-import SettingsModal from './SettingsModal.js';
-import LucideIcon from './LucideIcon.js';
-import { api } from '../api.js';
+import SettingsModal from "./SettingsModal.js";
+import LucideIcon from "./LucideIcon.js";
+import { api } from "../api.js";
 
 export default {
-  name: 'AppShell',
+  name: "AppShell",
   components: { SettingsModal, LucideIcon },
-  props: { currentPage: { type: String, default: 'processing' } },
-  emits: ['navigate'],
-  inject: ['i18n'],
+  props: { currentPage: { type: String, default: "processing" } },
+  emits: ["navigate"],
+  inject: ["i18n"],
 
   data() {
     return {
       showSettings: false,
       sidebarExpanded: false,
       _windowWide: false,
-      version: '',
+      version: "",
       update: { available: false, version: null },
       updating: false,
     };
@@ -35,7 +35,10 @@ export default {
 
     // Version + update check (waits for pywebview to be ready).
     if (globalThis.pywebview?.api) this._initVersion();
-    else globalThis.addEventListener('pywebviewready', () => this._initVersion(), { once: true });
+    else
+      globalThis.addEventListener("pywebviewready", () => this._initVersion(), {
+        once: true,
+      });
   },
 
   beforeUnmount() {
@@ -43,12 +46,14 @@ export default {
   },
 
   computed: {
-    t() { return this.i18n.t; },
+    t() {
+      return this.i18n.t;
+    },
     // English sits at the site root (redirects to the latest version); the
     // French translation is served under /fr/ of that version.
     docsUrl() {
-      const base = 'https://neuraaak.github.io/Flash-Excel/';
-      return this.i18n.locale.value === 'fr' ? `${base}latest/fr/` : base;
+      const base = "https://neuraaak.github.io/Flash-Excel/";
+      return this.i18n.locale.value === "fr" ? `${base}latest/fr/` : base;
     },
   },
 
@@ -61,10 +66,14 @@ export default {
       try {
         const v = await api.getVersion();
         this.version = v.version;
-      } catch (e) { console.debug('getVersion failed', e); }
+      } catch (e) {
+        console.debug("getVersion failed", e);
+      }
       try {
         this.update = await api.checkUpdate();
-      } catch (e) { console.debug('checkUpdate failed', e); }
+      } catch (e) {
+        console.debug("checkUpdate failed", e);
+      }
     },
 
     async applyUpdate() {
@@ -74,7 +83,7 @@ export default {
         await api.applyUpdate();
         // When the update applies, the app closes and restarts (tufup).
       } catch (e) {
-        console.debug('applyUpdate failed', e);
+        console.debug("applyUpdate failed", e);
         this.updating = false;
       }
     },
