@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/faq/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/faq/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/faq/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/get-started/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/get-started/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/get-started/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/release-notes/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/release-notes/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/release-notes/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/troubleshooting/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/troubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/concepts/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/concepts/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/concepts/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/concepts/automatic-updates/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/concepts/automatic-updates/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/concepts/automatic-updates/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/concepts/error-handling/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/concepts/error-handling/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/concepts/error-handling/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/concepts/presets/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/concepts/presets/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/concepts/presets/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/concepts/steps-and-order/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/concepts/steps-and-order/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/concepts/steps-and-order/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/command-line/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/command-line/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/command-line/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/computed-functions/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/computed-functions/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/computed-functions/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/data-locations/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/data-locations/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/data-locations/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/file-formats/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/file-formats/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/file-formats/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/glossary/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/glossary/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/preset-file/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/preset-file/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/preset-file/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/settings/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/settings/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/settings/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/reference/steps/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/reference/steps/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/reference/steps/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/create-a-launcher/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/create-a-launcher/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/automate/create-a-launcher/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/remove-a-scheduled-task/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/remove-a-scheduled-task/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/automate/remove-a-scheduled-task/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/run-from-the-command-line/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/run-from-the-command-line/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/automate/run-from-the-command-line/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/schedule-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/automate/schedule-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/automate/schedule-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/files/load-source-files/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/files/load-source-files/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/files/load-source-files/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/add-a-computed-column/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/add-a-computed-column/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/add-a-computed-column/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/add-steps-to-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/add-steps-to-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/add-steps-to-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/create-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/create-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/create-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/delete-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/delete-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/delete-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/export-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/export-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/export-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/filter-rows/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/filter-rows/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/filter-rows/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/use-shared-preset-folders/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/presets/use-shared-preset-folders/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/presets/use-shared-preset-folders/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/run/preview-a-transformation/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/run/preview-a-transformation/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/run/preview-a-transformation/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/run/run-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/run/run-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/run/run-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/run/stop-a-run/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/run/stop-a-run/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/run/stop-a-run/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/change-the-language/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/change-the-language/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/settings/change-the-language/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/change-the-theme/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/change-the-theme/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/settings/change-the-theme/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/set-the-csv-output-format/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/settings/set-the-csv-output-format/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/settings/set-the-csv-output-format/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/tasks/update/update-flash-excel/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev/tasks/update/update-flash-excel/"/>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/devfr/tasks/update/update-flash-excel/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/dev"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/faq/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/faq/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devfaq/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/get-started/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/get-started/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devget-started/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/release-notes/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/release-notes/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devrelease-notes/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/troubleshooting/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/troubleshooting/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtroubleshooting/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devconcepts/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/automatic-updates/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/automatic-updates/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devconcepts/automatic-updates/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/error-handling/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/error-handling/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devconcepts/error-handling/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/presets/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/presets/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devconcepts/presets/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/steps-and-order/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/concepts/steps-and-order/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devconcepts/steps-and-order/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/command-line/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/command-line/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/command-line/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/computed-functions/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/computed-functions/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/computed-functions/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/data-locations/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/data-locations/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/data-locations/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/file-formats/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/file-formats/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/file-formats/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/glossary/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/glossary/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/glossary/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/preset-file/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/preset-file/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/preset-file/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/settings/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/settings/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/settings/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/reference/steps/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/reference/steps/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devreference/steps/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/create-a-launcher/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/create-a-launcher/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/automate/create-a-launcher/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/remove-a-scheduled-task/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/remove-a-scheduled-task/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/automate/remove-a-scheduled-task/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/run-from-the-command-line/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/run-from-the-command-line/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/automate/run-from-the-command-line/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/schedule-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/automate/schedule-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/automate/schedule-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/files/load-source-files/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/files/load-source-files/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/files/load-source-files/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/add-a-computed-column/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/add-a-computed-column/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/add-a-computed-column/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/add-steps-to-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/add-steps-to-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/add-steps-to-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/create-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/create-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/create-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/delete-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/delete-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/delete-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/export-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/export-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/export-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/filter-rows/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/filter-rows/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/filter-rows/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/use-shared-preset-folders/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/presets/use-shared-preset-folders/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/presets/use-shared-preset-folders/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/preview-a-transformation/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/preview-a-transformation/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/run/preview-a-transformation/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/run-a-preset/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/run-a-preset/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/run/run-a-preset/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/stop-a-run/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/run/stop-a-run/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/run/stop-a-run/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/change-the-language/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/change-the-language/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/settings/change-the-language/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/change-the-theme/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/change-the-theme/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/settings/change-the-theme/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/set-the-csv-output-format/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/settings/set-the-csv-output-format/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/settings/set-the-csv-output-format/"/>
+    </url>
+    <url>
+        <loc>https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/update/update-flash-excel/</loc>
+        <lastmod>2026-11-23</lastmod>
+        <changefreq>daily</changefreq>
+        <xhtml:link rel="alternate" hreflang="fr" href="https://neuraaak.github.io/Flash-Excel/dev/fr/tasks/update/update-flash-excel/"/>
+        <xhtml:link rel="alternate" hreflang="en" href="https://neuraaak.github.io/Flash-Excel/devtasks/update/update-flash-excel/"/>
+    </url>
+</urlset>
